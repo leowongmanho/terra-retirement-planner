@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERRA Retirement Planner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="top-bar">
+  <div class="logo">TERRA</div>
+</header>
+
+<main class="planner-page">
+
+  <div class="planner-card">
+
+    <a href="index.html" class="back-link">← 返回首頁</a>
+
+    <p class="eyebrow">TERRA Retirement Planner</p>
+    <h1>你的退休規劃</h1>
+
+    <div class="progress">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <p id="stepLabel" class="step-label">第 1 步，共 9 步</p>
+
+    <form id="retirementForm">
+
+      <!-- STEP 1 -->
+      <section class="planner-step active" data-step="1">
+        <h2>基本資料</h2>
+        <p>首先了解你的退休時間表。</p>
+
+        <label>
+          目前年齡
+          <input type="number" id="currentAge" min="18" max="100" required>
+        </label>
+
+        <label>
+          預計退休年齡
+          <input type="number" id="retirementAge" min="18" max="100" required>
+        </label>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="planner-step" data-step="2">
+        <h2>退休生活目標</h2>
+        <p>你希望退休後每月有多少生活費？</p>
+
+        <label>
+          每月退休生活開支（HK$）
+          <input type="number" id="monthlyExpense" min="0">
+        </label>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="planner-step" data-step="3">
+        <h2>現有退休儲蓄</h2>
+
+        <label>
+          現有現金及投資（HK$）
+          <input type="number" id="currentSavings" min="0">
+        </label>
+
+        <label>
+          每月退休儲蓄（HK$）
+          <input type="number" id="monthlySavings" min="0">
+        </label>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="planner-step" data-step="4">
+        <h2>MPF 資產</h2>
+
+        <label>
+          現有 MPF 結餘（HK$）
+          <input type="number" id="mpfBalance" min="0">
+        </label>
+
+        <label>
+          每月 MPF 供款（HK$）
+          <input type="number" id="mpfMonthly" min="0">
+        </label>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="planner-step" data-step="5">
+        <h2>其他退休資產</h2>
+
+        <label>
+          股票、基金、年金及其他退休資產（HK$）
+          <input type="number" id="otherAssets" min="0">
+        </label>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="planner-step" data-step="6">
+        <h2>退休後收入</h2>
+
+        <label>
+          預計每月退休收入（HK$）
+          <input type="number" id="retirementIncome" min="0">
+        </label>
+
+        <p class="field-note">
+          可包括年金、租金、退休後工作收入或其他固定收入。
+        </p>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="planner-step" data-step="7">
+        <h2>規劃假設</h2>
+
+        <label>
+          預計壽命
+          <input type="number" id="lifeExpectancy" value="90" min="60" max="120">
+        </label>
+
+        <label>
+          預期年投資回報率（%）
+          <input type="number" id="returnRate" value="4" step="0.1">
+        </label>
+
+        <label>
+          預期通脹率（%）
+          <input type="number" id="inflationRate" value="2.5" step="0.1">
+        </label>
+      </section>
+
+      <!-- STEP 8 -->
+      <section class="planner-step" data-step="8">
+        <h2>確認你的資料</h2>
+        <p>
+          我們會根據你提供的資料估算退休所需資金、
+          預計退休資產及退休資金缺口。
+        </p>
+
+        <div id="reviewSummary" class="summary-box"></div>
+      </section>
+
+      <!-- STEP 9 -->
+      <section class="planner-step" data-step="9">
+        <h2>你的退休規劃結果</h2>
+
+        <div class="result-grid">
+          <div class="result-box">
+            <span>距離退休</span>
+            <strong id="yearsResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>預計退休所需資金</span>
+            <strong id="requiredResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>預計退休資產</span>
+            <strong id="assetsResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>預計資金差額</span>
+            <strong id="gapResult">—</strong>
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          此結果只作退休規劃教育及參考用途，並不構成投資、
+          稅務、法律或其他專業意見。
+        </p>
+      </section>
+
+      <div class="planner-actions">
+        <button type="button" id="prevBtn">上一步</button>
+        <button type="button" id="nextBtn">下一步</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>
