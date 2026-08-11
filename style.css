@@ -15,132 +15,186 @@ body {
 }
 
 /* Top Bar */
-
 .top-bar {
   width: 100%;
   padding: 20px 28px;
   background: #123c32;
-  color: white;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
 }
 
 .logo {
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
 }
 
-/* Main Area */
-
+/* Main layout */
 .hero {
-  min-height: calc(100vh - 70px);
-  padding: 60px 22px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.hero > div {
   width: 100%;
-  max-width: 720px;
-  background: white;
-  padding: 42px;
-  border-radius: 24px;
-  box-shadow: 0 15px 45px rgba(18, 60, 50, 0.10);
+  padding: 55px 20px;
 }
 
-/* Headings */
+.hero-content {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 44px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 12px 35px rgba(18,60,50,.08);
+}
+
+.eyebrow {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
 
 h1 {
-  font-size: clamp(32px, 6vw, 54px);
-  line-height: 1.1;
-  color: #123c32;
-  margin-bottom: 18px;
+  font-size: 48px;
+  line-height: 1.12;
+  color: #103f33;
+  margin-bottom: 22px;
 }
 
-.slogan {
-  font-size: 20px;
-  color: #567068;
+h2 {
+  font-size: 21px;
+  color: #52746b;
+  margin-bottom: 26px;
+}
+
+.intro {
+  font-size: 17px;
   margin-bottom: 28px;
 }
 
-/* Information / Preview */
-
-.result-preview {
-  margin: 30px 0;
-  padding: 25px;
+/* Information box */
+.benefits {
   background: #edf5f1;
+  border-left: 5px solid #2d9274;
   border-radius: 16px;
-  border-left: 5px solid #2e7d64;
+  padding: 26px 28px;
+  margin-bottom: 30px;
 }
 
-.result-preview p {
-  font-weight: 700;
-  margin-bottom: 12px;
+.benefits strong {
+  display: block;
+  margin-bottom: 10px;
 }
 
-.result-preview ul {
+.benefits ul {
   padding-left: 22px;
 }
 
-.result-preview li {
-  margin: 8px 0;
+.benefits li {
+  margin: 7px 0;
 }
 
-/* Main Button */
-
-#start-btn {
+/* Buttons */
+.start-button,
+button,
+.button {
+  display: block;
   width: 100%;
-  border: none;
+  border: 0;
   border-radius: 14px;
-  padding: 17px 24px;
-  background: #176b52;
-  color: white;
+  padding: 17px 22px;
+  background: #19765d;
+  color: #fff;
   font-size: 18px;
   font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-#start-btn:hover {
-  background: #10543f;
-  transform: translateY(-2px);
-}
-
-#start-btn:active {
-  transform: translateY(0);
-}
-
-/* Progress */
-
-.progress-note {
-  margin-top: 14px;
   text-align: center;
-  color: #71827d;
-  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.start-button:hover,
+button:hover,
+.button:hover {
+  background: #125f4b;
+}
+
+/* Planner page */
+.planner-container {
+  width: 100%;
+  max-width: 860px;
+  margin: 55px auto;
+  padding: 44px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 12px 35px rgba(18,60,50,.08);
+}
+
+.planner-container h1 {
+  font-size: 36px;
+}
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid #cddbd6;
+  border-radius: 10px;
+  background: #fff;
+  color: #18332b;
+  font-size: 16px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #2d9274;
+  box-shadow: 0 0 0 3px rgba(45,146,116,.12);
+}
+
+small,
+.footer-note {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: #789088;
 }
 
 /* Mobile */
-
-@media (max-width: 600px) {
-  .top-bar {
-    padding: 16px 20px;
-  }
-
+@media (max-width: 700px) {
   .hero {
-    padding: 30px 15px;
+    padding: 28px 14px;
   }
 
-  .hero > div {
-    padding: 28px 20px;
+  .hero-content,
+  .planner-container {
+    padding: 28px 22px;
     border-radius: 18px;
   }
 
-  .slogan {
-    font-size: 17px;
+  .planner-container {
+    margin: 28px 14px;
+    width: auto;
   }
 
-  .result-preview {
-    padding: 20px;
+  h1 {
+    font-size: 38px;
+  }
+
+  .planner-container h1 {
+    font-size: 30px;
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  .top-bar {
+    padding: 17px 20px;
   }
 }
