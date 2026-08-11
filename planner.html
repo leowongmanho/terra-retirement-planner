@@ -15,168 +15,524 @@
 
 <main class="planner-page">
 
-  <div class="planner-card">
+  <div class="planner-container">
 
     <a href="index.html" class="back-link">← 返回首頁</a>
 
     <p class="eyebrow">TERRA Retirement Planner</p>
-    <h1>你的退休規劃</h1>
+    <h1>退休規劃</h1>
 
     <div class="progress">
       <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <p id="stepLabel" class="step-label">第 1 步，共 9 步</p>
+    <p id="stepLabel" class="step-label">
+      第 1 步，共 9 步
+    </p>
 
     <form id="retirementForm">
 
       <!-- STEP 1 -->
       <section class="planner-step active" data-step="1">
-        <h2>基本資料</h2>
-        <p>首先了解你的退休時間表。</p>
 
-        <label>
-          目前年齡
-          <input type="number" id="currentAge" min="18" max="100" required>
-        </label>
+        <h2>退休目標</h2>
 
-        <label>
-          預計退休年齡
-          <input type="number" id="retirementAge" min="18" max="100" required>
-        </label>
+        <p>
+          首先了解你希望幾時退休，以及退休後想維持怎樣的生活。
+        </p>
+
+        <div class="form-group">
+          <label>規劃模式</label>
+
+          <select id="planningMode">
+            <option value="individual">個人</option>
+            <option value="couple">夫婦</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="currentAge">
+            目前年齡
+          </label>
+
+          <input
+            type="number"
+            id="currentAge"
+            min="18"
+            max="100"
+            placeholder="例如：45"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="retirementAge">
+            預計退休年齡
+          </label>
+
+          <input
+            type="number"
+            id="retirementAge"
+            min="40"
+            max="100"
+            placeholder="例如：65"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="lifeExpectancy">
+            預計壽命
+          </label>
+
+          <input
+            type="number"
+            id="lifeExpectancy"
+            min="60"
+            max="120"
+            value="90"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="inflationRate">
+            預計每年通脹率（%）
+          </label>
+
+          <input
+            type="number"
+            id="inflationRate"
+            value="3"
+            step="0.1"
+          >
+        </div>
+
+        <div class="form-group">
+
+          <label for="todayExpense">
+            如果今日退休，你希望每月有多少生活費？
+          </label>
+
+          <input
+            type="number"
+            id="todayExpense"
+            min="0"
+            placeholder="例如：30000"
+          >
+
+          <div class="reminder-box">
+
+            <strong>
+              輸入生活費時，記得考慮：
+            </strong>
+
+            <p>
+              生活費：衣食住行、水電煤、管理費、
+              旅行、禮物及日常需要
+            </p>
+
+            <p>
+              醫療費：門診、藥物、住院及長期護理
+            </p>
+
+            <p>
+              娛樂及社交：興趣、聚會、
+              消閒活動及退休生活質素
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="calculation-preview">
+
+          <p>
+            根據通脹估算，
+            你退休第一年的建議每月生活費：
+          </p>
+
+          <strong id="suggestedExpense">
+            HK$ —
+          </strong>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="acceptedExpense">
+            你希望採用的退休每月生活費
+          </label>
+
+          <input
+            type="number"
+            id="acceptedExpense"
+            min="0"
+            placeholder="可以接受系統建議，亦可以自行輸入"
+          >
+
+          <small>
+            系統估算只作參考，你可以自行決定一個你認為合理的退休生活費。
+          </small>
+
+        </div>
+
       </section>
+
 
       <!-- STEP 2 -->
       <section class="planner-step" data-step="2">
-        <h2>退休生活目標</h2>
-        <p>你希望退休後每月有多少生活費？</p>
 
-        <label>
-          每月退休生活開支（HK$）
-          <input type="number" id="monthlyExpense" min="0">
-        </label>
+        <h2>退休支出分析</h2>
+
+        <p>
+          系統會根據退休年齡、壽命、
+          通脹及你選擇的生活費，
+          計算每一年退休支出。
+        </p>
+
+        <div id="expenseSummary">
+          每年退休現金流將會顯示在這裡。
+        </div>
+
       </section>
+
 
       <!-- STEP 3 -->
       <section class="planner-step" data-step="3">
-        <h2>現有退休儲蓄</h2>
 
-        <label>
-          現有現金及投資（HK$）
-          <input type="number" id="currentSavings" min="0">
-        </label>
+        <h2>現有累積財富</h2>
 
-        <label>
-          每月退休儲蓄（HK$）
-          <input type="number" id="monthlySavings" min="0">
-        </label>
+        <div class="form-group">
+          <label>銀行活期存款（HK$）</label>
+          <input type="number" id="cashBalance" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>銀行存款預期回報率（%）</label>
+          <input type="number" id="cashReturn" value="1" step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label>定息戶口（HK$）</label>
+          <input type="number" id="fixedBalance" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>定息戶口回報率（%）</label>
+          <input type="number" id="fixedReturn" value="3" step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label>保險戶口（HK$）</label>
+          <input type="number" id="insuranceBalance" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>保險戶口預期回報率（%）</label>
+          <input type="number" id="insuranceReturn" value="6" step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label>投資戶口（HK$）</label>
+          <input type="number" id="investmentBalance" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>投資戶口預期回報率（%）</label>
+          <input type="number" id="investmentReturn" value="5" step="0.1">
+        </div>
+
       </section>
+
 
       <!-- STEP 4 -->
       <section class="planner-step" data-step="4">
-        <h2>MPF 資產</h2>
 
-        <label>
-          現有 MPF 結餘（HK$）
-          <input type="number" id="mpfBalance" min="0">
-        </label>
+        <h2>強積金 MPF</h2>
 
-        <label>
-          每月 MPF 供款（HK$）
-          <input type="number" id="mpfMonthly" min="0">
-        </label>
+        <div class="form-group">
+          <label>現有 MPF 結餘（HK$）</label>
+          <input type="number" id="mpfBalance" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>每月 MPF 供款（HK$）</label>
+          <input type="number" id="mpfMonthly" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>MPF 預期回報率（%）</label>
+          <input type="number" id="mpfReturn" value="4" step="0.1">
+        </div>
+
+        <div class="calculation-preview">
+
+          <p>
+            預計退休時 MPF：
+          </p>
+
+          <strong id="futureMPF">
+            HK$ —
+          </strong>
+
+        </div>
+
       </section>
+
 
       <!-- STEP 5 -->
       <section class="planner-step" data-step="5">
-        <h2>其他退休資產</h2>
 
-        <label>
-          股票、基金、年金及其他退休資產（HK$）
-          <input type="number" id="otherAssets" min="0">
-        </label>
+        <h2>退休固定收入及其他支援</h2>
+
+        <p>
+          即使某項收入為零，我們仍然會顯示，
+          讓你清楚知道有哪些退休資源以及哪些沒有。
+        </p>
+
+        <div class="form-group">
+          <label>政府津貼（每月 HK$）</label>
+          <input type="number" id="governmentSupport" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>家人支援（每月 HK$）</label>
+          <input type="number" id="familySupport" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>租金收入（每月 HK$）</label>
+          <input type="number" id="rentalIncome" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>香港年金（每月 HK$）</label>
+          <input type="number" id="hkAnnuity" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>安老按揭／逆按揭收入（每月 HK$）</label>
+          <input type="number" id="reverseMortgage" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>其他退休收入（每月 HK$）</label>
+          <input type="number" id="otherIncome" value="0">
+        </div>
+
       </section>
+
 
       <!-- STEP 6 -->
       <section class="planner-step" data-step="6">
-        <h2>退休後收入</h2>
 
-        <label>
-          預計每月退休收入（HK$）
-          <input type="number" id="retirementIncome" min="0">
-        </label>
+        <h2>退休缺口</h2>
 
-        <p class="field-note">
-          可包括年金、租金、退休後工作收入或其他固定收入。
+        <p>
+          系統會整合退休支出、
+          現有資產、MPF 及固定退休收入，
+          計算你的退休資金缺口。
         </p>
+
+        <div class="result-grid">
+
+          <div class="result-box">
+            <span>退休總支出</span>
+            <strong id="totalExpenseResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>退休時累積資產</span>
+            <strong id="totalAssetsResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>退休收入價值</span>
+            <strong id="incomeValueResult">—</strong>
+          </div>
+
+          <div class="result-box">
+            <span>退休資金缺口</span>
+            <strong id="retirementGapResult">—</strong>
+          </div>
+
+        </div>
+
       </section>
+
 
       <!-- STEP 7 -->
       <section class="planner-step" data-step="7">
-        <h2>規劃假設</h2>
 
-        <label>
-          預計壽命
-          <input type="number" id="lifeExpectancy" value="90" min="60" max="120">
-        </label>
+        <h2>填補退休缺口</h2>
 
-        <label>
-          預期年投資回報率（%）
-          <input type="number" id="returnRate" value="4" step="0.1">
-        </label>
+        <p>
+          比較不同方式如何逐步填補退休缺口。
+        </p>
 
-        <label>
-          預期通脹率（%）
-          <input type="number" id="inflationRate" value="2.5" step="0.1">
-        </label>
+        <div class="form-group">
+          <label>一次過供款（HK$）</label>
+          <input type="number" id="lumpSumContribution" value="0">
+        </div>
+
+        <h3>五年儲蓄計劃</h3>
+
+        <div class="form-group">
+          <label>計劃 1 每年供款（HK$）</label>
+          <input type="number" id="savingPlan1" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>計劃 2 每年供款（HK$）</label>
+          <input type="number" id="savingPlan2" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>計劃 3 每年供款（HK$）</label>
+          <input type="number" id="savingPlan3" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>計劃 4 每年供款（HK$）</label>
+          <input type="number" id="savingPlan4" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>五年儲蓄計劃預期回報率（%）</label>
+          <input type="number" id="savingPlanReturn" value="4" step="0.1">
+        </div>
+
+        <h3>十年投資計劃</h3>
+
+        <div class="form-group">
+          <label>每月投資額（HK$）</label>
+          <input type="number" id="investmentContribution" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>預期投資回報率（%）</label>
+          <input type="number" id="futureInvestmentReturn" value="6" step="0.1">
+        </div>
+
       </section>
+
 
       <!-- STEP 8 -->
       <section class="planner-step" data-step="8">
-        <h2>確認你的資料</h2>
-        <p>
-          我們會根據你提供的資料估算退休所需資金、
-          預計退休資產及退休資金缺口。
-        </p>
 
-        <div id="reviewSummary" class="summary-box"></div>
+        <h2>退休提款策略及比較</h2>
+
+        <div class="strategy-box">
+
+          <h3>預設提款次序</h3>
+
+          <p>
+            1. 強積金 MPF
+          </p>
+
+          <p>
+            2. 投資戶口
+          </p>
+
+          <p>
+            3. 保險戶口
+          </p>
+
+          <small>
+            政府津貼、家人支援、租金、
+            年金及其他固定收入會持續計入現金流，
+            不屬於提款次序。
+          </small>
+
+        </div>
+
+        <div class="comparison-box">
+
+          <h3>情景比較</h3>
+
+          <div class="form-group">
+            <label>
+              如果乜都唔做，資金只放銀行，
+              預計銀行利率（%）
+            </label>
+
+            <input
+              type="number"
+              id="bankOnlyReturn"
+              value="1"
+              step="0.1"
+            >
+          </div>
+
+          <div id="comparisonResult">
+            「乜都唔做」與「有退休規劃」
+            的比較結果將顯示在這裡。
+          </div>
+
+        </div>
+
       </section>
+
 
       <!-- STEP 9 -->
       <section class="planner-step" data-step="9">
-        <h2>你的退休規劃結果</h2>
+
+        <h2>退休規劃總結</h2>
 
         <div class="result-grid">
+
           <div class="result-box">
-            <span>距離退休</span>
-            <strong id="yearsResult">—</strong>
+            <span>退休第一年每月生活費</span>
+            <strong id="finalExpense">—</strong>
           </div>
 
           <div class="result-box">
-            <span>預計退休所需資金</span>
-            <strong id="requiredResult">—</strong>
+            <span>退休總支出</span>
+            <strong id="finalTotalExpense">—</strong>
           </div>
 
           <div class="result-box">
-            <span>預計退休資產</span>
-            <strong id="assetsResult">—</strong>
+            <span>退休總資產</span>
+            <strong id="finalAssets">—</strong>
           </div>
 
           <div class="result-box">
-            <span>預計資金差額</span>
-            <strong id="gapResult">—</strong>
+            <span>退休資金缺口</span>
+            <strong id="finalGap">—</strong>
           </div>
+
+        </div>
+
+        <h3>退休年度現金流</h3>
+
+        <div id="cashflowTable">
+          每年的退休支出、固定收入、
+          資產提款來源及剩餘資產將顯示在這裡。
         </div>
 
         <p class="disclaimer">
-          此結果只作退休規劃教育及參考用途，並不構成投資、
-          稅務、法律或其他專業意見。
+          此工具只作退休規劃教育及參考用途，
+          所有回報率、通脹、政府福利、
+          壽命及其他假設均可能與實際結果不同。
         </p>
+
       </section>
 
+
       <div class="planner-actions">
-        <button type="button" id="prevBtn">上一步</button>
-        <button type="button" id="nextBtn">下一步</button>
+
+        <button
+          type="button"
+          id="prevBtn"
+        >
+          上一步
+        </button>
+
+        <button
+          type="button"
+          id="nextBtn"
+        >
+          下一步
+        </button>
+
       </div>
 
     </form>
