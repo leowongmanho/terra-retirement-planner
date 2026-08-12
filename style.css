@@ -700,3 +700,366 @@ table th {
     width: 100%;
   }
 }
+/* =========================================
+   TERRA Retirement Planning - Home Page
+   Burgundy / Navy / Gold / Cream Theme
+========================================= */
+
+:root {
+  --terra-red: #9f1020;
+  --terra-red-dark: #7f0c19;
+  --terra-navy: #122f57;
+  --terra-gold: #d7a922;
+  --terra-cream: #f6f1e8;
+  --terra-cream-soft: #fbf7f0;
+  --terra-text: #27364a;
+  --terra-muted: #687386;
+  --terra-border: #eadfcd;
+}
+
+body.terra-home {
+  margin: 0;
+  background:
+    radial-gradient(circle at top right,
+      rgba(215, 169, 34, 0.08),
+      transparent 30%),
+    var(--terra-cream);
+  color: var(--terra-text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang HK",
+    "Noto Sans TC",
+    Arial,
+    sans-serif;
+}
+
+.home-shell {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-card {
+  width: 100%;
+  max-width: 1480px;
+  min-height: 900px;
+  background: #ffffff;
+  border-radius: 34px;
+  box-shadow: 0 24px 70px rgba(18, 47, 87, 0.12);
+  border: 1px solid rgba(215, 169, 34, 0.18);
+  padding: 34px 48px 34px;
+
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 48px;
+  align-items: center;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.home-content {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+}
+
+.home-logo-wrap {
+  width: 150px;
+  margin-bottom: 24px;
+}
+
+.home-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.home-header {
+  margin-bottom: 24px;
+}
+
+.home-title {
+  margin: 0;
+  line-height: 0.98;
+  letter-spacing: -1.5px;
+}
+
+.home-title span {
+  display: block;
+}
+
+.home-title-terra {
+  font-size: clamp(62px, 5vw, 92px);
+  font-weight: 900;
+  color: var(--terra-red);
+}
+
+.home-title-planning {
+  margin-top: 10px;
+  font-size: clamp(42px, 4vw, 68px);
+  font-weight: 900;
+  color: var(--terra-navy);
+}
+
+.home-gold-line {
+  width: 120px;
+  height: 6px;
+  background: var(--terra-gold);
+  border-radius: 99px;
+  margin: 28px 0 22px;
+}
+
+.home-tagline {
+  margin: 0;
+  color: var(--terra-red);
+  font-size: clamp(24px, 2vw, 34px);
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.home-intro {
+  margin: 0 0 26px;
+  color: var(--terra-muted);
+  font-size: 20px;
+  line-height: 1.8;
+  max-width: 720px;
+}
+
+.home-benefits {
+  background: var(--terra-cream-soft);
+  border: 1px solid var(--terra-border);
+  border-left: 6px solid var(--terra-gold);
+  border-radius: 20px;
+  padding: 24px 28px;
+  margin-bottom: 26px;
+}
+
+.home-benefits h3 {
+  margin: 0 0 14px;
+  color: var(--terra-red-dark);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.home-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.home-benefits li {
+  position: relative;
+  padding-left: 34px;
+  margin: 11px 0;
+  font-size: 18px;
+  color: var(--terra-text);
+}
+
+.home-benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--terra-gold);
+  font-weight: 900;
+  font-size: 21px;
+}
+
+.home-start-button {
+  width: 100%;
+  max-width: 460px;
+  min-height: 72px;
+  padding: 0 28px;
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--terra-red),
+      var(--terra-red-dark)
+    );
+
+  color: #fff;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: 0 14px 30px rgba(159, 16, 32, 0.20);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.home-start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(159, 16, 32, 0.26);
+}
+
+.home-button-arrow {
+  color: var(--terra-gold);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.home-time {
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+  margin: 12px 0 0;
+  color: #8a8f99;
+  font-size: 14px;
+}
+
+.home-mascot {
+  position: relative;
+  min-height: 760px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mascot-glow {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(215, 169, 34, 0.16),
+      rgba(215, 169, 34, 0.04) 58%,
+      transparent 74%
+    );
+  top: 110px;
+  right: 20px;
+}
+
+.home-tero {
+  width: min(620px, 100%);
+  max-height: 760px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 22px 28px rgba(18, 47, 87, 0.14));
+}
+
+.dot-pattern {
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  width: 240px;
+  height: 180px;
+  opacity: 0.22;
+
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(215, 169, 34, 0.65) 2px,
+      transparent 2.5px
+    );
+
+  background-size: 18px 18px;
+  z-index: 1;
+}
+
+@media (max-width: 1050px) {
+  .home-card {
+    grid-template-columns: 1fr;
+    padding: 34px 32px 40px;
+  }
+
+  .home-content {
+    max-width: none;
+  }
+
+  .home-mascot {
+    min-height: 520px;
+    order: -1;
+  }
+
+  .home-tero {
+    max-height: 500px;
+  }
+
+  .mascot-glow {
+    width: 420px;
+    height: 420px;
+    top: 40px;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+
+@media (max-width: 650px) {
+  .home-shell {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .home-card {
+    min-height: auto;
+    border-radius: 22px;
+    padding: 24px 20px 28px;
+    gap: 16px;
+  }
+
+  .home-logo-wrap {
+    width: 110px;
+    margin-bottom: 18px;
+  }
+
+  .home-title-terra {
+    font-size: 50px;
+  }
+
+  .home-title-planning {
+    font-size: 34px;
+  }
+
+  .home-tagline {
+    font-size: 22px;
+  }
+
+  .home-intro {
+    font-size: 16px;
+  }
+
+  .home-benefits {
+    padding: 20px;
+  }
+
+  .home-benefits li {
+    font-size: 16px;
+  }
+
+  .home-start-button {
+    max-width: none;
+    min-height: 64px;
+    font-size: 19px;
+  }
+
+  .home-time {
+    max-width: none;
+  }
+
+  .home-mascot {
+    min-height: 360px;
+  }
+
+  .home-tero {
+    max-height: 350px;
+  }
+
+  .mascot-glow {
+    width: 300px;
+    height: 300px;
+    top: 30px;
+  }
+}
