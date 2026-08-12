@@ -1,90 +1,103 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TERRA Retirement Planner | TERRA Academy</title>
+
+  <title>TERRA Retirement Planning</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="terra-home">
 
-  <main class="landing-shell">
+  <main class="home-shell">
 
-    <section class="hero-card">
+    <section class="home-card">
 
-      <div class="brand-row">
-        <div class="brand-logo-wrap">
+      <!-- LEFT SIDE -->
+      <div class="home-content">
+
+        <!-- TERRA LOGO -->
+        <div class="home-logo-wrap">
           <img
             src="Terra-logo.png"
-            alt="TERRA Academy Logo"
-            class="brand-logo"
+            alt="TERRA Logo"
+            class="home-logo"
           >
         </div>
 
-        <div class="brand-text">
-          <div class="brand-name">TERRA</div>
-          <div class="brand-subtitle">ACADEMY</div>
-        </div>
-      </div>
+        <!-- MAIN TITLE -->
+        <header class="home-header">
 
-      <div class="hero-grid">
-
-        <div class="hero-copy">
-
-          <h1>
-            TERRA<br>
-            Retirement Planner
+          <h1 class="home-title">
+            <span class="home-title-terra">TERRA</span>
+            <span class="home-title-planning">
+              RETIREMENT PLANNING
+            </span>
           </h1>
 
-          <div class="gold-divider"></div>
+          <div class="home-gold-line"></div>
 
-          <h2>
+          <h2 class="home-tagline">
             美好的退休生活，一切由完善的規劃開始
           </h2>
 
-          <p class="intro">
-            歡迎使用 TERRA Retirement Planner。
-            這個工具會陪你一步一步建立退休規劃，
-            了解你的退休目標、現有資源，
-            以及未來需要準備的方向。
-          </p>
+        </header>
 
-          <div class="benefit-block">
-            <h3>完成後，你會更清楚了解：</h3>
+        <!-- INTRO -->
+        <p class="home-intro">
+          這個工具會陪你一步一步建立退休規劃，
+          了解你的退休目標、現有資源，
+          以及未來需要準備的方向。
+        </p>
 
-            <ul>
-              <li>你希望建立怎樣的退休生活</li>
-              <li>退休大約需要多少資金</li>
-              <li>現有退休資源是否足夠</li>
-              <li>退休資金是否存在缺口</li>
-              <li>可以如何逐步改善退休準備</li>
-            </ul>
-          </div>
+        <!-- BENEFITS -->
+        <section class="home-benefits">
 
-          <a href="planner.html" class="start-button">
-            <span>開始退休規劃</span>
-            <span class="arrow">→</span>
-          </a>
+          <h3>
+            完成後，你會更清楚了解：
+          </h3>
 
-          <div class="time-note">
-            約 15 分鐘 · 9 個步驟
-          </div>
+          <ul>
+            <li>你希望建立怎樣的退休生活</li>
+            <li>退休大約需要多少資金</li>
+            <li>現有退休資源是否足夠</li>
+            <li>退休資金是否存在缺口</li>
+            <li>可以如何逐步改善退休準備</li>
+          </ul>
 
-        </div>
+        </section>
 
-        <div class="mascot-area">
+        <!-- CTA -->
+        <a
+          href="planner.html"
+          class="home-start-button"
+        >
+          <span>開始退休規劃</span>
+          <span class="home-button-arrow">→</span>
+        </a>
 
-          <div class="decor decor-chart">↗</div>
-          <div class="decor decor-coin">HK$</div>
+        <p class="home-time">
+          約 15 分鐘 · 9 個步驟
+        </p>
 
-          <img
-            src="Tero.png"
-            alt="TERO 小獅子"
-            class="mascot-image"
-          >
+      </div>
 
-        </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="home-mascot">
+
+        <div class="mascot-glow"></div>
+
+        <img
+          src="Tero.png"
+          alt="TERO"
+          class="home-tero"
+        >
+
+        <div class="dot-pattern"></div>
 
       </div>
 
@@ -93,4 +106,5 @@
   </main>
 
 </body>
+
 </html>
