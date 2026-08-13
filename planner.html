@@ -137,96 +137,6 @@
         >
       </div>
 
-
-      <!-- 退休生活模式 -->
-      <div class="form-group">
-
-        <label>
-          你希望退休後維持哪一種生活模式？
-        </label>
-
-        <p class="field-intro">
-          如果你未確定退休生活費，可以先選擇以下其中一個參考水平。
-        </p>
-
-        <div class="lifestyle-options">
-
-          <button
-            type="button"
-            class="lifestyle-card"
-            data-lifestyle="basic"
-            data-expense="11000"
-          >
-            <span class="lifestyle-name">
-              基本
-            </span>
-
-            <strong>
-              HK$11,000
-            </strong>
-
-            <span class="lifestyle-period">
-              ／月
-            </span>
-
-            <small>
-              以基本日常生活及必要開支為主
-            </small>
-          </button>
-
-
-          <button
-            type="button"
-            class="lifestyle-card"
-            data-lifestyle="comfortable"
-            data-expense="21000"
-          >
-            <span class="lifestyle-name">
-              舒適
-            </span>
-
-            <strong>
-              HK$21,000
-            </strong>
-
-            <span class="lifestyle-period">
-              ／月
-            </span>
-
-            <small>
-              包括較充裕的社交、消閒及生活質素
-            </small>
-          </button>
-
-
-          <button
-            type="button"
-            class="lifestyle-card"
-            data-lifestyle="affluent"
-            data-expense="32000"
-          >
-            <span class="lifestyle-name">
-              豐裕
-            </span>
-
-            <strong>
-              HK$32,000
-            </strong>
-
-            <span class="lifestyle-period">
-              ／月
-            </span>
-
-            <small>
-              較高生活質素、旅遊及更充裕的退休預算
-            </small>
-          </button>
-
-        </div>
-
-      </div>
-
-
       <!-- 今日生活費 -->
       <div class="form-group">
 
@@ -240,7 +150,53 @@
           min="0"
           placeholder="選擇以上生活模式，或自行輸入金額"
         >
+<div class="lifestyle-reference">
 
+  <p class="lifestyle-reference-title">
+    你亦可參考以下不同生活模式的選擇
+  </p>
+
+  <div class="lifestyle-options">
+
+    <button
+      type="button"
+      class="lifestyle-card"
+      data-lifestyle="basic"
+      data-expense="11000"
+    >
+      <span class="lifestyle-name">基本</span>
+      <strong>HK$11,000</strong>
+      <span class="lifestyle-period">／月</span>
+      <small>基本日常生活及必要開支</small>
+    </button>
+
+    <button
+      type="button"
+      class="lifestyle-card"
+      data-lifestyle="comfortable"
+      data-expense="21000"
+    >
+      <span class="lifestyle-name">舒適</span>
+      <strong>HK$21,000</strong>
+      <span class="lifestyle-period">／月</span>
+      <small>較充裕的社交、消閒及生活質素</small>
+    </button>
+
+    <button
+      type="button"
+      class="lifestyle-card"
+      data-lifestyle="affluent"
+      data-expense="32000"
+    >
+      <span class="lifestyle-name">豐裕</span>
+      <strong>HK$32,000</strong>
+      <span class="lifestyle-period">／月</span>
+      <small>旅遊及較充裕的退休生活預算</small>
+    </button>
+
+  </div>
+
+</div>
         <small>
           選擇基本、舒適或豐裕後，系統會自動填入參考金額。
           你仍然可以自行增加或減少。
@@ -700,7 +656,7 @@
 
 </main>
 
-<script src="script.js"></script>
+<script src="script.js?v=20260813-1"></script>
 
 </body>
 </html>
