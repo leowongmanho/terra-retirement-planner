@@ -779,81 +779,531 @@
 
       </section>
 
+<!-- ==================================
+     STEP 4
+=================================== -->
 
-      <!-- ==================================
-           STEP 4
-      =================================== -->
+<section
+  class="planner-step"
+  data-step="4"
+>
 
-      <section
-        class="planner-step"
-        data-step="4"
+  <div
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:24px;
+      margin-bottom:20px;
+    "
+  >
+
+    <div>
+
+      <h2>
+        強積金 MPF
+      </h2>
+
+      <p
+        style="
+          color:#687386;
+          margin-top:8px;
+          line-height:1.7;
+        "
+      >
+        輸入你目前的 MPF 結餘、每月供款及預期回報率，
+        系統會估算退休時的 MPF 價值。
+      </p>
+
+    </div>
+
+
+    <img
+      src="terompf.png"
+      alt="TERO MPF"
+      style="
+        width:120px;
+        max-width:22vw;
+        height:auto;
+        flex-shrink:0;
+        object-fit:contain;
+      "
+    >
+
+  </div>
+
+
+  <!-- 現有 MPF -->
+
+  <div class="form-group">
+
+    <label for="mpfBalance">
+      現有 MPF 結餘（HK$）
+    </label>
+
+    <input
+      type="number"
+      id="mpfBalance"
+      value="0"
+      min="0"
+    >
+
+  </div>
+
+
+  <!-- 每月供款 -->
+
+  <div class="form-group">
+
+    <label for="mpfMonthly">
+      每月 MPF 供款（HK$）
+    </label>
+
+    <input
+      type="number"
+      id="mpfMonthly"
+      value="0"
+      min="0"
+    >
+
+    <small>
+      包括僱員及僱主供款，可按實際情況自行輸入。
+    </small>
+
+  </div>
+
+
+  <!-- MPF 投資取向 -->
+
+  <div
+    class="form-group"
+    style="
+      margin-top:28px;
+    "
+  >
+
+    <label>
+      你目前的 MPF 投資取向
+    </label>
+
+
+    <p
+      style="
+        color:#687386;
+        margin-top:8px;
+        margin-bottom:16px;
+        line-height:1.7;
+      "
+    >
+      如果你不確定應採用甚麼回報率，
+      可以參考以下三種簡化的退休規劃假設。
+    </p>
+
+
+    <div
+      id="mpfProfileOptions"
+      style="
+        display:grid;
+        grid-template-columns:
+          repeat(3, minmax(0,1fr));
+        gap:14px;
+        margin-bottom:18px;
+      "
+    >
+
+
+      <!-- 保守 -->
+
+      <button
+        type="button"
+        class="mpf-profile-card"
+        data-mpf-profile="conservative"
+        data-mpf-return="2"
+        style="
+          padding:20px 16px;
+          border:2px solid #eadfcd;
+          border-radius:16px;
+          background:#fffdf8;
+          text-align:left;
+          cursor:pointer;
+          transition:0.2s ease;
+        "
       >
 
-        <h2>
-          強積金 MPF
-        </h2>
+        <span
+          style="
+            display:block;
+            font-size:18px;
+            font-weight:800;
+            color:#122f57;
+            margin-bottom:8px;
+          "
+        >
+          保守型
+        </span>
+
+        <strong
+          style="
+            display:block;
+            font-size:26px;
+            color:#d7a922;
+            margin-bottom:8px;
+          "
+        >
+          2%
+        </strong>
+
+        <small
+          style="
+            color:#687386;
+            line-height:1.6;
+          "
+        >
+          偏重較低波幅資產，
+          適合較著重穩定性的規劃假設。
+        </small>
+
+      </button>
 
 
-        <div class="form-group">
+      <!-- 平衡 -->
 
-          <label>
-            現有 MPF 結餘（HK$）
-          </label>
+      <button
+        type="button"
+        class="mpf-profile-card"
+        data-mpf-profile="balanced"
+        data-mpf-return="4.5"
+        style="
+          padding:20px 16px;
+          border:2px solid #eadfcd;
+          border-radius:16px;
+          background:#fffdf8;
+          text-align:left;
+          cursor:pointer;
+          transition:0.2s ease;
+        "
+      >
 
-          <input
-            type="number"
-            id="mpfBalance"
-            value="0"
-          >
+        <span
+          style="
+            display:block;
+            font-size:18px;
+            font-weight:800;
+            color:#122f57;
+            margin-bottom:8px;
+          "
+        >
+          平衡型
+        </span>
 
-        </div>
+        <strong
+          style="
+            display:block;
+            font-size:26px;
+            color:#d7a922;
+            margin-bottom:8px;
+          "
+        >
+          4.5%
+        </strong>
 
+        <small
+          style="
+            color:#687386;
+            line-height:1.6;
+          "
+        >
+          股票與較穩定資產並重，
+          作為中等風險的簡化假設。
+        </small>
 
-        <div class="form-group">
-
-          <label>
-            每月 MPF 供款（HK$）
-          </label>
-
-          <input
-            type="number"
-            id="mpfMonthly"
-            value="0"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>
-            MPF 預期回報率（%）
-          </label>
-
-          <input
-            type="number"
-            id="mpfReturn"
-            value="4"
-            step="0.1"
-          >
-
-        </div>
+      </button>
 
 
-        <div class="calculation-preview">
+      <!-- 增長 -->
 
-          <p>
-            預計退休時 MPF：
-          </p>
+      <button
+        type="button"
+        class="mpf-profile-card"
+        data-mpf-profile="growth"
+        data-mpf-return="5.5"
+        style="
+          padding:20px 16px;
+          border:2px solid #eadfcd;
+          border-radius:16px;
+          background:#fffdf8;
+          text-align:left;
+          cursor:pointer;
+          transition:0.2s ease;
+        "
+      >
 
-          <strong id="futureMPF">
-            HK$ —
-          </strong>
+        <span
+          style="
+            display:block;
+            font-size:18px;
+            font-weight:800;
+            color:#122f57;
+            margin-bottom:8px;
+          "
+        >
+          增長型
+        </span>
 
-        </div>
+        <strong
+          style="
+            display:block;
+            font-size:26px;
+            color:#d7a922;
+            margin-bottom:8px;
+          "
+        >
+          5.5%
+        </strong>
 
-      </section>
+        <small
+          style="
+            color:#687386;
+            line-height:1.6;
+          "
+        >
+          股票比重較高，
+          適合作較長期增長的規劃假設。
+        </small>
 
+      </button>
+
+    </div>
+
+
+    <div
+      style="
+        padding:14px 16px;
+        background:#fff8f7;
+        border-left:4px solid #9f1020;
+        border-radius:10px;
+        color:#687386;
+        font-size:14px;
+        line-height:1.7;
+      "
+    >
+
+      <strong
+        style="
+          color:#122f57;
+        "
+      >
+        提示：
+      </strong>
+
+      以上回報率只作退休規劃參考，
+      並不代表任何 MPF 基金的保證回報。
+      不同受託人、基金及投資組合的實際表現均可能不同。
+
+    </div>
+
+  </div>
+
+
+  <!-- 自行設定回報 -->
+
+  <div class="form-group">
+
+    <label for="mpfReturn">
+      MPF 預期回報率（%）
+    </label>
+
+    <input
+      type="number"
+      id="mpfReturn"
+      value="4"
+      step="0.1"
+    >
+
+    <small>
+      你可以採用上面的參考水平，
+      或自行輸入適合自己的預期回報率。
+    </small>
+
+  </div>
+
+
+  <!-- 即時計算結果 -->
+
+  <div
+    style="
+      margin-top:30px;
+    "
+  >
+
+    <h3>
+      MPF 退休預測
+    </h3>
+
+
+    <p
+      style="
+        color:#687386;
+        margin-top:6px;
+        margin-bottom:18px;
+      "
+    >
+      以下結果會隨你的 MPF 結餘、
+      每月供款及回報率即時更新。
+    </p>
+
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:
+          repeat(2, minmax(0,1fr));
+        gap:14px;
+      "
+    >
+
+
+      <!-- 現有 -->
+
+      <div
+        class="calculation-preview"
+        style="
+          margin:0;
+        "
+      >
+
+        <p>
+          現有 MPF
+        </p>
+
+        <strong id="mpfCurrentPreview">
+          HK$ —
+        </strong>
+
+      </div>
+
+
+      <!-- 未來供款本金 -->
+
+      <div
+        class="calculation-preview"
+        style="
+          margin:0;
+        "
+      >
+
+        <p>
+          退休前預計新增供款
+        </p>
+
+        <strong id="mpfContributionPreview">
+          HK$ —
+        </strong>
+
+      </div>
+
+
+      <!-- 投資增值 -->
+
+      <div
+        class="calculation-preview"
+        style="
+          margin:0;
+        "
+      >
+
+        <p>
+          預計投資增值
+        </p>
+
+        <strong
+          id="mpfGrowthPreview"
+          style="
+            color:#9f1020;
+          "
+        >
+          HK$ —
+        </strong>
+
+      </div>
+
+
+      <!-- 年期 -->
+
+      <div
+        class="calculation-preview"
+        style="
+          margin:0;
+        "
+      >
+
+        <p>
+          距離退休
+        </p>
+
+        <strong id="mpfYearsPreview">
+          — 年
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- 最終 MPF -->
+
+    <div
+      style="
+        margin-top:18px;
+        padding:24px;
+        border-radius:18px;
+        background:#122f57;
+        color:#ffffff;
+      "
+    >
+
+      <span
+        style="
+          display:block;
+          opacity:0.76;
+          font-size:15px;
+          margin-bottom:8px;
+        "
+      >
+        預計退休時 MPF
+      </span>
+
+      <strong
+        id="futureMPF"
+        style="
+          display:block;
+          font-size:34px;
+          color:#ffffff;
+        "
+      >
+        HK$ —
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <p
+    style="
+      margin-top:14px;
+      color:#687386;
+      font-size:13px;
+      line-height:1.7;
+    "
+  >
+    *以上為數學估算，假設回報率維持不變。
+    MPF 基金價格及回報會升亦會跌，
+    實際退休金額可能與估算結果不同。
+  </p>
+
+</section>
+      
 
       <!-- ==================================
            STEP 5
