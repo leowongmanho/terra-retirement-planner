@@ -31,6 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
       'input[name="age80ExpenseOption"]'
     );
 
+  const mpfProfileCards =
+    document.querySelectorAll(
+      ".mpf-profile-card"
+    );
+
 
   let currentStep = 1;
   let acceptedExpenseAuto = true;
@@ -1378,7 +1383,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     MPF
+     Step 4
+     MPF 即時計算
   ================================= */
 
   function calculateMPF() {
@@ -1410,6 +1416,8 @@ document.addEventListener("DOMContentLoaded", () => {
       12;
 
 
+    /* 現有 MPF 增值 */
+
     const futureBalance =
       balance *
       Math.pow(
@@ -1418,8 +1426,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    let futureContribution =
-      0;
+    /* 每月供款未來價值 */
+
+    let futureContribution = 0;
 
 
     if (months > 0) {
@@ -1449,10 +1458,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    /*
+      真正供款本金
+      不包括投資增值
+    */
+
+    const contributionPrincipal =
+      monthly *
+      months;
+
+
     const total =
       futureBalance +
       futureContribution;
 
+
+    /*
+      投資增值 =
+      最終總值
+      - 現有MPF本金
+      - 未來新增供款本金
+    */
+
+    const investmentGrowth =
+      total -
+      balance -
+      contributionPrincipal;
+
+
+    /* 預計退休時 MPF */
 
     const output =
       document.getElementById(
@@ -1464,6 +1498,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
       output.textContent =
         money(total);
+    }
+
+
+    /* 現有 MPF */
+
+    const currentPreview =
+      document.getElementById(
+        "mpfCurrentPreview"
+      );
+
+
+    if (currentPreview) {
+
+      currentPreview.textContent =
+        money(balance);
+    }
+
+
+    /* 新增供款本金 */
+
+    const contributionPreview =
+      document.getElementById(
+        "mpfContributionPreview"
+      );
+
+
+    if (contributionPreview) {
+
+      contributionPreview.textContent =
+        money(
+          contributionPrincipal
+        );
+    }
+
+
+    /* 預計投資增值 */
+
+    const growthPreview =
+      document.getElementById(
+        "mpfGrowthPreview"
+      );
+
+
+    if (growthPreview) {
+
+      growthPreview.textContent =
+        (
+          investmentGrowth >= 0
+            ? "+ "
+            : ""
+        ) +
+        money(
+          investmentGrowth
+        );
+    }
+
+
+    /* 距離退休 */
+
+    const yearsPreview =
+      document.getElementById(
+        "mpfYearsPreview"
+      );
+
+
+    if (yearsPreview) {
+
+      yearsPreview.textContent =
+        `${yearsToRetire} 年`;
     }
 
 
@@ -2676,6 +2779,110 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
       }
+    }
+  );
+
+
+  /* =================================
+     Step 4
+     MPF 即時更新
+  ================================= */
+
+  [
+    "mpfBalance",
+    "mpfMonthly",
+    "mpfReturn"
+  ].forEach(
+    id => {
+
+      const el =
+        document.getElementById(
+          id
+        );
+
+
+      if (el) {
+
+        el.addEventListener(
+          "input",
+          () => {
+
+            calculateMPF();
+          }
+        );
+
+
+        el.addEventListener(
+          "change",
+          () => {
+
+            calculateMPF();
+          }
+        );
+      }
+    }
+  );
+
+
+  /* =================================
+     Step 4
+     MPF 投資取向按鈕
+  ================================= */
+
+  mpfProfileCards.forEach(
+    card => {
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          mpfProfileCards.forEach(
+            item => {
+
+              item.style.borderColor =
+                "#eadfcd";
+
+              item.style.background =
+                "#fffdf8";
+
+              item.style.boxShadow =
+                "none";
+            }
+          );
+
+
+          card.style.borderColor =
+            "#d7a922";
+
+          card.style.background =
+            "#fff9e8";
+
+          card.style.boxShadow =
+            "0 8px 22px rgba(18,47,87,0.10)";
+
+
+          const selectedReturn =
+            Number(
+              card.dataset.mpfReturn
+            ) || 0;
+
+
+          const mpfReturnInput =
+            document.getElementById(
+              "mpfReturn"
+            );
+
+
+          if (mpfReturnInput) {
+
+            mpfReturnInput.value =
+              selectedReturn;
+          }
+
+
+          calculateMPF();
+        }
+      );
     }
   );
 
