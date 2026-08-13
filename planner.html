@@ -1304,119 +1304,799 @@
 
 </section>
       
+<!-- ==================================
+     STEP 5
+=================================== -->
 
-      <!-- ==================================
-           STEP 5
-      =================================== -->
+<section
+  class="planner-step"
+  data-step="5"
+>
 
-      <section
-        class="planner-step"
-        data-step="5"
+  <!-- 標題 + TERO -->
+
+  <div
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:24px;
+      margin-bottom:24px;
+    "
+  >
+
+    <div>
+
+      <h2>
+        退休固定收入及其他支援
+      </h2>
+
+      <p
+        style="
+          color:#687386;
+          margin-top:8px;
+          line-height:1.7;
+        "
+      >
+        整理退休後可能持續收到的固定收入，
+        讓你更清楚每月有多少穩定現金流。
+      </p>
+
+    </div>
+
+
+    <img
+      src="tero-income.png"
+      alt="TERO Retirement Income"
+      style="
+        width:120px;
+        max-width:22vw;
+        height:auto;
+        flex-shrink:0;
+        object-fit:contain;
+      "
+    >
+
+  </div>
+
+
+  <!-- ==================================
+       政府津貼
+  =================================== -->
+
+  <div
+    class="form-group"
+    style="
+      margin-top:22px;
+    "
+  >
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:10px;
+      "
+    >
+
+      <label
+        for="governmentSupportSelect"
+        style="margin:0;"
+      >
+        政府長者津貼
+      </label>
+
+
+      <button
+        type="button"
+        class="terra-info-toggle"
+        data-target="governmentSupportInfo"
+        aria-expanded="false"
+        aria-label="查看政府長者津貼資料"
+        style="
+          width:30px;
+          height:30px;
+          min-width:30px;
+          padding:0;
+          border:2px solid #d7a922;
+          border-radius:50%;
+          background:#122f57;
+          color:#ffffff;
+          font-size:17px;
+          font-weight:900;
+          line-height:26px;
+          text-align:center;
+          cursor:pointer;
+          box-shadow:
+            0 4px 10px
+            rgba(18,47,87,0.16);
+        "
+      >
+        ?
+      </button>
+
+    </div>
+
+
+    <select id="governmentSupportSelect">
+
+      <option
+        value="0"
+        data-support-type="none"
+      >
+        沒有／暫不計算
+      </option>
+
+      <option
+        value="1675"
+        data-support-type="oaa"
+      >
+        高齡津貼（生果金）－ HK$1,675／月
+      </option>
+
+      <option
+        value="4345"
+        data-support-type="oala"
+      >
+        長者生活津貼（長生津）－ HK$4,345／月
+      </option>
+
+    </select>
+
+
+    <!--
+      保留原有 ID。
+      後面的退休收入及退休缺口計算
+      仍會讀 governmentSupport。
+    -->
+
+    <input
+      type="hidden"
+      id="governmentSupport"
+      value="0"
+    >
+
+
+    <small>
+      請只在你預期符合相關資格時選擇。
+      實際資格及金額以社會福利署最新公布為準。
+    </small>
+
+
+    <!-- 政府津貼資料 -->
+
+    <div
+      id="governmentSupportInfo"
+      class="terra-info-panel"
+      hidden
+      style="
+        margin-top:14px;
+        padding:18px;
+        border:1px solid #eadfcd;
+        border-left:5px solid #d7a922;
+        border-radius:14px;
+        background:#fffdf8;
+        line-height:1.75;
+        color:#27364a;
+      "
+    >
+
+      <h4
+        style="
+          margin:0 0 12px;
+          color:#122f57;
+          font-size:17px;
+        "
+      >
+        政府長者津貼參考
+      </h4>
+
+
+      <div
+        style="
+          margin-bottom:16px;
+          padding-bottom:16px;
+          border-bottom:1px solid #eadfcd;
+        "
       >
 
-        <h2>
-          退休固定收入及其他支援
-        </h2>
+        <strong
+          style="
+            color:#122f57;
+          "
+        >
+          高齡津貼（生果金）
+        </strong>
 
-
-        <p>
-          即使某項收入為零，
-          我們仍然會顯示，
-          讓你清楚知道有哪些退休資源。
+        <p style="margin:8px 0 0;">
+          • 70歲或以上
+          <br>
+          • 不設經濟狀況審查
+          <br>
+          • 每月 HK$1,675
         </p>
 
-
-        <div class="form-group">
-
-          <label>
-            政府津貼（每月 HK$）
-          </label>
-
-          <input
-            type="number"
-            id="governmentSupport"
-            value="0"
-          >
-
-        </div>
+      </div>
 
 
-        <div class="form-group">
+      <div>
 
-          <label>
-            家人支援（每月 HK$）
-          </label>
+        <strong
+          style="
+            color:#122f57;
+          "
+        >
+          長者生活津貼（長生津）
+        </strong>
 
-          <input
-            type="number"
-            id="familySupport"
-            value="0"
-          >
+        <p style="margin:8px 0 0;">
+          • 65歲或以上
+          <br>
+          • 每月 HK$4,345
+          <br>
+          • 單身每月入息上限：
+          HK$10,900
+          <br>
+          • 夫婦每月入息上限：
+          HK$16,680
+          <br>
+          • 單身資產上限：
+          HK$415,000
+          <br>
+          • 夫婦資產上限：
+          HK$630,000
+        </p>
 
-        </div>
-
-
-        <div class="form-group">
-
-          <label>
-            租金收入（每月 HK$）
-          </label>
-
-          <input
-            type="number"
-            id="rentalIncome"
-            value="0"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label>
-            香港年金（每月 HK$）
-          </label>
-
-          <input
-            type="number"
-            id="hkAnnuity"
-            value="0"
-          >
-
-        </div>
+      </div>
 
 
-        <div class="form-group">
+      <p
+        style="
+          margin:14px 0 0;
+          color:#687386;
+          font-size:13px;
+        "
+      >
+        *以上為2026年2月1日起的參考資料。
+        居港要求、入息及資產定義等詳細條件，
+        請以社會福利署最新規定為準。
+      </p>
 
-          <label>
-            安老按揭／逆按揭收入（每月 HK$）
-          </label>
+    </div>
 
-          <input
-            type="number"
-            id="reverseMortgage"
-            value="0"
-          >
-
-        </div>
+  </div>
 
 
-        <div class="form-group">
+  <!-- ==================================
+       家人支援
+  =================================== -->
 
-          <label>
-            其他退休收入（每月 HK$）
-          </label>
+  <div class="form-group">
 
-          <input
-            type="number"
-            id="otherIncome"
-            value="0"
-          >
+    <label for="familySupport">
+      家人支援（每月 HK$）
+    </label>
 
-        </div>
+    <input
+      type="number"
+      id="familySupport"
+      value="0"
+      min="0"
+    >
 
-      </section>
+  </div>
 
+
+  <!-- ==================================
+       租金收入
+  =================================== -->
+
+  <div class="form-group">
+
+    <label for="rentalIncome">
+      租金收入（每月 HK$）
+    </label>
+
+    <input
+      type="number"
+      id="rentalIncome"
+      value="0"
+      min="0"
+    >
+
+  </div>
+
+
+  <!-- ==================================
+       香港年金
+  =================================== -->
+
+  <div class="form-group">
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:10px;
+      "
+    >
+
+      <label
+        for="hkAnnuity"
+        style="margin:0;"
+      >
+        香港年金收入（每月 HK$）
+      </label>
+
+
+      <button
+        type="button"
+        class="terra-info-toggle"
+        data-target="hkAnnuityInfo"
+        aria-expanded="false"
+        aria-label="查看香港年金資料"
+        style="
+          width:30px;
+          height:30px;
+          min-width:30px;
+          padding:0;
+          border:2px solid #d7a922;
+          border-radius:50%;
+          background:#122f57;
+          color:#ffffff;
+          font-size:17px;
+          font-weight:900;
+          line-height:26px;
+          text-align:center;
+          cursor:pointer;
+          box-shadow:
+            0 4px 10px
+            rgba(18,47,87,0.16);
+        "
+      >
+        ?
+      </button>
+
+    </div>
+
+
+    <input
+      type="number"
+      id="hkAnnuity"
+      value="0"
+      min="0"
+    >
+
+
+    <div
+      style="
+        margin-top:12px;
+      "
+    >
+
+      <a
+        href="https://www.hkmca.hk/hk/tool/calculator_web_tc.php"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          display:inline-block;
+          padding:11px 18px;
+          border-radius:10px;
+          background:#122f57;
+          color:#ffffff;
+          text-decoration:none;
+          font-weight:800;
+        "
+      >
+        計算香港年金 ↗
+      </a>
+
+    </div>
+
+
+    <!-- 香港年金資料 -->
+
+    <div
+      id="hkAnnuityInfo"
+      class="terra-info-panel"
+      hidden
+      style="
+        margin-top:14px;
+        padding:18px;
+        border:1px solid #eadfcd;
+        border-left:5px solid #d7a922;
+        border-radius:14px;
+        background:#fffdf8;
+        line-height:1.75;
+        color:#27364a;
+      "
+    >
+
+      <h4
+        style="
+          margin:0 0 10px;
+          color:#122f57;
+          font-size:17px;
+        "
+      >
+        香港年金參考
+      </h4>
+
+      <p style="margin:0;">
+        • 一般適用於60歲或以上人士
+        <br>
+        • 須持有效香港永久性居民身份證
+        <br>
+        • 以一筆過保費投保
+        <br>
+        • 保費範圍：
+        HK$50,000 至 HK$5,000,000
+        <br>
+        • 提供終身年金收入
+      </p>
+
+
+      <p
+        style="
+          margin:12px 0 0;
+          color:#687386;
+          font-size:13px;
+        "
+      >
+        *實際申請資格、年金金額及條款，
+        以香港年金有限公司最新公布為準。
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==================================
+       安老按揭
+  =================================== -->
+
+  <div class="form-group">
+
+    <div
+      style="
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:10px;
+      "
+    >
+
+      <label
+        for="reverseMortgage"
+        style="margin:0;"
+      >
+        安老按揭／逆按揭收入（每月 HK$）
+      </label>
+
+
+      <button
+        type="button"
+        class="terra-info-toggle"
+        data-target="reverseMortgageInfo"
+        aria-expanded="false"
+        aria-label="查看安老按揭資料"
+        style="
+          width:30px;
+          height:30px;
+          min-width:30px;
+          padding:0;
+          border:2px solid #d7a922;
+          border-radius:50%;
+          background:#122f57;
+          color:#ffffff;
+          font-size:17px;
+          font-weight:900;
+          line-height:26px;
+          text-align:center;
+          cursor:pointer;
+          box-shadow:
+            0 4px 10px
+            rgba(18,47,87,0.16);
+        "
+      >
+        ?
+      </button>
+
+    </div>
+
+
+    <input
+      type="number"
+      id="reverseMortgage"
+      value="0"
+      min="0"
+    >
+
+
+    <div
+      style="
+        margin-top:12px;
+      "
+    >
+
+      <a
+        href="https://www.hkmc.com.hk/chi/online_tools/reverse_mortgage_programme/reverse_mortgage_calculator.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          display:inline-block;
+          padding:11px 18px;
+          border-radius:10px;
+          background:#122f57;
+          color:#ffffff;
+          text-decoration:none;
+          font-weight:800;
+        "
+      >
+        計算安老按揭 ↗
+      </a>
+
+    </div>
+
+
+    <!-- 安老按揭資料 -->
+
+    <div
+      id="reverseMortgageInfo"
+      class="terra-info-panel"
+      hidden
+      style="
+        margin-top:14px;
+        padding:18px;
+        border:1px solid #eadfcd;
+        border-left:5px solid #d7a922;
+        border-radius:14px;
+        background:#fffdf8;
+        line-height:1.75;
+        color:#27364a;
+      "
+    >
+
+      <h4
+        style="
+          margin:0 0 10px;
+          color:#122f57;
+          font-size:17px;
+        "
+      >
+        安老按揭參考
+      </h4>
+
+
+      <p style="margin:0;">
+        • 一般申請人須55歲或以上
+        <br>
+        • 持有效香港身份證
+        <br>
+        • 以合資格香港住宅物業作抵押
+        <br>
+        • 部分未補地價資助出售房屋
+        一般須60歲或以上
+        <br>
+        • 貸款金額及每月年金會受
+        年齡、物業估值、付款年期等因素影響
+      </p>
+
+
+      <p
+        style="
+          margin:12px 0 0;
+          color:#687386;
+          font-size:13px;
+        "
+      >
+        *實際申請資格、物業要求及批核結果，
+        以香港按揭證券有限公司及參與銀行
+        最新規定為準。
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==================================
+       其他退休收入
+  =================================== -->
+
+  <div class="form-group">
+
+    <label for="otherIncome">
+      其他退休收入（每月 HK$）
+    </label>
+
+    <input
+      type="number"
+      id="otherIncome"
+      value="0"
+      min="0"
+    >
+
+    <small>
+      例如私人年金、兼職收入、
+      海外退休收入或其他定期現金流。
+    </small>
+
+  </div>
+
+
+  <!-- ==================================
+       即時退休收入總覽
+  =================================== -->
+
+  <div
+    style="
+      margin-top:30px;
+    "
+  >
+
+    <h3>
+      每月固定退休收入總覽
+    </h3>
+
+
+    <p
+      style="
+        color:#687386;
+        margin-top:6px;
+        margin-bottom:18px;
+      "
+    >
+      以下金額會隨你的選擇及輸入即時更新。
+    </p>
+
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:
+          repeat(2,minmax(0,1fr));
+        gap:14px;
+      "
+    >
+
+      <div class="calculation-preview">
+
+        <p>
+          政府津貼
+        </p>
+
+        <strong id="incomeGovernmentPreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+
+      <div class="calculation-preview">
+
+        <p>
+          家人支援
+        </p>
+
+        <strong id="incomeFamilyPreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+
+      <div class="calculation-preview">
+
+        <p>
+          租金收入
+        </p>
+
+        <strong id="incomeRentalPreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+
+      <div class="calculation-preview">
+
+        <p>
+          香港年金
+        </p>
+
+        <strong id="incomeAnnuityPreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+
+      <div class="calculation-preview">
+
+        <p>
+          安老按揭
+        </p>
+
+        <strong id="incomeReverseMortgagePreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+
+      <div class="calculation-preview">
+
+        <p>
+          其他退休收入
+        </p>
+
+        <strong id="incomeOtherPreview">
+          HK$ 0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- 總收入 -->
+
+    <div
+      style="
+        margin-top:18px;
+        padding:24px;
+        border-radius:18px;
+        background:#122f57;
+        color:#ffffff;
+      "
+    >
+
+      <span
+        style="
+          display:block;
+          opacity:0.76;
+          font-size:15px;
+          margin-bottom:8px;
+        "
+      >
+        每月固定退休收入合計
+      </span>
+
+      <strong
+        id="monthlyRetirementIncomeTotal"
+        style="
+          display:block;
+          font-size:34px;
+          color:#ffffff;
+        "
+      >
+        HK$ 0
+      </strong>
+
+    </div>
+
+
+    <p
+      style="
+        margin-top:12px;
+        color:#687386;
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+      *政府津貼、年金及安老按揭的實際資格、
+      金額及條款可能隨時間改變。
+      本頁資料及計算只供退休規劃參考。
+    </p>
+
+  </div>
+
+</section>
+      
 
       <!-- ==================================
            STEP 6
