@@ -1063,3 +1063,127 @@ body.terra-home {
     top: 30px;
   }
 }
+/* =========================================
+   Retirement Lifestyle Selection
+========================================= */
+
+.lifestyle-reference {
+  margin-top: 18px;
+}
+
+.lifestyle-reference-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #122f57;
+}
+
+.lifestyle-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.lifestyle-card {
+  appearance: none;
+  -webkit-appearance: none;
+
+  min-height: 150px;
+  padding: 18px 16px;
+
+  border: 2px solid #eadfcd;
+  border-radius: 18px;
+
+  background: #ffffff;
+  color: #122f57;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  box-shadow: 0 6px 18px rgba(18, 47, 87, 0.07);
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.lifestyle-card:hover {
+  transform: translateY(-3px);
+  border-color: #d7a922;
+  box-shadow: 0 12px 24px rgba(18, 47, 87, 0.12);
+}
+
+.lifestyle-card:active {
+  transform: scale(0.98);
+}
+
+.lifestyle-card.selected {
+  border-color: #9f1020;
+  background: #fff8f7;
+  box-shadow:
+    0 0 0 3px rgba(159, 16, 32, 0.08),
+    0 12px 28px rgba(159, 16, 32, 0.13);
+}
+
+.lifestyle-name {
+  display: block;
+  margin-bottom: 8px;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  color: #9f1020;
+}
+
+.lifestyle-card strong {
+  display: inline-block;
+
+  font-size: 25px;
+  font-weight: 900;
+
+  color: #122f57;
+}
+
+.lifestyle-period {
+  margin-top: 2px;
+  margin-bottom: 10px;
+
+  font-size: 15px;
+  color: #687386;
+}
+
+.lifestyle-card small {
+  display: block;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: #687386;
+  text-align: left;
+}
+
+.lifestyle-card.selected .lifestyle-name::after {
+  content: "  ✓";
+  color: #d7a922;
+}
+
+/* iPad / tablet */
+@media (max-width: 900px) {
+
+  .lifestyle-options {
+    grid-template-columns: 1fr;
+  }
+
+  .lifestyle-card {
+    min-height: 110px;
+    width: 100%;
+  }
+}
