@@ -3180,56 +3180,420 @@ function updateRetirementIncomeSummary() {
 updateGovernmentSupport();
 updateRetirementIncomeSummary();
   /* =========================================
-   STEP 6 UPGRADE
-   退休資產可持續性分析
+   STEP 6 DASHBOARD UPGRADE
+   iPad Landscape / 退休資產可持續性分析
 ========================================= */
 
 
 /* =========================================
-   資產名稱及預設提取次序
+   資產名稱及預設提款次序
 ========================================= */
 
 const sustainabilityAssetLabels = {
-
-  mpf:
-    "MPF",
-
-  stock:
-    "股票戶口",
-
-  fund:
-    "基金戶口",
-
-  fixed:
-    "定息戶口",
-
-  insurance:
-    "保險戶口",
-
-  cash:
-    "銀行活期存款"
-
+  mpf: "MPF",
+  stock: "股票",
+  fund: "基金",
+  fixed: "定息",
+  insurance: "保險",
+  cash: "銀行活期"
 };
 
 
 let withdrawalOrder = [
-
   "mpf",
   "stock",
   "fund",
   "fixed",
   "insurance",
   "cash"
-
 ];
 
 
+let retirementScenario =
+  "conservative";
+
+
 /* =========================================
-   政府退休收入：
-   按開始年齡計算
+   退休前回報率
 ========================================= */
 
-function getGovernmentSupportAtAge(age) {
+function getPreRetirementReturnRates() {
+
+  return {
+    mpf:
+      percentage("mpfReturn"),
+
+    stock:
+      percentage("stockReturn"),
+
+    fund:
+      percentage("fundReturn"),
+
+    fixed:
+      percentage("fixedReturn"),
+
+    insurance:
+      percentage("insuranceReturn"),
+
+    cash:
+      percentage("cashReturn")
+  };
+}
+
+
+/* =========================================
+   較穩健退休後規劃假設
+
+   注意：
+   這不是市場預測或保證回報。
+   只是在退休可持續性分析中，
+   避免無條件沿用高增長假設。
+
+   規則：
+   退休後回報不高於退休前設定，
+   並加入以下規劃上限。
+========================================= */
+
+function getConservativeRetirementReturns() {
+
+  const pre =
+    getPreRetirementReturnRates();
+
+
+  return {
+    mpf:
+      Math.min(
+        pre.mpf,
+        0.035
+      ),
+
+    stock:
+      Math.min(
+        pre.stock,
+        0.04
+      ),
+
+    fund:
+      Math.min(
+        pre.fund,
+        0.04
+      ),
+
+    fixed:
+      Math.min(
+        pre.fixed,
+        0.03
+      ),
+
+    insurance:
+      Math.min(
+        pre.insurance,
+        0.04
+      ),
+
+    cash:
+      Math.min(
+        pre.cash,
+        0.01
+      )
+  };
+}
+
+
+/* =========================================
+   自訂退休後回報率
+========================================= */
+
+function getCustomRetirementReturns() {
+
+  return {
+    mpf:
+      percentage(
+        "retirementReturnMpf"
+      ),
+
+    stock:
+      percentage(
+        "retirementReturnStock"
+      ),
+
+    fund:
+      percentage(
+        "retirementReturnFund"
+      ),
+
+    fixed:
+      percentage(
+        "retirementReturnFixed"
+      ),
+
+    insurance:
+      percentage(
+        "retirementReturnInsurance"
+      ),
+
+    cash:
+      percentage(
+        "retirementReturnCash"
+      )
+  };
+}
+
+
+/* =========================================
+   目前 Step 6 使用的退休後回報率
+========================================= */
+
+function getRetirementReturnRates() {
+
+  if (
+    retirementScenario ===
+    "current"
+  ) {
+
+    return (
+      getPreRetirementReturnRates()
+    );
+  }
+
+
+  if (
+    retirementScenario ===
+    "custom"
+  ) {
+
+    return (
+      getCustomRetirementReturns()
+    );
+  }
+
+
+  return (
+    getConservativeRetirementReturns()
+  );
+}
+
+
+/* =========================================
+   顯示退休前 / 退休後回報率
+========================================= */
+
+function syncRetirementReturnUI() {
+
+  const pre =
+    getPreRetirementReturnRates();
+
+
+  let post;
+
+
+  if (
+    retirementScenario ===
+    "current"
+  ) {
+
+    post = pre;
+
+  } else if (
+    retirementScenario ===
+    "custom"
+  ) {
+
+    post =
+      getCustomRetirementReturns();
+
+  } else {
+
+    post =
+      getConservativeRetirementReturns();
+  }
+
+
+  const rows = {
+    mpf: {
+      preId:
+        "preReturnMpf",
+      postId:
+        "retirementReturnMpf"
+    },
+
+    stock: {
+      preId:
+        "preReturnStock",
+      postId:
+        "retirementReturnStock"
+    },
+
+    fund: {
+      preId:
+        "preReturnFund",
+      postId:
+        "retirementReturnFund"
+    },
+
+    fixed: {
+      preId:
+        "preReturnFixed",
+      postId:
+        "retirementReturnFixed"
+    },
+
+    insurance: {
+      preId:
+        "preReturnInsurance",
+      postId:
+        "retirementReturnInsurance"
+    },
+
+    cash: {
+      preId:
+        "preReturnCash",
+      postId:
+        "retirementReturnCash"
+    }
+  };
+
+
+  Object.entries(
+    rows
+  ).forEach(
+    (
+      [
+        key,
+        ids
+      ]
+    ) => {
+
+      const preEl =
+        document.getElementById(
+          ids.preId
+        );
+
+
+      const postEl =
+        document.getElementById(
+          ids.postId
+        );
+
+
+      if (preEl) {
+
+        preEl.textContent =
+          (
+            pre[key] *
+            100
+          )
+            .toFixed(1) +
+          "%";
+      }
+
+
+      if (
+        postEl &&
+        retirementScenario !==
+          "custom"
+      ) {
+
+        postEl.value =
+          (
+            post[key] *
+            100
+          )
+            .toFixed(1);
+      }
+
+
+      if (postEl) {
+
+        postEl.disabled =
+          retirementScenario !==
+          "custom";
+
+
+        postEl.style.background =
+          retirementScenario ===
+          "custom"
+            ? "#ffffff"
+            : "#f4f1e8";
+
+
+        postEl.style.color =
+          "#122f57";
+      }
+
+    }
+  );
+
+
+  const note =
+    document.getElementById(
+      "retirementScenarioNote"
+    );
+
+
+  if (note) {
+
+    if (
+      retirementScenario ===
+      "conservative"
+    ) {
+
+      note.textContent =
+        "較穩健：退休後回報不高於退休前設定，並使用 TERRA 規劃上限。此為規劃情境，不是回報保證。";
+
+    } else if (
+      retirementScenario ===
+      "current"
+    ) {
+
+      note.textContent =
+        "沿用目前：退休後仍使用 Step 3 / Step 4 的回報率。若股票或基金回報假設偏高，退休需求可能被低估。";
+
+    } else {
+
+      note.textContent =
+        "自行設定：你可以逐項輸入退休後回報率，右邊結果會即時更新。";
+    }
+
+  }
+
+
+  document
+    .querySelectorAll(
+      "[data-retirement-scenario]"
+    )
+    .forEach(
+      button => {
+
+        const selected =
+          button.dataset
+            .retirementScenario ===
+          retirementScenario;
+
+
+        button.style.border =
+          selected
+            ? "2px solid #d7a922"
+            : "1px solid #eadfcd";
+
+
+        button.style.background =
+          selected
+            ? "#fff4cf"
+            : "#ffffff";
+
+      }
+    );
+}
+
+
+/* =========================================
+   政府收入按年齡開始
+========================================= */
+
+function getGovernmentSupportAtAge(
+  age
+) {
 
   const select =
     document.getElementById(
@@ -3266,11 +3630,6 @@ function getGovernmentSupportAtAge(age) {
     ) || 0;
 
 
-  /*
-    高齡津貼：
-    70歲開始
-  */
-
   if (
     type === "oaa"
   ) {
@@ -3280,11 +3639,6 @@ function getGovernmentSupportAtAge(age) {
       : 0;
   }
 
-
-  /*
-    長者生活津貼：
-    65歲開始
-  */
 
   if (
     type === "oala"
@@ -3301,14 +3655,17 @@ function getGovernmentSupportAtAge(age) {
 
 
 /* =========================================
-   指定年齡的固定退休收入
+   指定年齡固定退休收入
 ========================================= */
 
-function getFixedIncomeAtAge(age) {
+function getFixedIncomeAtAge(
+  age
+) {
 
   return (
-
-    getGovernmentSupportAtAge(age) +
+    getGovernmentSupportAtAge(
+      age
+    ) +
 
     number(
       "familySupport"
@@ -3329,16 +3686,12 @@ function getFixedIncomeAtAge(age) {
     number(
       "otherIncome"
     )
-
   );
 }
 
 
 /* =========================================
-   升級退休收入計算
-
-   固定收入不跟通脹。
-   政府津貼按適用年齡開始。
+   升級退休固定收入計算
 ========================================= */
 
 calculateRetirementIncome =
@@ -3382,23 +3735,16 @@ calculateRetirementIncome =
 
 
       rows.push({
-
         age,
-
         year:
           year + 1,
-
         monthlyIncome,
-
         annualIncome
-
       });
-
     }
 
 
     return {
-
       monthlyIncome:
         getFixedIncomeAtAge(
           retirementAge
@@ -3407,14 +3753,13 @@ calculateRetirementIncome =
       totalIncome,
 
       rows
-
     };
 
   };
 
 
 /* =========================================
-   計算資產總和
+   資產總和
 ========================================= */
 
 function sumSustainabilityAssets(
@@ -3441,10 +3786,56 @@ function sumSustainabilityAssets(
 
 
 /* =========================================
+   建立資產使用統計
+========================================= */
+
+function createAssetUsageStats(
+  balances
+) {
+
+  const stats = {};
+
+
+  Object.keys(
+    balances
+  ).forEach(
+    key => {
+
+      stats[key] = {
+        initialBalance:
+          balances[key] || 0,
+
+        firstWithdrawalAge:
+          null,
+
+        lastWithdrawalAge:
+          null,
+
+        depletedAge:
+          null,
+
+        balanceAtFirstWithdrawal:
+          null,
+
+        totalWithdrawn:
+          0
+      };
+
+    }
+  );
+
+
+  return stats;
+}
+
+
+/* =========================================
    退休資產年度模擬
 ========================================= */
 
-function simulateRetirementSustainability() {
+function simulateRetirementSustainability(
+  options = {}
+) {
 
   const basic =
     getBasicData();
@@ -3462,74 +3853,39 @@ function simulateRetirementSustainability() {
     calculateMPF();
 
 
-  /*
-    退休開始時的資產
-  */
-
   let balances = {
-
     mpf,
-
     stock:
       assets.stock,
-
     fund:
       assets.fund,
-
     fixed:
       assets.fixed,
-
     insurance:
       assets.insurance,
-
     cash:
       assets.cash
-
   };
 
 
-  /*
-    各資產在退休後
-    繼續沿用目前設定的回報率
-  */
+  const returns =
+    options.returnRates ||
+    getRetirementReturnRates();
 
-  const returns = {
 
-    mpf:
-      percentage(
-        "mpfReturn"
-      ),
-
-    stock:
-      percentage(
-        "stockReturn"
-      ),
-
-    fund:
-      percentage(
-        "fundReturn"
-      ),
-
-    fixed:
-      percentage(
-        "fixedReturn"
-      ),
-
-    insurance:
-      percentage(
-        "insuranceReturn"
-      ),
-
-    cash:
-      percentage(
-        "cashReturn"
-      )
-
-  };
+  const order =
+    options.withdrawalOrder ||
+    withdrawalOrder;
 
 
   const initialAssets =
     sumSustainabilityAssets(
+      balances
+    );
+
+
+  const usageStats =
+    createAssetUsageStats(
       balances
     );
 
@@ -3540,6 +3896,24 @@ function simulateRetirementSustainability() {
 
   let firstShortfallAge =
     null;
+
+  let totalGrowth = 0;
+
+  let totalIncomeUsed = 0;
+
+  let totalIncomeReceived = 0;
+
+  let totalWithdrawals = 0;
+
+
+  const growthByAsset = {
+    mpf: 0,
+    stock: 0,
+    fund: 0,
+    fixed: 0,
+    insurance: 0,
+    cash: 0
+  };
 
 
   expenses.rows.forEach(
@@ -3555,10 +3929,6 @@ function simulateRetirementSustainability() {
         );
 
 
-      /*
-        固定退休收入先抵銷支出
-      */
-
       const annualIncome =
         getFixedIncomeAtAge(
           age
@@ -3566,10 +3936,25 @@ function simulateRetirementSustainability() {
         12;
 
 
+      const incomeUsed =
+        Math.min(
+          annualIncome,
+          expenseRow.annualExpense
+        );
+
+
+      totalIncomeReceived +=
+        annualIncome;
+
+
+      totalIncomeUsed +=
+        incomeUsed;
+
+
       const amountRequired =
         Math.max(
           expenseRow.annualExpense -
-          annualIncome,
+          incomeUsed,
           0
         );
 
@@ -3579,22 +3964,16 @@ function simulateRetirementSustainability() {
 
 
       const withdrawals = {
-
         mpf: 0,
         stock: 0,
         fund: 0,
         fixed: 0,
         insurance: 0,
         cash: 0
-
       };
 
 
-      /*
-        按客戶設定次序提款
-      */
-
-      withdrawalOrder.forEach(
+      order.forEach(
         assetKey => {
 
           if (
@@ -3606,8 +3985,8 @@ function simulateRetirementSustainability() {
 
 
           /*
-            本版本採較保守做法：
-            65歲前暫不使用 MPF。
+            一般退休情境：
+            65歲前先不使用 MPF。
           */
 
           if (
@@ -3626,6 +4005,37 @@ function simulateRetirementSustainability() {
               ] || 0,
               0
             );
+
+
+          if (
+            available <= 0
+          ) {
+
+            return;
+          }
+
+
+          if (
+            usageStats[
+              assetKey
+            ]
+              .firstWithdrawalAge ===
+            null
+          ) {
+
+            usageStats[
+              assetKey
+            ]
+              .firstWithdrawalAge =
+              age;
+
+
+            usageStats[
+              assetKey
+            ]
+              .balanceAtFirstWithdrawal =
+              available;
+          }
 
 
           const take =
@@ -3647,17 +4057,65 @@ function simulateRetirementSustainability() {
             take;
 
 
+          usageStats[
+            assetKey
+          ]
+            .totalWithdrawn +=
+            take;
+
+
+          usageStats[
+            assetKey
+          ]
+            .lastWithdrawalAge =
+            age;
+
+
           remainingNeed -=
             take;
+
+
+          if (
+            balances[
+              assetKey
+            ] <= 0.01
+          ) {
+
+            balances[
+              assetKey
+            ] = 0;
+
+
+            usageStats[
+              assetKey
+            ]
+              .depletedAge =
+              age;
+          }
 
         }
       );
 
 
-      /*
-        如果所有可用資產都不足，
-        剩餘數字就是真正資金不足
-      */
+      const totalWithdrawal =
+        Object
+          .values(
+            withdrawals
+          )
+          .reduce(
+            (
+              total,
+              value
+            ) =>
+              total +
+              value,
+            0
+          );
+
+
+      totalWithdrawals +=
+        totalWithdrawal;
+
 
       const unmetShortfall =
         Math.max(
@@ -3687,39 +4145,62 @@ function simulateRetirementSustainability() {
 
 
       /*
-        尚未提取的資產，
-        在年度結束後繼續增值
+        年末：
+        未提款的餘額繼續按退休後回報增值。
       */
 
-      Object
-        .keys(
-          balances
-        )
-        .forEach(
-          assetKey => {
+      let annualGrowth = 0;
 
-            if (
-              balances[
-                assetKey
-              ] > 0
-            ) {
 
-              balances[
-                assetKey
-              ] *=
-                (
-                  1 +
-                  (
-                    returns[
-                      assetKey
-                    ] || 0
-                  )
-                );
+      Object.keys(
+        balances
+      ).forEach(
+        assetKey => {
 
-            }
+          const currentBalance =
+            balances[
+              assetKey
+            ] || 0;
 
+
+          if (
+            currentBalance <= 0
+          ) {
+
+            return;
           }
-        );
+
+
+          const growth =
+            currentBalance *
+            (
+              returns[
+                assetKey
+              ] || 0
+            );
+
+
+          balances[
+            assetKey
+          ] +=
+            growth;
+
+
+          annualGrowth +=
+            growth;
+
+
+          growthByAsset[
+            assetKey
+          ] +=
+            growth;
+
+        }
+      );
+
+
+      totalGrowth +=
+        annualGrowth;
 
 
       const endingAssets =
@@ -3728,51 +4209,25 @@ function simulateRetirementSustainability() {
         );
 
 
-      const totalWithdrawal =
-        Object
-          .values(
-            withdrawals
-          )
-          .reduce(
-            (
-              total,
-              value
-            ) =>
-              total +
-              value,
-            0
-          );
-
-
       rows.push({
-
         age,
-
         year:
           expenseRow.year,
-
         annualExpense:
           expenseRow.annualExpense,
-
         annualIncome,
-
+        incomeUsed,
         amountRequired,
-
         totalWithdrawal,
-
         unmetShortfall,
-
         openingAssets,
-
+        annualGrowth,
         endingAssets,
-
         withdrawals,
-
         balances:
           {
             ...balances
           }
-
       });
 
     }
@@ -3785,40 +4240,79 @@ function simulateRetirementSustainability() {
     );
 
 
+  Object.keys(
+    usageStats
+  ).forEach(
+    key => {
+
+      usageStats[
+        key
+      ].endingBalance =
+        balances[
+          key
+        ] || 0;
+
+
+      const first =
+        usageStats[
+          key
+        ].firstWithdrawalAge;
+
+
+      const last =
+        usageStats[
+          key
+        ].lastWithdrawalAge;
+
+
+      usageStats[
+        key
+      ].yearsUsed =
+        first !== null &&
+        last !== null
+          ? (
+              last -
+              first +
+              1
+            )
+          : 0;
+
+    }
+  );
+
+
   return {
-
     initialAssets,
-
     endingAssets,
-
     fundingGap,
-
     firstShortfallAge,
-
     sustainableToLifeExpectancy:
       fundingGap <= 0,
-
     rows,
-
     finalBalances:
       {
         ...balances
       },
-
     retirementAge:
       basic.retirementAge,
-
     lifeExpectancy:
-      basic.lifeExpectancy
-
+      basic.lifeExpectancy,
+    returnRates:
+      {
+        ...returns
+      },
+    usageStats,
+    totalGrowth,
+    growthByAsset,
+    totalIncomeUsed,
+    totalIncomeReceived,
+    totalWithdrawals
   };
-
 }
 
 
 /* =========================================
    升級 calculateGap
-   令 Step 6 / Step 9 使用同一套結果
 ========================================= */
 
 calculateGap =
@@ -3845,30 +4339,48 @@ calculateGap =
 
 
     return {
-
       expense,
-
       assets,
-
       mpf,
-
       income,
-
       totalAssets:
         simulation.initialAssets,
-
       gap:
         simulation.fundingGap,
-
       simulation
-
     };
 
   };
 
 
 /* =========================================
-   Money chart
+   Scenario 顯示文字
+========================================= */
+
+function describeSimulationResult(
+  simulation
+) {
+
+  if (
+    simulation.fundingGap > 0
+  ) {
+
+    return (
+      `${simulation.firstShortfallAge}歲開始不足 · ` +
+      `${money(simulation.fundingGap)}`
+    );
+  }
+
+
+  return (
+    `可支持至${simulation.lifeExpectancy}歲 · ` +
+    `餘 ${money(simulation.endingAssets)}`
+  );
+}
+
+
+/* =========================================
+   Sustainability Chart
 ========================================= */
 
 function createSustainabilityChart(
@@ -3888,13 +4400,13 @@ function createSustainabilityChart(
   }
 
 
-  const width = 840;
-  const height = 390;
+  const width = 760;
+  const height = 330;
 
-  const left = 84;
-  const right = 82;
-  const top = 42;
-  const bottom = 62;
+  const left = 78;
+  const right = 78;
+  const top = 32;
+  const bottom = 48;
 
 
   const chartWidth =
@@ -3972,17 +4484,11 @@ function createSustainabilityChart(
 
 
         return {
-
           ...row,
-
           x,
-
           assetY,
-
           expenseY
-
         };
-
       }
     );
 
@@ -4046,30 +4552,27 @@ function createSustainabilityChart(
         stroke-width="1"
       />
 
-
       <text
-        x="${left - 12}"
+        x="${left - 10}"
         y="${y + 4}"
         text-anchor="end"
-        font-size="11"
+        font-size="10"
         fill="#687386"
       >
         ${compactMoney(assetValue)}
       </text>
 
-
       <text
-        x="${left + chartWidth + 12}"
+        x="${left + chartWidth + 10}"
         y="${y + 4}"
         text-anchor="start"
-        font-size="11"
+        font-size="10"
         fill="#b38200"
       >
         ${compactMoney(expenseValue)}
       </text>
 
     `);
-
   }
 
 
@@ -4103,21 +4606,18 @@ function createSustainabilityChart(
           stroke-dasharray="6 6"
         />
 
-
         <text
-          x="${point.x + 7}"
-          y="${top + 17}"
-          font-size="11"
+          x="${point.x + 6}"
+          y="${top + 15}"
+          font-size="10"
           fill="#9f1020"
           font-weight="700"
         >
-          ${point.age}歲開始出現資金不足
+          ${point.age}歲不足
         </text>
 
       `;
-
     }
-
   }
 
 
@@ -4143,144 +4643,90 @@ function createSustainabilityChart(
 
     <div
       style="
-        padding:20px;
-        border:1px solid #eadfcd;
-        border-radius:18px;
-        background:#fffdf8;
+        width:100%;
+        overflow:hidden;
       "
     >
 
-      <div
+      <svg
+        viewBox="0 0 ${width} ${height}"
+        width="100%"
         style="
-          width:100%;
-          overflow-x:auto;
+          display:block;
         "
       >
 
-        <svg
-          viewBox="0 0 ${width} ${height}"
-          width="100%"
-          style="
-            min-width:680px;
-            display:block;
-          "
+        ${gridLines.join("")}
+
+        <polyline
+          points="${assetLine}"
+          fill="none"
+          stroke="#122f57"
+          stroke-width="5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <polyline
+          points="${expenseLine}"
+          fill="none"
+          stroke="#d7a922"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        ${shortfallMarker}
+
+        <line
+          x1="${left}"
+          y1="${top + chartHeight}"
+          x2="${left + chartWidth}"
+          y2="${top + chartHeight}"
+          stroke="#122f57"
+          stroke-width="2"
+        />
+
+        <text
+          x="${startPoint.x}"
+          y="${height - 15}"
+          text-anchor="start"
+          font-size="11"
+          fill="#687386"
         >
+          ${startPoint.age}歲
+        </text>
 
-          ${gridLines.join("")}
+        <text
+          x="${middlePoint.x}"
+          y="${height - 15}"
+          text-anchor="middle"
+          font-size="11"
+          fill="#687386"
+        >
+          ${middlePoint.age}歲
+        </text>
 
+        <text
+          x="${endPoint.x}"
+          y="${height - 15}"
+          text-anchor="end"
+          font-size="11"
+          fill="#687386"
+        >
+          ${endPoint.age}歲
+        </text>
 
-          <!-- 左軸標示 -->
-
-          <text
-            x="${left}"
-            y="20"
-            text-anchor="start"
-            font-size="12"
-            fill="#122f57"
-            font-weight="700"
-          >
-            資產餘額
-          </text>
-
-
-          <!-- 右軸標示 -->
-
-          <text
-            x="${left + chartWidth}"
-            y="20"
-            text-anchor="end"
-            font-size="12"
-            fill="#b38200"
-            font-weight="700"
-          >
-            年度支出
-          </text>
-
-
-          <!-- 資產線 -->
-
-          <polyline
-            points="${assetLine}"
-            fill="none"
-            stroke="#122f57"
-            stroke-width="5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-
-
-          <!-- 支出線 -->
-
-          <polyline
-            points="${expenseLine}"
-            fill="none"
-            stroke="#d7a922"
-            stroke-width="4"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-
-
-          ${shortfallMarker}
-
-
-          <!-- X 軸 -->
-
-          <line
-            x1="${left}"
-            y1="${top + chartHeight}"
-            x2="${left + chartWidth}"
-            y2="${top + chartHeight}"
-            stroke="#122f57"
-            stroke-width="2"
-          />
-
-
-          <text
-            x="${startPoint.x}"
-            y="${height - 22}"
-            text-anchor="start"
-            font-size="12"
-            fill="#687386"
-          >
-            ${startPoint.age}歲
-          </text>
-
-
-          <text
-            x="${middlePoint.x}"
-            y="${height - 22}"
-            text-anchor="middle"
-            font-size="12"
-            fill="#687386"
-          >
-            ${middlePoint.age}歲
-          </text>
-
-
-          <text
-            x="${endPoint.x}"
-            y="${height - 22}"
-            text-anchor="end"
-            font-size="12"
-            fill="#687386"
-          >
-            ${endPoint.age}歲
-          </text>
-
-        </svg>
-
-      </div>
+      </svg>
 
     </div>
 
   `;
-
 }
 
 
 /* =========================================
-   資產提款次序 UI
+   提款次序 UI
 ========================================= */
 
 function renderWithdrawalOrder() {
@@ -4306,63 +4752,52 @@ function renderWithdrawalOrder() {
         ) => `
 
           <div
-            data-withdrawal-asset="${assetKey}"
             style="
-              display:flex;
+              display:grid;
+              grid-template-columns:30px 1fr auto;
+              gap:8px;
               align-items:center;
-              justify-content:space-between;
-              gap:12px;
-              padding:13px 15px;
+              padding:6px 8px;
               border:1px solid #eadfcd;
-              border-radius:13px;
-              background:#fffdf8;
+              border-radius:10px;
+              background:#ffffff;
             "
           >
 
-            <div
+            <span
               style="
                 display:flex;
                 align-items:center;
-                gap:12px;
+                justify-content:center;
+                width:26px;
+                height:26px;
+                border-radius:50%;
+                background:#122f57;
+                color:#ffffff;
+                font-size:11px;
+                font-weight:800;
               "
             >
+              ${index + 1}
+            </span>
 
-              <span
-                style="
-                  display:flex;
-                  align-items:center;
-                  justify-content:center;
-                  width:32px;
-                  height:32px;
-                  border-radius:50%;
-                  background:#122f57;
-                  color:#ffffff;
-                  font-weight:800;
-                "
-              >
-                ${index + 1}
-              </span>
-
-
-              <strong
-                style="
-                  color:#122f57;
-                "
-              >
-                ${
-                  sustainabilityAssetLabels[
-                    assetKey
-                  ]
-                }
-              </strong>
-
-            </div>
-
+            <strong
+              style="
+                color:#122f57;
+                font-size:12px;
+              "
+            >
+              ${
+                sustainabilityAssetLabels[
+                  assetKey
+                ]
+              }
+            </strong>
 
             <div
               style="
                 display:flex;
-                gap:7px;
+                gap:5px;
               "
             >
 
@@ -4376,19 +4811,19 @@ function renderWithdrawalOrder() {
                     : ""
                 }
                 style="
-                  width:38px;
-                  height:38px;
+                  width:31px;
+                  height:29px;
                   border:1px solid #eadfcd;
-                  border-radius:9px;
+                  border-radius:7px;
                   background:#ffffff;
                   color:#122f57;
-                  font-size:18px;
                   cursor:pointer;
+                  font-size:14px;
+                  padding:0;
                 "
               >
                 ↑
               </button>
-
 
               <button
                 type="button"
@@ -4396,19 +4831,21 @@ function renderWithdrawalOrder() {
                 data-order-index="${index}"
                 ${
                   index ===
-                  withdrawalOrder.length - 1
+                  withdrawalOrder.length -
+                  1
                     ? "disabled"
                     : ""
                 }
                 style="
-                  width:38px;
-                  height:38px;
+                  width:31px;
+                  height:29px;
                   border:1px solid #eadfcd;
-                  border-radius:9px;
+                  border-radius:7px;
                   background:#ffffff;
                   color:#122f57;
-                  font-size:18px;
                   cursor:pointer;
+                  font-size:14px;
+                  padding:0;
                 "
               >
                 ↓
@@ -4421,12 +4858,912 @@ function renderWithdrawalOrder() {
         `
       )
       .join("");
-
 }
 
 
 /* =========================================
-   提款次序按鈕
+   各類資產使用年期
+========================================= */
+
+function createAssetUsageTable(
+  simulation
+) {
+
+  const {
+    retirementAge,
+    lifeExpectancy
+  } = simulation;
+
+
+  const totalYears =
+    Math.max(
+      lifeExpectancy -
+      retirementAge,
+      1
+    );
+
+
+  const rows =
+    withdrawalOrder.map(
+      assetKey => {
+
+        const stat =
+          simulation
+            .usageStats[
+              assetKey
+            ];
+
+
+        const initial =
+          stat.initialBalance;
+
+
+        let periodText =
+          "未需要使用";
+
+
+        let yearsText =
+          "—";
+
+
+        let firstAmountText =
+          "—";
+
+
+        if (
+          initial <= 0
+        ) {
+
+          periodText =
+            "沒有資產";
+
+        } else if (
+          stat.firstWithdrawalAge !==
+          null
+        ) {
+
+          const endAge =
+            stat.depletedAge !==
+            null
+              ? stat.depletedAge
+              : lifeExpectancy;
+
+
+          periodText =
+            stat.depletedAge !==
+            null
+              ? `${stat.firstWithdrawalAge}–${endAge}歲`
+              : `${stat.firstWithdrawalAge}歲開始，預計壽命時仍有餘額`;
+
+
+          yearsText =
+            stat.depletedAge !==
+            null
+              ? `約 ${stat.yearsUsed} 年`
+              : "仍未用完";
+
+
+          firstAmountText =
+            money(
+              stat
+                .balanceAtFirstWithdrawal ||
+              0
+            );
+        }
+
+
+        const startAge =
+          stat.firstWithdrawalAge;
+
+
+        const endAge =
+          stat.depletedAge !== null
+            ? stat.depletedAge
+            : (
+                startAge !== null
+                  ? lifeExpectancy
+                  : retirementAge
+              );
+
+
+        const leftPct =
+          startAge !== null
+            ? Math.max(
+                0,
+                Math.min(
+                  100,
+                  (
+                    (
+                      startAge -
+                      retirementAge
+                    ) /
+                    totalYears
+                  ) *
+                  100
+                )
+              )
+            : 0;
+
+
+        const widthPct =
+          startAge !== null
+            ? Math.max(
+                2,
+                Math.min(
+                  100 -
+                  leftPct,
+                  (
+                    (
+                      endAge -
+                      startAge +
+                      1
+                    ) /
+                    totalYears
+                  ) *
+                  100
+                )
+              )
+            : 0;
+
+
+        return `
+
+          <tr>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                font-weight:800;
+                color:#122f57;
+                white-space:nowrap;
+              "
+            >
+              ${
+                sustainabilityAssetLabels[
+                  assetKey
+                ]
+              }
+            </td>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                white-space:nowrap;
+              "
+            >
+              ${money(initial)}
+            </td>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                white-space:nowrap;
+              "
+            >
+              ${firstAmountText}
+            </td>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                min-width:250px;
+              "
+            >
+
+              <div
+                style="
+                  margin-bottom:5px;
+                  font-size:11px;
+                  color:#687386;
+                "
+              >
+                ${periodText}
+              </div>
+
+              <div
+                style="
+                  position:relative;
+                  height:8px;
+                  border-radius:999px;
+                  background:#eee7da;
+                  overflow:hidden;
+                "
+              >
+
+                ${
+                  startAge !== null
+                    ? `
+                      <div
+                        style="
+                          position:absolute;
+                          left:${leftPct}%;
+                          width:${widthPct}%;
+                          height:100%;
+                          border-radius:999px;
+                          background:#d7a922;
+                        "
+                      ></div>
+                    `
+                    : ""
+                }
+
+              </div>
+
+            </td>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                font-weight:800;
+                color:#7f1020;
+                white-space:nowrap;
+              "
+            >
+              ${yearsText}
+            </td>
+
+            <td
+              style="
+                padding:10px 8px;
+                border-bottom:1px solid #f0ebe1;
+                white-space:nowrap;
+              "
+            >
+              ${money(
+                stat.endingBalance ||
+                0
+              )}
+            </td>
+
+          </tr>
+
+        `;
+      }
+    )
+      .join("");
+
+
+  return `
+
+    <div
+      style="
+        border:1px solid #eadfcd;
+        border-radius:16px;
+        background:#fffdf8;
+        overflow:hidden;
+      "
+    >
+
+      <table
+        style="
+          width:100%;
+          border-collapse:collapse;
+          font-size:12px;
+        "
+      >
+
+        <thead
+          style="
+            background:#122f57;
+            color:#ffffff;
+          "
+        >
+
+          <tr>
+
+            <th style="padding:10px 8px;text-align:left;">
+              資產
+            </th>
+
+            <th style="padding:10px 8px;text-align:left;">
+              退休時金額
+            </th>
+
+            <th style="padding:10px 8px;text-align:left;">
+              開始提款時金額
+            </th>
+
+            <th style="padding:10px 8px;text-align:left;">
+              使用時間線
+            </th>
+
+            <th style="padding:10px 8px;text-align:left;">
+              可用年期
+            </th>
+
+            <th style="padding:10px 8px;text-align:left;">
+              預計壽命時餘額
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+          ${rows}
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================
+   Step 6 主畫面更新
+========================================= */
+
+updateGapResult =
+  function() {
+
+    syncRetirementReturnUI();
+
+
+    const data =
+      calculateGap();
+
+
+    const simulation =
+      data.simulation;
+
+
+    /*
+      比較：
+      沿用退休前回報
+    */
+
+    const baselineSimulation =
+      simulateRetirementSustainability({
+        returnRates:
+          getPreRetirementReturnRates(),
+        withdrawalOrder:
+          withdrawalOrder
+      });
+
+
+    const totalExpense =
+      document.getElementById(
+        "totalExpenseResult"
+      );
+
+
+    const totalAssets =
+      document.getElementById(
+        "totalAssetsResult"
+      );
+
+
+    const income =
+      document.getElementById(
+        "incomeValueResult"
+      );
+
+
+    const growth =
+      document.getElementById(
+        "retirementGrowthResult"
+      );
+
+
+    const gap =
+      document.getElementById(
+        "retirementGapResult"
+      );
+
+
+    const gapLabel =
+      document.getElementById(
+        "retirementGapLabel"
+      );
+
+
+    const gapDescription =
+      document.getElementById(
+        "retirementGapDescription"
+      );
+
+
+    const gapCard =
+      document.getElementById(
+        "retirementGapCard"
+      );
+
+
+    const shortfallAge =
+      document.getElementById(
+        "shortfallAgeResult"
+      );
+
+
+    const endingAssets =
+      document.getElementById(
+        "endingAssetsResult"
+      );
+
+
+    const status =
+      document.getElementById(
+        "sustainabilityStatus"
+      );
+
+
+    const chart =
+      document.getElementById(
+        "sustainabilityChart"
+      );
+
+
+    const baselineResult =
+      document.getElementById(
+        "baselineScenarioResult"
+      );
+
+
+    const activeResult =
+      document.getElementById(
+        "activeScenarioResult"
+      );
+
+
+    const activeLabel =
+      document.getElementById(
+        "activeScenarioLabel"
+      );
+
+
+    const usageTable =
+      document.getElementById(
+        "assetUsageTable"
+      );
+
+
+    const reconciliation =
+      document.getElementById(
+        "retirementReconciliation"
+      );
+
+
+    const initialAssetsLabel =
+      document.getElementById(
+        "initialAssetsLabel"
+      );
+
+
+    if (totalExpense) {
+
+      totalExpense.textContent =
+        money(
+          data.expense
+            .totalExpense
+        );
+    }
+
+
+    if (totalAssets) {
+
+      totalAssets.textContent =
+        money(
+          simulation
+            .initialAssets
+        );
+    }
+
+
+    if (
+      initialAssetsLabel
+    ) {
+
+      initialAssetsLabel.textContent =
+        `${simulation.retirementAge}歲退休時起始可動用資產`;
+    }
+
+
+    if (income) {
+
+      income.textContent =
+        money(
+          simulation
+            .totalIncomeReceived
+        );
+    }
+
+
+    if (growth) {
+
+      growth.textContent =
+        "+ " +
+        money(
+          simulation
+            .totalGrowth
+        );
+    }
+
+
+    if (endingAssets) {
+
+      endingAssets.textContent =
+        money(
+          simulation
+            .endingAssets
+        );
+    }
+
+
+    if (
+      simulation.fundingGap > 0
+    ) {
+
+      if (gapLabel) {
+
+        gapLabel.textContent =
+          "退休資金缺口（退休期累積）";
+      }
+
+
+      if (gap) {
+
+        gap.textContent =
+          money(
+            simulation
+              .fundingGap
+          );
+      }
+
+
+      if (
+        shortfallAge
+      ) {
+
+        shortfallAge.textContent =
+          `${simulation.firstShortfallAge} 歲`;
+      }
+
+
+      if (
+        gapDescription
+      ) {
+
+        gapDescription.textContent =
+          `這不是退休開始時需要一次過準備的金額，而是逐年模擬後，由 ${simulation.firstShortfallAge} 歲開始至預計壽命期間仍未能支付的累積金額。`;
+      }
+
+
+      if (gapCard) {
+
+        gapCard.style.background =
+          "#7f1020";
+      }
+
+
+      if (status) {
+
+        status.textContent =
+          `${simulation.firstShortfallAge}歲開始資金不足`;
+      }
+
+    } else {
+
+      if (gapLabel) {
+
+        gapLabel.textContent =
+          "退休資金缺口（退休期累積）";
+      }
+
+
+      if (gap) {
+
+        gap.textContent =
+          "HK$ 0";
+      }
+
+
+      if (
+        shortfallAge
+      ) {
+
+        shortfallAge.textContent =
+          "沒有";
+      }
+
+
+      if (
+        gapDescription
+      ) {
+
+        gapDescription.textContent =
+          `按目前假設，退休資產可支持至預計壽命 ${simulation.lifeExpectancy} 歲。`;
+      }
+
+
+      if (gapCard) {
+
+        gapCard.style.background =
+          "#122f57";
+      }
+
+
+      if (status) {
+
+        status.textContent =
+          `可支持至${simulation.lifeExpectancy}歲`;
+      }
+
+    }
+
+
+    if (chart) {
+
+      chart.innerHTML =
+        createSustainabilityChart(
+          simulation
+        );
+    }
+
+
+    if (
+      baselineResult
+    ) {
+
+      baselineResult.textContent =
+        describeSimulationResult(
+          baselineSimulation
+        );
+    }
+
+
+    if (
+      activeResult
+    ) {
+
+      activeResult.textContent =
+        describeSimulationResult(
+          simulation
+        );
+    }
+
+
+    if (
+      activeLabel
+    ) {
+
+      const labels = {
+        conservative:
+          "較穩健退休後回報",
+        current:
+          "沿用目前回報",
+        custom:
+          "自行設定退休後回報"
+      };
+
+
+      activeLabel.textContent =
+        labels[
+          retirementScenario
+        ] ||
+        "目前情境";
+    }
+
+
+    if (
+      usageTable
+    ) {
+
+      usageTable.innerHTML =
+        createAssetUsageTable(
+          simulation
+        );
+    }
+
+
+    if (
+      reconciliation
+    ) {
+
+      const difference =
+        simulation
+          .initialAssets +
+        simulation
+          .totalGrowth +
+        simulation
+          .totalIncomeUsed -
+        data.expense
+          .totalExpense;
+
+
+      if (
+        difference >= 0
+      ) {
+
+        reconciliation.innerHTML =
+          `<strong>${simulation.retirementAge}歲起始資產</strong> ${money(simulation.initialAssets)}
+           ＋ <strong>退休期間資產增值</strong> ${money(simulation.totalGrowth)}
+           ＋ <strong>實際用作生活費的固定收入</strong> ${money(simulation.totalIncomeUsed)}
+           － <strong>退休總支出</strong> ${money(data.expense.totalExpense)}
+           ＝ 預計仍有 <strong>${money(simulation.endingAssets)}</strong> 資產。`;
+
+      } else {
+
+        reconciliation.innerHTML =
+          `<strong>${simulation.retirementAge}歲起始資產</strong> ${money(simulation.initialAssets)}
+           ＋ <strong>退休期間資產增值</strong> ${money(simulation.totalGrowth)}
+           ＋ <strong>實際用作生活費的固定收入</strong> ${money(simulation.totalIncomeUsed)}
+           仍不足以支付 <strong>退休總支出 ${money(data.expense.totalExpense)}</strong>，
+           因此退休期累積未能支付金額為 <strong>${money(simulation.fundingGap)}</strong>。`;
+      }
+
+    }
+
+  };
+
+
+/* =========================================
+   Scenario Buttons
+========================================= */
+
+document
+  .querySelectorAll(
+    "[data-retirement-scenario]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const nextScenario =
+            button.dataset
+              .retirementScenario;
+
+
+          /*
+            由非 custom 轉入 custom：
+            先保留當前畫面回報率，
+            再開放輸入。
+          */
+
+          if (
+            nextScenario ===
+              "custom" &&
+            retirementScenario !==
+              "custom"
+          ) {
+
+            const currentRates =
+              getRetirementReturnRates();
+
+
+            const map = {
+              retirementReturnMpf:
+                currentRates.mpf,
+              retirementReturnStock:
+                currentRates.stock,
+              retirementReturnFund:
+                currentRates.fund,
+              retirementReturnFixed:
+                currentRates.fixed,
+              retirementReturnInsurance:
+                currentRates.insurance,
+              retirementReturnCash:
+                currentRates.cash
+            };
+
+
+            Object.entries(
+              map
+            ).forEach(
+              (
+                [
+                  id,
+                  value
+                ]
+              ) => {
+
+                const el =
+                  document.getElementById(
+                    id
+                  );
+
+
+                if (el) {
+
+                  el.value =
+                    (
+                      value *
+                      100
+                    )
+                      .toFixed(1);
+                }
+
+              }
+            );
+
+          }
+
+
+          retirementScenario =
+            nextScenario;
+
+
+          updateGapResult();
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================
+   自訂退休後回報：即時更新
+========================================= */
+
+[
+  "retirementReturnMpf",
+  "retirementReturnStock",
+  "retirementReturnFund",
+  "retirementReturnFixed",
+  "retirementReturnInsurance",
+  "retirementReturnCash"
+].forEach(
+  id => {
+
+    const el =
+      document.getElementById(
+        id
+      );
+
+
+    if (!el) {
+
+      return;
+    }
+
+
+    el.addEventListener(
+      "input",
+      () => {
+
+        if (
+          retirementScenario ===
+          "custom"
+        ) {
+
+          updateGapResult();
+        }
+
+      }
+    );
+
+
+    el.addEventListener(
+      "change",
+      () => {
+
+        if (
+          retirementScenario ===
+          "custom"
+        ) {
+
+          updateGapResult();
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================
+   提款次序按鈕：即時更新
 ========================================= */
 
 const withdrawalOrderContainer =
@@ -4467,26 +5804,10 @@ if (
             .orderDirection;
 
 
-        let targetIndex =
-          index;
-
-
-        if (
+        const targetIndex =
           direction === "up"
-        ) {
-
-          targetIndex =
-            index - 1;
-        }
-
-
-        if (
-          direction === "down"
-        ) {
-
-          targetIndex =
-            index + 1;
-        }
+            ? index - 1
+            : index + 1;
 
 
         if (
@@ -4499,35 +5820,27 @@ if (
         }
 
 
-        const temp =
+        [
           withdrawalOrder[
             index
-          ];
-
-
-        withdrawalOrder[
-          index
-        ] =
+          ],
           withdrawalOrder[
             targetIndex
-          ];
-
-
-        withdrawalOrder[
-          targetIndex
-        ] =
-          temp;
+          ]
+        ] = [
+          withdrawalOrder[
+            targetIndex
+          ],
+          withdrawalOrder[
+            index
+          ]
+        ];
 
 
         renderWithdrawalOrder();
 
 
-        if (
-          currentStep === 6
-        ) {
-
-          updateGapResult();
-        }
+        updateGapResult();
 
       }
     );
@@ -4536,243 +5849,8 @@ if (
 
 
 /* =========================================
-   升級 Step 6 顯示
-========================================= */
-
-updateGapResult =
-  function() {
-
-    const data =
-      calculateGap();
-
-
-    const simulation =
-      data.simulation;
-
-
-    const totalExpense =
-      document.getElementById(
-        "totalExpenseResult"
-      );
-
-
-    const totalAssets =
-      document.getElementById(
-        "totalAssetsResult"
-      );
-
-
-    const income =
-      document.getElementById(
-        "incomeValueResult"
-      );
-
-
-    const gap =
-      document.getElementById(
-        "retirementGapResult"
-      );
-
-
-    const gapLabel =
-      document.getElementById(
-        "retirementGapLabel"
-      );
-
-
-    const gapDescription =
-      document.getElementById(
-        "retirementGapDescription"
-      );
-
-
-    const gapCard =
-      document.getElementById(
-        "retirementGapCard"
-      );
-
-
-    const status =
-      document.getElementById(
-        "sustainabilityStatus"
-      );
-
-
-    const chart =
-      document.getElementById(
-        "sustainabilityChart"
-      );
-
-
-    if (totalExpense) {
-
-      totalExpense.textContent =
-        money(
-          data.expense
-            .totalExpense
-        );
-
-    }
-
-
-    if (totalAssets) {
-
-      totalAssets.textContent =
-        money(
-          simulation
-            .initialAssets
-        );
-
-    }
-
-
-    if (income) {
-
-      income.textContent =
-        money(
-          data.income
-            .totalIncome
-        );
-
-    }
-
-
-    /*
-      有退休資金缺口
-    */
-
-    if (
-      simulation.fundingGap > 0
-    ) {
-
-      if (gapLabel) {
-
-        gapLabel.textContent =
-          "預計退休資金缺口";
-
-      }
-
-
-      if (gap) {
-
-        gap.textContent =
-          money(
-            simulation
-              .fundingGap
-          );
-
-      }
-
-
-      if (gapDescription) {
-
-        gapDescription.textContent =
-          "按目前生活支出、固定收入、資產回報及提款次序估算，以上為整個退休期仍需要補足的退休資金。";
-
-      }
-
-
-      if (gapCard) {
-
-        gapCard.style.background =
-          "#7f1020";
-
-      }
-
-
-      if (status) {
-
-        status.innerHTML =
-
-          `按目前假設，
-           預計於
-           <strong>
-             ${simulation.firstShortfallAge} 歲
-           </strong>
-           開始出現退休資金不足。`;
-
-      }
-
-    }
-
-
-    /*
-      暫時沒有缺口
-    */
-
-    else {
-
-      if (gapLabel) {
-
-        gapLabel.textContent =
-          "預計退休資金缺口";
-
-      }
-
-
-      if (gap) {
-
-        gap.textContent =
-          "HK$ 0";
-
-      }
-
-
-      if (gapDescription) {
-
-        gapDescription.innerHTML =
-
-          `按目前假設，
-           暫未出現退休資金缺口。
-           預計壽命時仍剩餘
-           <strong>
-             ${money(
-               simulation
-                 .endingAssets
-             )}
-           </strong>
-           資產。`;
-
-      }
-
-
-      if (gapCard) {
-
-        gapCard.style.background =
-          "#122f57";
-
-      }
-
-
-      if (status) {
-
-        status.innerHTML =
-
-          `按目前假設，
-           退休資產可支持至預計壽命
-           <strong>
-             ${simulation.lifeExpectancy} 歲
-           </strong>。`;
-
-      }
-
-    }
-
-
-    if (chart) {
-
-      chart.innerHTML =
-        createSustainabilityChart(
-          simulation
-        );
-
-    }
-
-  };
-
-
-/* =========================================
-   同步升級 Step 9 Cashflow Table
+   Step 9 Cashflow Table
+   跟 Step 6 同一套模擬
 ========================================= */
 
 createCashflowTable =
@@ -4817,35 +5895,16 @@ createCashflowTable =
           <thead>
 
             <tr>
-
-              <th>
-                年齡
-              </th>
-
-              <th>
-                年度支出
-              </th>
-
-              <th>
-                固定收入
-              </th>
-
-              <th>
-                資產提款
-              </th>
-
-              <th>
-                年末資產
-              </th>
-
-              <th>
-                資金不足
-              </th>
-
+              <th>年齡</th>
+              <th>年度支出</th>
+              <th>固定收入</th>
+              <th>資產提款</th>
+              <th>資產增值</th>
+              <th>年末資產</th>
+              <th>資金不足</th>
             </tr>
 
           </thead>
-
 
           <tbody>
 
@@ -4878,6 +5937,12 @@ createCashflowTable =
             <td>
               ${money(
                 row.totalWithdrawal
+              )}
+            </td>
+
+            <td>
+              ${money(
+                row.annualGrowth
               )}
             </td>
 
@@ -4923,10 +5988,15 @@ createCashflowTable =
 
 
 /* =========================================
-   初始提款次序
+   初始 Step 6 UI
 ========================================= */
 
 renderWithdrawalOrder();
+
+syncRetirementReturnUI();
+
+
+
   showStep(1);
 
 });
