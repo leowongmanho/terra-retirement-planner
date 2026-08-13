@@ -2108,48 +2108,51 @@
   data-step="6"
 >
 
-  <!-- 標題 + TERO -->
+  <!-- Header -->
 
   <div
     style="
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:24px;
-      margin-bottom:24px;
+      gap:18px;
+      margin-bottom:14px;
     "
   >
 
     <div>
 
-      <h2>
+      <h2
+        style="
+          margin-bottom:6px;
+        "
+      >
         退休資產可持續性分析
       </h2>
 
       <p
         style="
+          margin:0;
           color:#687386;
-          margin-top:8px;
-          line-height:1.75;
+          line-height:1.65;
+          max-width:820px;
         "
       >
-        系統會整合你的退休支出、累積資產、
-        MPF 及固定退休收入，
-        分析現有退休資源能否持續支持整個退休生活。
+        以退休後回報假設、固定退休收入及資產提取次序，
+        即時模擬退休資產可以支持至幾多歲。
       </p>
 
     </div>
-
 
     <img
       src="tero-calculation.png"
       alt="TERO Retirement Calculation"
       style="
-        width:125px;
-        max-width:22vw;
+        width:92px;
+        max-width:12vw;
         height:auto;
-        flex-shrink:0;
         object-fit:contain;
+        flex-shrink:0;
       "
     >
 
@@ -2157,543 +2160,691 @@
 
 
   <!-- ==================================
-       基本摘要
+       iPad Landscape Dashboard
   =================================== -->
 
   <div
     style="
       display:grid;
-      grid-template-columns:
-        repeat(3,minmax(0,1fr));
-      gap:14px;
-      margin-top:24px;
+      grid-template-columns:minmax(330px,38%) minmax(0,62%);
+      gap:18px;
+      align-items:start;
+      margin-top:16px;
     "
   >
 
-    <!-- 退休總支出 -->
+    <!-- LEFT: Controls -->
 
     <div
       style="
-        padding:20px;
-        border:1px solid #eadfcd;
-        border-radius:18px;
-        background:#fffdf8;
+        display:grid;
+        gap:14px;
       "
     >
 
-      <span
-        style="
-          display:block;
-          color:#687386;
-          font-size:14px;
-          margin-bottom:8px;
-        "
-      >
-        退休總支出
-      </span>
-
-      <strong
-        id="totalExpenseResult"
-        style="
-          display:block;
-          color:#122f57;
-          font-size:25px;
-          margin-bottom:10px;
-        "
-      >
-        HK$ —
-      </strong>
-
-      <small
-        style="
-          color:#687386;
-          line-height:1.6;
-        "
-      >
-        按退休生活費、通脹及80歲後支出設定，
-        估算整個退休期所需生活開支。
-      </small>
-
-    </div>
-
-
-    <!-- 可動用資產 -->
-
-    <div
-      style="
-        padding:20px;
-        border:1px solid #eadfcd;
-        border-radius:18px;
-        background:#fffdf8;
-      "
-    >
-
-      <span
-        style="
-          display:block;
-          color:#687386;
-          font-size:14px;
-          margin-bottom:8px;
-        "
-      >
-        退休時可動用總資產
-      </span>
-
-      <strong
-        id="totalAssetsResult"
-        style="
-          display:block;
-          color:#122f57;
-          font-size:25px;
-          margin-bottom:10px;
-        "
-      >
-        HK$ —
-      </strong>
-
-      <small
-        style="
-          color:#687386;
-          line-height:1.6;
-        "
-      >
-        包括退休時預計的銀行、定息、保險、
-        股票、基金及 MPF 資產。
-      </small>
-
-    </div>
-
-
-    <!-- 固定退休收入 -->
-
-    <div
-      style="
-        padding:20px;
-        border:1px solid #eadfcd;
-        border-radius:18px;
-        background:#fffdf8;
-      "
-    >
+      <!-- Retirement return assumptions -->
 
       <div
         style="
-          display:flex;
-          align-items:center;
-          gap:8px;
-          margin-bottom:8px;
+          border:1px solid #eadfcd;
+          border-radius:18px;
+          background:#fffdf8;
+          padding:16px;
         "
       >
 
-        <span
+        <div
           style="
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:10px;
+            margin-bottom:10px;
+          "
+        >
+
+          <div>
+
+            <h3
+              style="
+                margin:0 0 4px;
+                color:#122f57;
+                font-size:18px;
+              "
+            >
+              退休後回報假設
+            </h3>
+
+            <p
+              style="
+                margin:0;
+                color:#687386;
+                font-size:12px;
+                line-height:1.5;
+              "
+            >
+              退休前用作累積資產；退休後另行設定可持續性回報。
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:7px;
+            margin-bottom:12px;
+          "
+        >
+
+          <button
+            type="button"
+            data-retirement-scenario="conservative"
+            style="
+              border:2px solid #d7a922;
+              border-radius:10px;
+              background:#fff4cf;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:12px;
+            "
+          >
+            較穩健
+          </button>
+
+          <button
+            type="button"
+            data-retirement-scenario="current"
+            style="
+              border:1px solid #eadfcd;
+              border-radius:10px;
+              background:#ffffff;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:12px;
+            "
+          >
+            沿用目前
+          </button>
+
+          <button
+            type="button"
+            data-retirement-scenario="custom"
+            style="
+              border:1px solid #eadfcd;
+              border-radius:10px;
+              background:#ffffff;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:12px;
+            "
+          >
+            自行設定
+          </button>
+
+        </div>
+
+
+        <div
+          id="retirementScenarioNote"
+          style="
+            padding:9px 11px;
+            border-radius:10px;
+            background:#f8f4eb;
             color:#687386;
-            font-size:14px;
+            font-size:11px;
+            line-height:1.55;
+            margin-bottom:10px;
           "
         >
-          退休固定收入總值
-        </span>
+          「較穩健」是 TERRA 規劃情境，並非回報保證。
+        </div>
 
 
-        <button
-          type="button"
-          class="terra-info-toggle"
-          data-target="sustainabilityIncomeInfo"
-          aria-expanded="false"
-          aria-label="固定退休收入說明"
+        <div
           style="
-            width:27px;
-            height:27px;
-            min-width:27px;
-            padding:0;
-            border:2px solid #d7a922;
-            border-radius:50%;
-            background:#122f57;
-            color:#ffffff;
-            font-size:15px;
-            font-weight:900;
-            cursor:pointer;
+            display:grid;
+            grid-template-columns:1.35fr .75fr .75fr;
+            gap:6px 8px;
+            align-items:center;
+            font-size:12px;
           "
         >
-          ?
-        </button>
+
+          <strong style="color:#687386;">資產</strong>
+          <strong style="color:#687386;text-align:center;">退休前</strong>
+          <strong style="color:#687386;text-align:center;">退休後</strong>
+
+          <span>MPF</span>
+          <span id="preReturnMpf" style="text-align:center;">—</span>
+          <input id="retirementReturnMpf" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+          <span>股票</span>
+          <span id="preReturnStock" style="text-align:center;">—</span>
+          <input id="retirementReturnStock" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+          <span>基金</span>
+          <span id="preReturnFund" style="text-align:center;">—</span>
+          <input id="retirementReturnFund" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+          <span>定息</span>
+          <span id="preReturnFixed" style="text-align:center;">—</span>
+          <input id="retirementReturnFixed" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+          <span>保險</span>
+          <span id="preReturnInsurance" style="text-align:center;">—</span>
+          <input id="retirementReturnInsurance" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+          <span>銀行活期</span>
+          <span id="preReturnCash" style="text-align:center;">—</span>
+          <input id="retirementReturnCash" type="number" step="0.1"
+            style="width:100%;padding:6px;border:1px solid #eadfcd;border-radius:8px;text-align:center;">
+
+        </div>
 
       </div>
 
 
-      <strong
-        id="incomeValueResult"
-        style="
-          display:block;
-          color:#122f57;
-          font-size:25px;
-          margin-bottom:10px;
-        "
-      >
-        HK$ —
-      </strong>
+      <!-- Withdrawal order -->
 
-      <small
+      <div
         style="
-          color:#687386;
-          line-height:1.6;
+          border:1px solid #eadfcd;
+          border-radius:18px;
+          background:#fffdf8;
+          padding:16px;
         "
       >
-        整個退休期內，
-        固定退休現金收入的估算總額。
-      </small>
+
+        <h3
+          style="
+            margin:0 0 4px;
+            color:#122f57;
+            font-size:18px;
+          "
+        >
+          資產提取次序
+        </h3>
+
+        <p
+          style="
+            margin:0 0 10px;
+            color:#687386;
+            font-size:12px;
+            line-height:1.5;
+          "
+        >
+          按 ↑ ↓ 改變次序，右邊圖表及缺口會即時更新。
+        </p>
+
+        <div
+          id="withdrawalOrderList"
+          style="
+            display:grid;
+            gap:6px;
+          "
+        ></div>
+
+        <p
+          style="
+            margin:9px 0 0;
+            color:#687386;
+            font-size:10px;
+            line-height:1.5;
+          "
+        >
+          * 模型一般於 65 歲後才把 MPF 視作可提取資產；
+          65 歲前會自動跳過 MPF，再按其餘次序提款。
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- RIGHT: Live results -->
+
+    <div
+      style="
+        position:sticky;
+        top:12px;
+        display:grid;
+        gap:12px;
+      "
+    >
+
+      <!-- Hero result -->
+
+      <div
+        id="retirementGapCard"
+        style="
+          border-radius:18px;
+          background:#7f1020;
+          color:#ffffff;
+          padding:18px 20px;
+          box-shadow:0 10px 28px rgba(18,47,87,.12);
+        "
+      >
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:1.6fr 1fr 1fr;
+            gap:16px;
+            align-items:end;
+          "
+        >
+
+          <div>
+
+            <span
+              id="retirementGapLabel"
+              style="
+                display:block;
+                opacity:.78;
+                font-size:13px;
+                font-weight:700;
+                margin-bottom:5px;
+              "
+            >
+              退休資金缺口（退休期累積）
+            </span>
+
+            <strong
+              id="retirementGapResult"
+              style="
+                display:block;
+                font-size:36px;
+                line-height:1.05;
+              "
+            >
+              HK$ —
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span style="display:block;opacity:.72;font-size:11px;">
+              預計開始不足
+            </span>
+
+            <strong
+              id="shortfallAgeResult"
+              style="
+                display:block;
+                margin-top:4px;
+                font-size:23px;
+              "
+            >
+              —
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span style="display:block;opacity:.72;font-size:11px;">
+              預計壽命時資產
+            </span>
+
+            <strong
+              id="endingAssetsResult"
+              style="
+                display:block;
+                margin-top:4px;
+                font-size:20px;
+              "
+            >
+              —
+            </strong>
+
+          </div>
+
+        </div>
+
+        <p
+          id="retirementGapDescription"
+          style="
+            margin:10px 0 0;
+            opacity:.84;
+            font-size:12px;
+            line-height:1.55;
+          "
+        >
+          系統正在計算……
+        </p>
+
+      </div>
+
+
+      <!-- Scenario comparison -->
+
+      <div
+        style="
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:10px;
+        "
+      >
+
+        <div
+          style="
+            padding:11px 14px;
+            border:1px solid #eadfcd;
+            border-radius:12px;
+            background:#ffffff;
+          "
+        >
+
+          <span
+            style="
+              color:#687386;
+              font-size:11px;
+            "
+          >
+            沿用退休前回報
+          </span>
+
+          <strong
+            id="baselineScenarioResult"
+            style="
+              display:block;
+              color:#122f57;
+              font-size:15px;
+              margin-top:3px;
+            "
+          >
+            —
+          </strong>
+
+        </div>
+
+        <div
+          style="
+            padding:11px 14px;
+            border:2px solid #d7a922;
+            border-radius:12px;
+            background:#fffdf8;
+          "
+        >
+
+          <span
+            id="activeScenarioLabel"
+            style="
+              color:#687386;
+              font-size:11px;
+            "
+          >
+            目前情境
+          </span>
+
+          <strong
+            id="activeScenarioResult"
+            style="
+              display:block;
+              color:#7f1020;
+              font-size:15px;
+              margin-top:3px;
+            "
+          >
+            —
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- Chart -->
+
+      <div
+        style="
+          border:1px solid #eadfcd;
+          border-radius:18px;
+          background:#fffdf8;
+          padding:14px 16px 10px;
+        "
+      >
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            margin-bottom:4px;
+          "
+        >
+
+          <h3
+            style="
+              margin:0;
+              color:#122f57;
+              font-size:18px;
+            "
+          >
+            退休資產可持續走勢
+          </h3>
+
+          <span
+            id="sustainabilityStatus"
+            style="
+              color:#7f1020;
+              font-size:12px;
+              font-weight:800;
+              text-align:right;
+            "
+          >
+            正在分析……
+          </span>
+
+        </div>
+
+        <div
+          style="
+            display:flex;
+            gap:16px;
+            flex-wrap:wrap;
+            font-size:11px;
+            color:#687386;
+            margin-bottom:3px;
+          "
+        >
+          <span><b style="color:#122f57;">━</b> 退休資產餘額</span>
+          <span><b style="color:#d7a922;">━</b> 每年退休支出</span>
+        </div>
+
+        <div id="sustainabilityChart"></div>
+
+      </div>
 
     </div>
 
   </div>
 
 
-  <!-- 固定收入說明 -->
+  <!-- ==================================
+       SECOND SCREEN: Explanation
+  =================================== -->
 
   <div
-    id="sustainabilityIncomeInfo"
-    class="terra-info-panel"
-    hidden
     style="
-      margin-top:14px;
-      padding:18px;
-      border:1px solid #eadfcd;
-      border-left:5px solid #d7a922;
-      border-radius:14px;
-      background:#fffdf8;
-      color:#27364a;
-      line-height:1.75;
+      margin-top:28px;
+      border-top:1px solid #eadfcd;
+      padding-top:24px;
     "
   >
 
-    <strong
+    <h3
       style="
+        margin:0 0 12px;
         color:#122f57;
       "
     >
-      固定退休收入如何計算？
-    </strong>
-
-    <p
-      style="
-        margin:8px 0 0;
-      "
-    >
-      政府津貼、家人支援、租金收入、
-      香港年金、安老按揭及其他退休收入，
-      在本模型中視為每年的退休現金流。
-      它們會先用作抵銷當年的生活支出，
-      而不當作投資資產進行複利增值。
-    </p>
-
-    <p
-      style="
-        margin:8px 0 0;
-        color:#687386;
-        font-size:13px;
-      "
-    >
-      如某年的固定收入高於生活支出，
-      本版本暫不將多出的收入重新投資。
-    </p>
-
-  </div>
-
-
-  <!-- ==================================
-       最重要：
-       退休資金缺口
-  =================================== -->
-
-  <div
-    id="retirementGapCard"
-    style="
-      margin-top:22px;
-      padding:28px;
-      border-radius:20px;
-      background:#7f1020;
-      color:#ffffff;
-      box-shadow:
-        0 12px 30px
-        rgba(18,47,87,0.14);
-    "
-  >
-
-    <span
-      id="retirementGapLabel"
-      style="
-        display:block;
-        opacity:0.82;
-        font-size:17px;
-        font-weight:700;
-        margin-bottom:10px;
-      "
-    >
-      預計退休資金缺口
-    </span>
-
-
-    <strong
-      id="retirementGapResult"
-      style="
-        display:block;
-        font-size:42px;
-        line-height:1.15;
-        margin-bottom:12px;
-      "
-    >
-      HK$ —
-    </strong>
-
-
-    <p
-      id="retirementGapDescription"
-      style="
-        margin:0;
-        opacity:0.88;
-        line-height:1.7;
-      "
-    >
-      系統正在分析你的退休資產可持續性。
-    </p>
-
-  </div>
-
-
-  <!-- 可持續狀態 -->
-
-  <div
-    id="sustainabilityStatus"
-    style="
-      margin-top:14px;
-      padding:15px 18px;
-      border:1px solid #eadfcd;
-      border-radius:14px;
-      background:#fffdf8;
-      color:#122f57;
-      font-weight:700;
-      line-height:1.7;
-    "
-  >
-    正在分析退休資產可持續性……
-  </div>
-
-
-  <!-- ==================================
-       資產提取次序
-  =================================== -->
-
-  <div
-    style="
-      margin-top:34px;
-    "
-  >
-
-    <h3>
-      資產提取次序
+      退休資金來源與使用
     </h3>
 
 
-    <p
-      style="
-        color:#687386;
-        line-height:1.75;
-        margin-bottom:16px;
-      "
-    >
-      當固定退休收入不足以支付當年生活費時，
-      系統會按以下次序提取資產。
-      你可以利用上下按鈕自行改變次序，
-      比較不同策略對退休資產持續性的影響。
-    </p>
-
-
     <div
-      id="withdrawalOrderList"
       style="
         display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
         gap:10px;
       "
     >
+
+      <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <span style="display:block;color:#687386;font-size:11px;">退休總支出</span>
+        <strong id="totalExpenseResult" style="display:block;color:#122f57;font-size:20px;margin-top:4px;">HK$ —</strong>
+      </div>
+
+      <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <span id="initialAssetsLabel" style="display:block;color:#687386;font-size:11px;">退休時起始可動用資產</span>
+        <strong id="totalAssetsResult" style="display:block;color:#122f57;font-size:20px;margin-top:4px;">HK$ —</strong>
+      </div>
+
+      <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <span style="display:block;color:#687386;font-size:11px;">退休期間資產增值</span>
+        <strong id="retirementGrowthResult" style="display:block;color:#9f1020;font-size:20px;margin-top:4px;">HK$ —</strong>
+      </div>
+
+      <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <span style="display:block;color:#687386;font-size:11px;">退休固定收入總值</span>
+        <strong id="incomeValueResult" style="display:block;color:#122f57;font-size:20px;margin-top:4px;">HK$ —</strong>
+      </div>
+
     </div>
 
 
     <div
+      id="retirementReconciliation"
       style="
-        margin-top:12px;
-        padding:14px 16px;
+        margin-top:10px;
+        padding:13px 15px;
+        border-left:5px solid #d7a922;
         border-radius:12px;
         background:#f8f4eb;
-        color:#687386;
-        font-size:13px;
-        line-height:1.7;
+        color:#27364a;
+        font-size:12px;
+        line-height:1.65;
       "
     >
-      預設次序：
-      MPF → 股票 → 基金 → 定息戶口 →
-      保險戶口 → 銀行活期。
-      尚未提取的資產會繼續按各自設定的
-      預期回報率增值。
+      系統正在整理資金來源……
     </div>
 
   </div>
 
 
   <!-- ==================================
-       TERO Reminder
+       Asset usage years
   =================================== -->
 
   <div
     style="
-      margin-top:24px;
-      padding:20px;
+      margin-top:26px;
+    "
+  >
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:end;
+        gap:14px;
+        margin-bottom:10px;
+      "
+    >
+
+      <div>
+
+        <h3
+          style="
+            margin:0 0 4px;
+            color:#122f57;
+          "
+        >
+          各類資產使用年期
+        </h3>
+
+        <p
+          style="
+            margin:0;
+            color:#687386;
+            font-size:12px;
+          "
+        >
+          提款次序或退休後回報一改變，以下年期會同步更新。
+        </p>
+
+      </div>
+
+    </div>
+
+    <div
+      id="assetUsageTable"
+      style="
+        overflow-x:auto;
+      "
+    ></div>
+
+  </div>
+
+
+  <!-- TERO reminder -->
+
+  <div
+    style="
+      margin-top:22px;
+      padding:16px 18px;
       border:1px solid #eadfcd;
       border-left:5px solid #d7a922;
-      border-radius:16px;
+      border-radius:14px;
       background:#fffdf8;
     "
   >
 
     <strong
       style="
-        display:block;
         color:#122f57;
-        font-size:17px;
-        margin-bottom:8px;
       "
     >
       TERO 提醒你
     </strong>
 
-
     <p
       style="
-        margin:0;
+        margin:6px 0 0;
         color:#27364a;
-        line-height:1.8;
-      "
-    >
-      退休後的投資目標，
-      可能會由「資產增長」
-      逐步轉向「穩定現金流及降低波動」。
-      你可以考慮退休後是否需要調低
-      MPF、股票及基金的風險水平，
-      或逐步轉向較穩健的資產配置。
-    </p>
-
-
-    <p
-      style="
-        margin:10px 0 0;
-        color:#687386;
-        font-size:13px;
+        font-size:12px;
         line-height:1.7;
       "
     >
-      本版本暫時沿用你退休前設定的回報率作估算，
-      並沒有自動降低退休後的投資回報假設。
+      退休前的高增長回報假設，不應自動延續至整個退休期。
+      退休後的投資目標可能由資產增長逐步轉向穩定現金流及降低波動。
+      「較穩健」情境只是一套規劃假設，並非投資回報保證；實際安排應按客戶的風險承受能力、
+      現金流需要及資產配置決定。
     </p>
-
-  </div>
-
-
-  <!-- ==================================
-       可持續走勢圖
-  =================================== -->
-
-  <div
-    style="
-      margin-top:34px;
-    "
-  >
-
-    <h3>
-      退休資產可持續走勢
-    </h3>
-
-
-    <p
-      style="
-        color:#687386;
-        line-height:1.75;
-        margin-bottom:16px;
-      "
-    >
-      比較每年的退休生活支出，
-      以及支付生活費後剩餘的退休資產，
-      讓你了解資產能否支持至預計壽命。
-    </p>
-
-
-    <div
-      style="
-        display:flex;
-        gap:22px;
-        flex-wrap:wrap;
-        margin-bottom:12px;
-        font-size:14px;
-      "
-    >
-
-      <span>
-        <strong style="color:#122f57;">
-          ━
-        </strong>
-        退休資產餘額
-      </span>
-
-      <span>
-        <strong style="color:#d7a922;">
-          ━
-        </strong>
-        每年退休支出
-      </span>
-
-    </div>
-
-
-    <div
-      id="sustainabilityChart"
-    >
-    </div>
-
-  </div>
-
-
-  <!-- ==================================
-       模型說明
-  =================================== -->
-
-  <div
-    style="
-      margin-top:20px;
-      padding:16px 18px;
-      border-radius:14px;
-      background:#f8f4eb;
-      color:#687386;
-      font-size:13px;
-      line-height:1.8;
-    "
-  >
-
-    <strong
-      style="
-        color:#122f57;
-      "
-    >
-      計算假設：
-    </strong>
-
-    固定退休收入先抵銷當年支出；
-    仍然不足的部分才從資產提取。
-    未使用的資產會按照相應的預期回報率繼續增值。
-    本分析為退休規劃估算，
-    並不代表未來投資表現或保證結果。
 
   </div>
 
 </section>
 
-      <!-- ==================================
+<!-- ==================================
            STEP 7
       =================================== -->
 
@@ -3045,7 +3196,7 @@
 </main>
 
 
-<script src="script.js?v=20260814-1"></script>
+<script src="script.js?v=20260814-2"></script>
 </body>
 
 </html>
