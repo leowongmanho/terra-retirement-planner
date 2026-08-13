@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const steps = Array.from(
-    document.querySelectorAll(".planner-step")
-  );
+  const steps =
+    Array.from(
+      document.querySelectorAll(".planner-step")
+    );
 
   const prevBtn =
     document.getElementById("prevBtn");
@@ -25,14 +26,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const acceptedExpenseInput =
     document.getElementById("acceptedExpense");
 
+  const age80Options =
+    document.querySelectorAll(
+      'input[name="age80ExpenseOption"]'
+    );
+
+
   let currentStep = 1;
 
   let acceptedExpenseAuto = true;
 
 
-  /* =========================
-     共用工具
-  ========================== */
+  /* =================================
+     基本工具
+  ================================= */
 
   const number = (id) => {
 
@@ -55,15 +62,87 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 
+  const compactMoney = (value) => {
+
+    const amount =
+      Number(value) || 0;
+
+
+    if (amount >= 1000000) {
+
+      return (
+        "HK$" +
+        (amount / 1000000).toFixed(1) +
+        "M"
+      );
+    }
+
+
+    if (amount >= 1000) {
+
+      return (
+        "HK$" +
+        Math.round(amount / 1000) +
+        "K"
+      );
+    }
+
+
+    return (
+      "HK$" +
+      Math.round(amount)
+    );
+  };
+
+
   const percentage = (id) => {
 
     return number(id) / 100;
   };
 
 
-  /* =========================
+  /* =================================
+     80歲後生活費選項
+  ================================= */
+
+  function shouldReduceAfter80() {
+
+    const selected =
+      document.querySelector(
+        'input[name="age80ExpenseOption"]:checked'
+      );
+
+
+    if (!selected) {
+
+      return true;
+    }
+
+
+    return (
+      selected.value === "reduce"
+    );
+  }
+
+
+  function ageExpenseFactor(age) {
+
+    if (
+      age >= 80 &&
+      shouldReduceAfter80()
+    ) {
+
+      return 0.70;
+    }
+
+
+    return 1;
+  }
+
+
+  /* =================================
      基本退休資料
-  ========================== */
+  ================================= */
 
   function getBasicData() {
 
@@ -105,15 +184,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      退休第一年生活費
-  ========================== */
+  ================================= */
 
   function calculateSuggestedExpense() {
 
     const {
       yearsToRetire,
-      inflation
+      inflation,
+      retirementAge
     } = getBasicData();
 
 
@@ -121,12 +201,26 @@ document.addEventListener("DOMContentLoaded", () => {
       number("todayExpense");
 
 
-    const suggested =
+    let suggested =
       todayExpense *
       Math.pow(
         1 + inflation,
         yearsToRetire
       );
+
+
+    /*
+      如果客戶本身退休時已經80歲或以上，
+      才需要在第一年直接套用70%。
+    */
+
+    if (
+      retirementAge >= 80 &&
+      shouldReduceAfter80()
+    ) {
+
+      suggested *= 0.70;
+    }
 
 
     const output =
@@ -186,13 +280,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     退休總支出
-  ========================== */
+  /* =================================
+     退休年度支出
+  ================================= */
 
   function calculateRetirementExpenses() {
 
     const {
+      retirementAge,
       retirementYears,
       inflation
     } = getBasicData();
@@ -213,12 +308,39 @@ document.addEventListener("DOMContentLoaded", () => {
       year++
     ) {
 
+      const age =
+        retirementAge + year;
+
+
+      let factor = 1;
+
+
+      /*
+        如果退休年齡未到80歲，
+        到80歲先開始下調30%。
+
+        如果退休第一年已經80歲或以上，
+        firstMonthlyExpense 已經調整過，
+        所以避免再乘一次0.70。
+      */
+
+      if (
+        retirementAge < 80 &&
+        age >= 80 &&
+        shouldReduceAfter80()
+      ) {
+
+        factor = 0.70;
+      }
+
+
       const monthlyExpense =
         firstMonthlyExpense *
         Math.pow(
           1 + inflation,
           year
-        );
+        ) *
+        factor;
 
 
       const annualExpense =
@@ -231,8 +353,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       rows.push({
         year: year + 1,
+        age,
         monthlyExpense,
-        annualExpense
+        annualExpense,
+        reducedAfter80:
+          age >= 80 &&
+          shouldReduceAfter80()
       });
     }
 
@@ -245,9 +371,400 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     一般資產退休時價值
-  ========================== */
+  /* =================================
+     Step 2 圖表
+  ================================= */
+
+  function createExpenseTrendChart(rows) {
+
+    if (
+      !rows ||
+      rows.length === 0
+    ) {
+
+      return "";
+    }
+
+
+    const width = 760;
+    const height = 330;
+
+    const paddingLeft = 72;
+    const paddingRight = 30;
+    const paddingTop = 34;
+    const paddingBottom = 58;
+
+
+    const chartWidth =
+      width -
+      paddingLeft -
+      paddingRight;
+
+
+    const chartHeight =
+      height -
+      paddingTop -
+      paddingBottom;
+
+
+    const values =
+      rows.map(
+        row => row.annualExpense
+      );
+
+
+    const maxValue =
+      Math.max(...values);
+
+
+    const minValue =
+      Math.min(...values);
+
+
+    const range =
+      Math.max(
+        maxValue - minValue,
+        1
+      );
+
+
+    const points =
+      rows.map(
+        (row, index) => {
+
+          const x =
+            paddingLeft +
+            (
+              index /
+              Math.max(
+                rows.length - 1,
+                1
+              )
+            ) *
+            chartWidth;
+
+
+          const normalized =
+            (
+              row.annualExpense -
+              minValue
+            ) /
+            range;
+
+
+          const y =
+            paddingTop +
+            chartHeight -
+            normalized *
+            chartHeight;
+
+
+          return {
+            x,
+            y,
+            year: row.year,
+            age: row.age,
+            value: row.annualExpense
+          };
+        }
+      );
+
+
+    const linePoints =
+      points
+        .map(
+          point =>
+            `${point.x},${point.y}`
+        )
+        .join(" ");
+
+
+    const areaPoints =
+      [
+        `${paddingLeft},${paddingTop + chartHeight}`,
+
+        ...points.map(
+          point =>
+            `${point.x},${point.y}`
+        ),
+
+        `${paddingLeft + chartWidth},${paddingTop + chartHeight}`
+      ].join(" ");
+
+
+    const horizontalLines = [];
+
+
+    for (
+      let i = 0;
+      i <= 4;
+      i++
+    ) {
+
+      const ratio =
+        i / 4;
+
+
+      const y =
+        paddingTop +
+        chartHeight -
+        ratio *
+        chartHeight;
+
+
+      const value =
+        minValue +
+        ratio *
+        range;
+
+
+      horizontalLines.push(`
+
+        <line
+          x1="${paddingLeft}"
+          y1="${y}"
+          x2="${paddingLeft + chartWidth}"
+          y2="${y}"
+          stroke="#eadfcd"
+          stroke-width="1"
+        />
+
+
+        <text
+          x="${paddingLeft - 12}"
+          y="${y + 5}"
+          text-anchor="end"
+          font-size="12"
+          fill="#687386"
+        >
+          ${compactMoney(value)}
+        </text>
+
+      `);
+    }
+
+
+    const startPoint =
+      points[0];
+
+
+    const endPoint =
+      points[
+        points.length - 1
+      ];
+
+
+    const middlePoint =
+      points[
+        Math.floor(
+          points.length / 2
+        )
+      ];
+
+
+    const age80Point =
+      points.find(
+        point =>
+          point.age === 80
+      );
+
+
+    let age80Marker = "";
+
+
+    if (
+      age80Point &&
+      shouldReduceAfter80()
+    ) {
+
+      age80Marker = `
+
+        <line
+          x1="${age80Point.x}"
+          y1="${paddingTop}"
+          x2="${age80Point.x}"
+          y2="${paddingTop + chartHeight}"
+          stroke="#9f1020"
+          stroke-width="2"
+          stroke-dasharray="6 6"
+        />
+
+
+        <text
+          x="${age80Point.x + 8}"
+          y="${paddingTop + 16}"
+          font-size="12"
+          fill="#9f1020"
+        >
+          80歲後 -30%
+        </text>
+
+      `;
+    }
+
+
+    const modeDescription =
+      shouldReduceAfter80()
+
+        ? "80歲後假設日常生活消費下降30%，其後繼續按通脹調整。"
+
+        : "80歲後維持原有生活費水平，並繼續按通脹調整。";
+
+
+    return `
+
+      <div
+        class="expense-chart-card"
+        style="
+          margin-top:22px;
+          padding:22px;
+          border:1px solid #eadfcd;
+          border-radius:18px;
+          background:#fffdf8;
+        "
+      >
+
+        <h3
+          style="
+            margin:0 0 4px;
+            color:#122f57;
+          "
+        >
+          退休年度生活開支趨勢
+        </h3>
+
+
+        <p
+          style="
+            margin:0 0 16px;
+            color:#687386;
+            font-size:14px;
+          "
+        >
+          ${modeDescription}
+        </p>
+
+
+        <div
+          style="
+            width:100%;
+            overflow-x:auto;
+          "
+        >
+
+          <svg
+            viewBox="0 0 ${width} ${height}"
+            width="100%"
+            style="
+              min-width:620px;
+              display:block;
+            "
+          >
+
+            <defs>
+
+              <linearGradient
+                id="expenseAreaGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+
+                <stop
+                  offset="0%"
+                  stop-color="#d7a922"
+                  stop-opacity="0.28"
+                />
+
+                <stop
+                  offset="100%"
+                  stop-color="#d7a922"
+                  stop-opacity="0.02"
+                />
+
+              </linearGradient>
+
+            </defs>
+
+
+            ${horizontalLines.join("")}
+
+
+            <polygon
+              points="${areaPoints}"
+              fill="url(#expenseAreaGradient)"
+            />
+
+
+            <polyline
+              points="${linePoints}"
+              fill="none"
+              stroke="#d7a922"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+
+            ${age80Marker}
+
+
+            <line
+              x1="${paddingLeft}"
+              y1="${paddingTop + chartHeight}"
+              x2="${paddingLeft + chartWidth}"
+              y2="${paddingTop + chartHeight}"
+              stroke="#122f57"
+              stroke-width="2"
+            />
+
+
+            <text
+              x="${startPoint.x}"
+              y="${height - 22}"
+              text-anchor="start"
+              font-size="13"
+              fill="#687386"
+            >
+              ${startPoint.age}歲
+            </text>
+
+
+            <text
+              x="${middlePoint.x}"
+              y="${height - 22}"
+              text-anchor="middle"
+              font-size="13"
+              fill="#687386"
+            >
+              ${middlePoint.age}歲
+            </text>
+
+
+            <text
+              x="${endPoint.x}"
+              y="${height - 22}"
+              text-anchor="end"
+              font-size="13"
+              fill="#687386"
+            >
+              ${endPoint.age}歲
+            </text>
+
+          </svg>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+
+  /* =================================
+     資產
+  ================================= */
 
   function compoundValue(
     balance,
@@ -305,6 +822,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     return {
+
       cash,
       fixed,
       insurance,
@@ -319,9 +837,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      MPF
-  ========================== */
+  ================================= */
 
   function calculateMPF() {
 
@@ -380,7 +898,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
 
         futureContribution =
-          monthly * months;
+          monthly *
+          months;
       }
     }
 
@@ -407,9 +926,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      固定退休收入
-  ========================== */
+  ================================= */
 
   function calculateRetirementIncome() {
 
@@ -440,9 +959,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     退休缺口
-  ========================== */
+  /* =================================
+     缺口
+  ================================= */
 
   function calculateGap() {
 
@@ -463,7 +982,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const totalAssets =
-      assets.total + mpf;
+      assets.total +
+      mpf;
 
 
     const gap =
@@ -473,6 +993,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     return {
+
       expense,
       assets,
       mpf,
@@ -483,9 +1004,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     Step 2 支出顯示
-  ========================== */
+  /* =================================
+     Step 2
+  ================================= */
 
   function updateExpenseSummary() {
 
@@ -498,14 +1019,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!container) return;
 
 
-    const {
-      firstMonthlyExpense,
-      totalExpense,
-      rows
-    } = calculateRetirementExpenses();
+    const data =
+      calculateRetirementExpenses();
 
 
-    if (!firstMonthlyExpense) {
+    if (
+      !data.firstMonthlyExpense
+    ) {
 
       container.innerHTML =
         "<p>請先完成第一步的退休生活費設定。</p>";
@@ -514,68 +1034,163 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    const {
+      retirementYears
+    } = getBasicData();
+
+
+    const chart =
+      createExpenseTrendChart(
+        data.rows
+      );
+
+
     let html = `
 
-      <div class="calculation-preview">
-        <p>退休第一年每月生活費</p>
-        <strong>
-          ${money(firstMonthlyExpense)}
-        </strong>
+      <div class="result-grid">
+
+        <div class="calculation-preview">
+
+          <p>
+            退休第一年每月生活費
+          </p>
+
+          <strong>
+            ${money(
+              data.firstMonthlyExpense
+            )}
+          </strong>
+
+        </div>
+
+
+        <div class="calculation-preview">
+
+          <p>
+            預計退休年期
+          </p>
+
+          <strong>
+            ${retirementYears} 年
+          </strong>
+
+        </div>
+
       </div>
 
 
       <div class="calculation-preview">
-        <p>整個退休期估算總支出</p>
+
+        <p>
+          整個退休期估算總支出
+        </p>
+
         <strong>
-          ${money(totalExpense)}
+          ${money(
+            data.totalExpense
+          )}
         </strong>
+
       </div>
 
 
-      <h3>
+      ${chart}
+
+
+      <h3
+        style="
+          margin-top:28px;
+        "
+      >
         退休年度支出預覽
       </h3>
 
     `;
 
 
-    rows
+    data.rows
       .slice(0, 10)
-      .forEach((row) => {
+      .forEach(
+        row => {
 
-        html += `
+          html += `
 
-          <p>
-            退休第 ${row.year} 年：
-            ${money(row.annualExpense)}
-            / 年
-          </p>
+            <p
+              style="
+                padding:8px 0;
+                border-bottom:
+                  1px solid #f0ebe1;
+              "
+            >
 
-        `;
-      });
+              ${row.age} 歲
+              （退休第 ${row.year} 年）：
+
+              <strong>
+                ${money(
+                  row.annualExpense
+                )}
+              </strong>
+
+              / 年
+
+              ${
+                row.age === 80 &&
+                shouldReduceAfter80()
+
+                  ? `
+                    <span
+                      style="
+                        color:#9f1020;
+                        font-weight:700;
+                        font-size:13px;
+                      "
+                    >
+                      （生活費調整 -30%）
+                    </span>
+                  `
+
+                  : ""
+              }
+
+            </p>
+
+          `;
+        }
+      );
 
 
-    if (rows.length > 10) {
+    if (
+      data.rows.length > 10
+    ) {
 
       html += `
 
-        <p>
+        <p
+          style="
+            margin-top:12px;
+            color:#687386;
+          "
+        >
+
           ……其餘
-          ${rows.length - 10}
-          年將繼續按通脹計算。
+          ${data.rows.length - 10}
+          年將按上述設定繼續計算。
+
         </p>
 
       `;
     }
 
 
-    container.innerHTML = html;
+    container.innerHTML =
+      html;
   }
 
 
-  /* =========================
-     Step 6 缺口結果
-  ========================== */
+  /* =================================
+     Step 6
+  ================================= */
 
   function updateGapResult() {
 
@@ -636,27 +1251,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (gap) {
 
-      if (data.gap > 0) {
+      gap.textContent =
+        data.gap > 0
 
-        gap.textContent =
-          money(data.gap) +
-          " 缺口";
+          ? money(data.gap) +
+            " 缺口"
 
-      } else {
-
-        gap.textContent =
-          money(
-            Math.abs(data.gap)
-          ) +
-          " 盈餘";
-      }
+          : money(
+              Math.abs(
+                data.gap
+              )
+            ) +
+            " 盈餘";
     }
   }
 
 
-  /* =========================
-     Step 8 銀行 VS 規劃
-  ========================== */
+  /* =================================
+     Step 8
+  ================================= */
 
   function updateComparison() {
 
@@ -687,7 +1300,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const bankRate =
-      percentage("bankOnlyReturn");
+      percentage(
+        "bankOnlyReturn"
+      );
 
 
     const bankOnly =
@@ -756,9 +1371,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     Step 9 年度現金流
-  ========================== */
+  /* =================================
+     Step 9
+  ================================= */
 
   function updateFinalSummary() {
 
@@ -823,11 +1438,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       finalGap.textContent =
         data.gap > 0
-          ? money(data.gap) +
+
+          ? money(
+              data.gap
+            ) +
             " 缺口"
 
           : money(
-              Math.abs(data.gap)
+              Math.abs(
+                data.gap
+              )
             ) +
             " 盈餘";
     }
@@ -852,13 +1472,6 @@ document.addEventListener("DOMContentLoaded", () => {
       calculateGap();
 
 
-    const {
-      retirementAge,
-      retirementYears,
-      inflation
-    } = getBasicData();
-
-
     let remainingAssets =
       data.totalAssets;
 
@@ -870,7 +1483,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let html = `
 
-      <div style="overflow-x:auto;">
+      <div
+        style="
+          overflow-x:auto;
+        "
+      >
 
         <table
           style="
@@ -899,68 +1516,67 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
 
-    for (
-      let year = 0;
-      year < retirementYears;
-      year++
-    ) {
+    data.expense.rows
+      .forEach(
+        row => {
 
-      const annualExpense =
-        data.expense
-          .firstMonthlyExpense *
-        12 *
-        Math.pow(
-          1 + inflation,
-          year
-        );
+          const withdrawal =
+            Math.max(
+              row.annualExpense -
+              fixedIncomeAnnual,
+              0
+            );
 
 
-      const withdrawal =
-        Math.max(
-          annualExpense -
-          fixedIncomeAnnual,
-          0
-        );
+          remainingAssets -=
+            withdrawal;
 
 
-      remainingAssets -=
-        withdrawal;
+          if (
+            remainingAssets < 0
+          ) {
+
+            remainingAssets = 0;
+          }
 
 
-      if (remainingAssets < 0) {
+          html += `
 
-        remainingAssets = 0;
-      }
+            <tr>
 
+              <td>
+                ${row.age}
+              </td>
 
-      html += `
+              <td>
+                ${money(
+                  row.annualExpense
+                )}
+              </td>
 
-        <tr>
+              <td>
+                ${money(
+                  fixedIncomeAnnual
+                )}
+              </td>
 
-          <td>
-            ${retirementAge + year}
-          </td>
+              <td>
+                ${money(
+                  withdrawal
+                )}
+              </td>
 
-          <td>
-            ${money(annualExpense)}
-          </td>
+              <td>
+                ${money(
+                  remainingAssets
+                )}
+              </td>
 
-          <td>
-            ${money(fixedIncomeAnnual)}
-          </td>
+            </tr>
 
-          <td>
-            ${money(withdrawal)}
-          </td>
-
-          <td>
-            ${money(remainingAssets)}
-          </td>
-
-        </tr>
-
-      `;
-    }
+          `;
+        }
+      );
 
 
     html += `
@@ -979,9 +1595,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     頁面導航
-  ========================== */
+  /* =================================
+     導航
+  ================================= */
 
   function showStep(step) {
 
@@ -996,11 +1612,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     steps.forEach(
-      (section, index) => {
+      (
+        section,
+        index
+      ) => {
 
         section.style.display =
-          index === currentStep - 1
+          index ===
+          currentStep - 1
+
             ? "block"
+
             : "none";
       }
     );
@@ -1020,7 +1642,8 @@ document.addEventListener("DOMContentLoaded", () => {
           (
             currentStep /
             steps.length
-          ) * 100
+          ) *
+          100
         }%`;
     }
 
@@ -1044,33 +1667,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* 每頁即時計算 */
-
-    if (currentStep === 2) {
+    if (
+      currentStep === 2
+    ) {
 
       updateExpenseSummary();
     }
 
 
-    if (currentStep === 4) {
+    if (
+      currentStep === 4
+    ) {
 
       calculateMPF();
     }
 
 
-    if (currentStep === 6) {
+    if (
+      currentStep === 6
+    ) {
 
       updateGapResult();
     }
 
 
-    if (currentStep === 8) {
+    if (
+      currentStep === 8
+    ) {
 
       updateComparison();
     }
 
 
-    if (currentStep === 9) {
+    if (
+      currentStep === 9
+    ) {
 
       updateFinalSummary();
     }
@@ -1083,9 +1714,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      Step 1 驗證
-  ========================== */
+  ================================= */
 
   function validateStepOne() {
 
@@ -1108,7 +1739,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (
       !retirementAge ||
-      retirementAge <= currentAge
+      retirementAge <=
+        currentAge
     ) {
 
       alert(
@@ -1133,7 +1765,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    if (!number("todayExpense")) {
+    if (
+      !number(
+        "todayExpense"
+      )
+    ) {
 
       alert(
         "請輸入生活費，或選擇基本、舒適或豐裕生活模式。"
@@ -1147,9 +1783,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      下一步
-  ========================== */
+  ================================= */
 
   if (nextBtn) {
 
@@ -1188,9 +1824,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      上一步
-  ========================== */
+  ================================= */
 
   if (prevBtn) {
 
@@ -1218,72 +1854,114 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
+  /* =================================
      Step 1 即時計算
-  ========================== */
+  ================================= */
 
   [
     "currentAge",
     "retirementAge",
     "inflationRate"
-  ].forEach((id) => {
+  ].forEach(
+    id => {
 
-    const el =
-      document.getElementById(id);
+      const el =
+        document.getElementById(id);
 
 
-    if (el) {
+      if (el) {
 
-      el.addEventListener(
-        "input",
-        updateSuggestedAndAccepted
-      );
+        el.addEventListener(
+          "input",
+          updateSuggestedAndAccepted
+        );
 
-      el.addEventListener(
-        "change",
-        updateSuggestedAndAccepted
-      );
+
+        el.addEventListener(
+          "change",
+          updateSuggestedAndAccepted
+        );
+      }
     }
-  });
+  );
 
 
-  /* =========================
-     退休生活模式
-  ========================== */
+  /* =================================
+     生活模式選擇
+  ================================= */
 
-  lifestyleCards.forEach(
-    (card) => {
+  lifestyleCards
+    .forEach(
+      card => {
 
-      card.addEventListener(
-        "click",
+        card.addEventListener(
+          "click",
+          () => {
+
+            lifestyleCards
+              .forEach(
+                item => {
+
+                  item.classList.remove(
+                    "selected"
+                  );
+                }
+              );
+
+
+            card.classList.add(
+              "selected"
+            );
+
+
+            const expense =
+              Number(
+                card.dataset.expense
+              ) || 0;
+
+
+            if (
+              todayExpenseInput
+            ) {
+
+              todayExpenseInput.value =
+                expense;
+            }
+
+
+            acceptedExpenseAuto =
+              true;
+
+
+            updateSuggestedAndAccepted();
+          }
+        );
+      }
+    );
+
+
+  /* =================================
+     客戶自行修改今日生活費
+  ================================= */
+
+  if (
+    todayExpenseInput
+  ) {
+
+    todayExpenseInput
+      .addEventListener(
+        "input",
         () => {
 
-          lifestyleCards.forEach(
-            (item) => {
+          lifestyleCards
+            .forEach(
+              item => {
 
-              item.classList.remove(
-                "selected"
-              );
-            }
-          );
-
-
-          card.classList.add(
-            "selected"
-          );
-
-
-          const expense =
-            Number(
-              card.dataset.expense
-            ) || 0;
-
-
-          if (todayExpenseInput) {
-
-            todayExpenseInput.value =
-              expense;
-          }
+                item.classList.remove(
+                  "selected"
+                );
+              }
+            );
 
 
           acceptedExpenseAuto =
@@ -1293,66 +1971,65 @@ document.addEventListener("DOMContentLoaded", () => {
           updateSuggestedAndAccepted();
         }
       );
-    }
-  );
+  }
 
 
-  /* =========================
-     客戶自行修改今日生活費
-  ========================== */
+  /* =================================
+     客戶自行修改最終生活費
+  ================================= */
 
-  if (todayExpenseInput) {
+  if (
+    acceptedExpenseInput
+  ) {
 
-    todayExpenseInput.addEventListener(
-      "input",
-      () => {
+    acceptedExpenseInput
+      .addEventListener(
+        "input",
+        () => {
 
-        lifestyleCards.forEach(
-          (item) => {
+          acceptedExpenseAuto =
+            false;
+        }
+      );
+  }
 
-            item.classList.remove(
-              "selected"
-            );
+
+  /* =================================
+     Step 2
+     80歲後生活費選擇
+  ================================= */
+
+  age80Options
+    .forEach(
+      option => {
+
+        option.addEventListener(
+          "change",
+          () => {
+
+            /*
+              Step 2即時重新畫圖
+              及重新計算總支出
+            */
+
+            updateExpenseSummary();
+
+
+            /*
+              如之後再去Step 6 / 9，
+              calculateGap會自動使用
+              最新選項。
+            */
+
           }
         );
-
-
-        acceptedExpenseAuto =
-          true;
-
-
-        updateSuggestedAndAccepted();
       }
     );
 
 
-    todayExpenseInput.addEventListener(
-      "change",
-      updateSuggestedAndAccepted
-    );
-  }
-
-
-  /* =========================
-     客戶自行修改最終退休生活費
-  ========================== */
-
-  if (acceptedExpenseInput) {
-
-    acceptedExpenseInput.addEventListener(
-      "input",
-      () => {
-
-        acceptedExpenseAuto =
-          false;
-      }
-    );
-  }
-
-
-  /* =========================
+  /* =================================
      預設顯示第一步
-  ========================== */
+  ================================= */
 
   showStep(1);
 
