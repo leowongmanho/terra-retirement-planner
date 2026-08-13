@@ -402,12 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
       Math.max(...values);
 
 
-    /*
-      Y軸由0開始，
-      避免80歲下降30%
-      視覺上被誇大。
-    */
-
     const minValue = 0;
 
 
@@ -863,6 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 3 資產計算
+     銀行 + 定息 + 保險 + 股票 + 基金
   ================================= */
 
   function calculateAssets() {
@@ -1888,12 +1883,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const assets =
       calculateAssets();
 
-
-    /*
-      將所有現有資產，
-      包括股票、基金及MPF，
-      假設全部只放銀行作比較。
-    */
 
     const currentTotal =
       number("cashBalance") +
