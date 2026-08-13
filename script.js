@@ -713,13 +713,9 @@ document.addEventListener("DOMContentLoaded", () => {
         `${(currentStep / steps.length) * 100}%`;
     }
 
-    if (prevBtn) {
-
-      prevBtn.style.display =
-        currentStep === 1
-          ? "none"
-          : "block";
-    }
+   if (prevBtn) {
+  prevBtn.style.display = "block";
+}
 
     if (nextBtn) {
 
@@ -853,10 +849,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (currentStep > 1) {
 
-          currentStep--;
+  currentStep--;
 
-          showStep(currentStep);
-        }
+  showStep(currentStep);
+
+} else {
+
+  window.location.href = "index.html";
+}
       }
     );
   }
@@ -884,7 +884,101 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
   });
+  /* =========================
+     Step 1 退休生活模式選擇
+  ========================== */
 
+  const lifestyleCards =
+    document.querySelectorAll(".lifestyle-card");
+
+  const todayExpenseInput =
+    document.getElementById("todayExpense");
+
+  const acceptedExpenseInput =
+    document.getElementById("acceptedExpense");
+
+
+  lifestyleCards.forEach((card) => {
+
+    card.addEventListener("click", () => {
+
+      /* 移除其他卡片的選取狀態 */
+      lifestyleCards.forEach((item) => {
+        item.classList.remove("selected");
+      });
+
+      /* 標示目前選擇 */
+      card.classList.add("selected");
+
+
+      /* 取得生活模式金額 */
+      const expense =
+        Number(card.dataset.expense) || 0;
+
+
+      /* 自動填入今日生活費 */
+      if (todayExpenseInput) {
+        todayExpenseInput.value = expense;
+      }
+
+
+      /* 即時計算退休時生活費 */
+      const suggested =
+        calculateSuggestedExpense();
+
+
+      /* 自動把系統建議填入最終生活費 */
+      if (
+        acceptedExpenseInput &&
+        suggested > 0
+      ) {
+
+        acceptedExpenseInput.value =
+          Math.round(suggested);
+      }
+
+    });
+
+  });
+
+
+  /* =========================
+     客人自行修改生活費
+  ========================== */
+
+  if (todayExpenseInput) {
+
+    todayExpenseInput.addEventListener(
+      "input",
+      () => {
+
+        /*
+          客人自行修改金額後，
+          取消基本／舒適／豐裕的選取狀態
+        */
+
+        lifestyleCards.forEach((item) => {
+          item.classList.remove("selected");
+        });
+
+
+        const suggested =
+          calculateSuggestedExpense();
+
+
+        if (
+          acceptedExpenseInput &&
+          suggested > 0
+        ) {
+
+          acceptedExpenseInput.value =
+            Math.round(suggested);
+        }
+
+      }
+    );
+
+  }
 
   /* 預設顯示第一步 */
 
