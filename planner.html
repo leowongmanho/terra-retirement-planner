@@ -33,149 +33,308 @@
     <form id="retirementForm">
 
       <!-- STEP 1 -->
-      <section class="planner-step active" data-step="1">
+<section class="planner-step active" data-step="1">
 
-        <h2>退休目標</h2>
+  <div class="step-layout">
 
-        <p>
-          首先了解你希望幾時退休，以及退休後想維持怎樣的生活。
+    <!-- 左邊：表格 -->
+    <div class="step-main">
+
+      <h2>退休目標</h2>
+
+      <p>
+        首先了解你希望幾時退休、退休地點，
+        以及退休後想維持怎樣的生活。
+      </p>
+
+      <!-- 規劃模式 -->
+      <div class="form-group">
+        <label for="planningMode">規劃模式</label>
+
+        <select id="planningMode">
+          <option value="individual">個人</option>
+          <option value="couple">夫婦</option>
+        </select>
+      </div>
+
+      <!-- 退休地點 -->
+      <div class="form-group">
+        <label for="retirementLocation">
+          預計退休地點
+        </label>
+
+        <select id="retirementLocation">
+          <option value="hongkong">香港</option>
+          <option value="mainland">中國內地</option>
+          <option value="greater-bay-area">大灣區</option>
+          <option value="asia">亞洲其他地區</option>
+          <option value="overseas">海外</option>
+          <option value="undecided">尚未決定</option>
+        </select>
+
+        <small>
+          不同退休地點的生活成本可能有差異，
+          後續版本可以再加入地區生活費比較。
+        </small>
+      </div>
+
+      <!-- 目前年齡 -->
+      <div class="form-group">
+        <label for="currentAge">
+          目前年齡
+        </label>
+
+        <input
+          type="number"
+          id="currentAge"
+          min="18"
+          max="100"
+          placeholder="例如：45"
+        >
+      </div>
+
+      <!-- 退休年齡 -->
+      <div class="form-group">
+        <label for="retirementAge">
+          預計退休年齡
+        </label>
+
+        <input
+          type="number"
+          id="retirementAge"
+          min="40"
+          max="100"
+          placeholder="例如：65"
+        >
+      </div>
+
+      <!-- 預計壽命 -->
+      <div class="form-group">
+        <label for="lifeExpectancy">
+          預計壽命
+        </label>
+
+        <input
+          type="number"
+          id="lifeExpectancy"
+          min="60"
+          max="120"
+          value="90"
+        >
+      </div>
+
+      <!-- 通脹 -->
+      <div class="form-group">
+        <label for="inflationRate">
+          預計每年通脹率（%）
+        </label>
+
+        <input
+          type="number"
+          id="inflationRate"
+          value="3"
+          step="0.1"
+        >
+      </div>
+
+
+      <!-- 退休生活模式 -->
+      <div class="form-group">
+
+        <label>
+          你希望退休後維持哪一種生活模式？
+        </label>
+
+        <p class="field-intro">
+          如果你未確定退休生活費，可以先選擇以下其中一個參考水平。
         </p>
 
-        <div class="form-group">
-          <label>規劃模式</label>
+        <div class="lifestyle-options">
 
-          <select id="planningMode">
-            <option value="individual">個人</option>
-            <option value="couple">夫婦</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="currentAge">
-            目前年齡
-          </label>
-
-          <input
-            type="number"
-            id="currentAge"
-            min="18"
-            max="100"
-            placeholder="例如：45"
+          <button
+            type="button"
+            class="lifestyle-card"
+            data-lifestyle="basic"
+            data-expense="11000"
           >
-        </div>
-
-        <div class="form-group">
-          <label for="retirementAge">
-            預計退休年齡
-          </label>
-
-          <input
-            type="number"
-            id="retirementAge"
-            min="40"
-            max="100"
-            placeholder="例如：65"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="lifeExpectancy">
-            預計壽命
-          </label>
-
-          <input
-            type="number"
-            id="lifeExpectancy"
-            min="60"
-            max="120"
-            value="90"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="inflationRate">
-            預計每年通脹率（%）
-          </label>
-
-          <input
-            type="number"
-            id="inflationRate"
-            value="3"
-            step="0.1"
-          >
-        </div>
-
-        <div class="form-group">
-
-          <label for="todayExpense">
-            如果今日退休，你希望每月有多少生活費？
-          </label>
-
-          <input
-            type="number"
-            id="todayExpense"
-            min="0"
-            placeholder="例如：30000"
-          >
-
-          <div class="reminder-box">
+            <span class="lifestyle-name">
+              基本
+            </span>
 
             <strong>
-              輸入生活費時，記得考慮：
+              HK$11,000
             </strong>
 
-            <p>
-              生活費：衣食住行、水電煤、管理費、
-              旅行、禮物及日常需要
-            </p>
+            <span class="lifestyle-period">
+              ／月
+            </span>
 
-            <p>
-              醫療費：門診、藥物、住院及長期護理
-            </p>
+            <small>
+              以基本日常生活及必要開支為主
+            </small>
+          </button>
 
-            <p>
-              娛樂及社交：興趣、聚會、
-              消閒活動及退休生活質素
-            </p>
 
-          </div>
+          <button
+            type="button"
+            class="lifestyle-card"
+            data-lifestyle="comfortable"
+            data-expense="21000"
+          >
+            <span class="lifestyle-name">
+              舒適
+            </span>
+
+            <strong>
+              HK$21,000
+            </strong>
+
+            <span class="lifestyle-period">
+              ／月
+            </span>
+
+            <small>
+              包括較充裕的社交、消閒及生活質素
+            </small>
+          </button>
+
+
+          <button
+            type="button"
+            class="lifestyle-card"
+            data-lifestyle="affluent"
+            data-expense="32000"
+          >
+            <span class="lifestyle-name">
+              豐裕
+            </span>
+
+            <strong>
+              HK$32,000
+            </strong>
+
+            <span class="lifestyle-period">
+              ／月
+            </span>
+
+            <small>
+              較高生活質素、旅遊及更充裕的退休預算
+            </small>
+          </button>
 
         </div>
 
-        <div class="calculation-preview">
+      </div>
 
-          <p>
-            根據通脹估算，
-            你退休第一年的建議每月生活費：
-          </p>
 
-          <strong id="suggestedExpense">
-            HK$ —
+      <!-- 今日生活費 -->
+      <div class="form-group">
+
+        <label for="todayExpense">
+          如果今日退休，你希望每月有多少生活費？
+        </label>
+
+        <input
+          type="number"
+          id="todayExpense"
+          min="0"
+          placeholder="選擇以上生活模式，或自行輸入金額"
+        >
+
+        <small>
+          選擇基本、舒適或豐裕後，系統會自動填入參考金額。
+          你仍然可以自行增加或減少。
+        </small>
+
+
+        <div class="reminder-box">
+
+          <strong>
+            輸入生活費時，記得考慮：
           </strong>
 
-        </div>
+          <p>
+            生活費：衣食住行、水電煤、管理費、
+            旅行、禮物及日常需要
+          </p>
 
-        <div class="form-group">
+          <p>
+            醫療費：門診、藥物、住院及長期護理
+          </p>
 
-          <label for="acceptedExpense">
-            你希望採用的退休每月生活費
-          </label>
-
-          <input
-            type="number"
-            id="acceptedExpense"
-            min="0"
-            placeholder="可以接受系統建議，亦可以自行輸入"
-          >
-
-          <small>
-            系統估算只作參考，你可以自行決定一個你認為合理的退休生活費。
-          </small>
+          <p>
+            娛樂及社交：興趣、聚會、
+            消閒活動及退休生活質素
+          </p>
 
         </div>
 
-      </section>
+      </div>
 
+
+      <!-- 通脹後生活費 -->
+      <div class="calculation-preview">
+
+        <p>
+          根據你的退休年齡及通脹估算，
+          退休第一年的建議每月生活費：
+        </p>
+
+        <strong id="suggestedExpense">
+          HK$ —
+        </strong>
+
+      </div>
+
+
+      <!-- 最終採用生活費 -->
+      <div class="form-group">
+
+        <label for="acceptedExpense">
+          你希望採用的退休每月生活費
+        </label>
+
+        <input
+          type="number"
+          id="acceptedExpense"
+          min="0"
+          placeholder="可以接受系統建議，亦可以自行輸入"
+        >
+
+        <small>
+          系統估算只作參考。
+          你可以自行調整為一個適合自己的退休生活費。
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- 右邊：TERO -->
+    <aside class="step-tero-panel">
+
+      <img
+        src="Tero-analysis.png"
+        alt="TERO 正在分析退休需要"
+        class="step-tero-image"
+      >
+
+      <div class="tero-message">
+        <strong>TERO 提提你</strong>
+
+        <p>
+          暫時未知道需要幾多生活費都唔緊要。
+          先揀一個最接近你理想退休生活的模式，
+          之後仍然可以自行調整。
+        </p>
+      </div>
+
+    </aside>
+
+  </div>
+
+</section>
 
       <!-- STEP 2 -->
       <section class="planner-step" data-step="2">
