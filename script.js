@@ -1,22 +1,64 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const steps = Array.from(document.querySelectorAll(".planner-step"));
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const stepLabel = document.getElementById("stepLabel");
-  const progressBar = document.getElementById("progressBar");
+  const steps = Array.from(
+    document.querySelectorAll(".planner-step")
+  );
+
+  const prevBtn =
+    document.getElementById("prevBtn");
+
+  const nextBtn =
+    document.getElementById("nextBtn");
+
+  const stepLabel =
+    document.getElementById("stepLabel");
+
+  const progressBar =
+    document.getElementById("progressBar");
+
+  const lifestyleCards =
+    document.querySelectorAll(".lifestyle-card");
+
+  const todayExpenseInput =
+    document.getElementById("todayExpense");
+
+  const acceptedExpenseInput =
+    document.getElementById("acceptedExpense");
 
   let currentStep = 1;
 
+  let acceptedExpenseAuto = true;
+
+
+  /* =========================
+     共用工具
+  ========================== */
+
   const number = (id) => {
-    const el = document.getElementById(id);
-    return el ? Number(el.value) || 0 : 0;
+
+    const el =
+      document.getElementById(id);
+
+    return el
+      ? Number(el.value) || 0
+      : 0;
   };
 
-  const money = (value) =>
-    "HK$ " + Math.round(value || 0).toLocaleString("en-HK");
 
-  const percentage = (id) => number(id) / 100;
+  const money = (value) => {
+
+    return (
+      "HK$ " +
+      Math.round(value || 0)
+        .toLocaleString("en-HK")
+    );
+  };
+
+
+  const percentage = (id) => {
+
+    return number(id) / 100;
+  };
 
 
   /* =========================
@@ -25,17 +67,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getBasicData() {
 
-    const currentAge = number("currentAge");
-    const retirementAge = number("retirementAge");
-    const lifeExpectancy = number("lifeExpectancy");
+    const currentAge =
+      number("currentAge");
 
-    const inflation = percentage("inflationRate");
+    const retirementAge =
+      number("retirementAge");
+
+    const lifeExpectancy =
+      number("lifeExpectancy");
+
+    const inflation =
+      percentage("inflationRate");
+
 
     const yearsToRetire =
-      Math.max(retirementAge - currentAge, 0);
+      Math.max(
+        retirementAge - currentAge,
+        0
+      );
+
 
     const retirementYears =
-      Math.max(lifeExpectancy - retirementAge, 0);
+      Math.max(
+        lifeExpectancy - retirementAge,
+        0
+      );
+
 
     return {
       currentAge,
@@ -59,21 +116,55 @@ document.addEventListener("DOMContentLoaded", () => {
       inflation
     } = getBasicData();
 
-    const todayExpense = number("todayExpense");
+
+    const todayExpense =
+      number("todayExpense");
+
 
     const suggested =
       todayExpense *
-      Math.pow(1 + inflation, yearsToRetire);
+      Math.pow(
+        1 + inflation,
+        yearsToRetire
+      );
+
 
     const output =
-      document.getElementById("suggestedExpense");
+      document.getElementById(
+        "suggestedExpense"
+      );
+
 
     if (output) {
+
       output.textContent =
         todayExpense > 0
           ? money(suggested) + " / 月"
           : "HK$ —";
     }
+
+
+    return suggested;
+  }
+
+
+  function updateSuggestedAndAccepted() {
+
+    const suggested =
+      calculateSuggestedExpense();
+
+
+    if (
+      acceptedExpenseInput &&
+      acceptedExpenseAuto
+    ) {
+
+      acceptedExpenseInput.value =
+        suggested > 0
+          ? Math.round(suggested)
+          : "";
+    }
+
 
     return suggested;
   }
@@ -81,11 +172,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getRetirementMonthlyExpense() {
 
-    const accepted = number("acceptedExpense");
+    const accepted =
+      number("acceptedExpense");
+
 
     if (accepted > 0) {
+
       return accepted;
     }
+
 
     return calculateSuggestedExpense();
   }
@@ -102,22 +197,37 @@ document.addEventListener("DOMContentLoaded", () => {
       inflation
     } = getBasicData();
 
+
     const firstMonthlyExpense =
       getRetirementMonthlyExpense();
 
+
     let totalExpense = 0;
+
     const rows = [];
 
-    for (let year = 0; year < retirementYears; year++) {
+
+    for (
+      let year = 0;
+      year < retirementYears;
+      year++
+    ) {
 
       const monthlyExpense =
         firstMonthlyExpense *
-        Math.pow(1 + inflation, year);
+        Math.pow(
+          1 + inflation,
+          year
+        );
+
 
       const annualExpense =
         monthlyExpense * 12;
 
-      totalExpense += annualExpense;
+
+      totalExpense +=
+        annualExpense;
+
 
       rows.push({
         year: year + 1,
@@ -125,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
         annualExpense
       });
     }
+
 
     return {
       firstMonthlyExpense,
@@ -144,15 +255,22 @@ document.addEventListener("DOMContentLoaded", () => {
     years
   ) {
 
-    return balance *
-      Math.pow(1 + annualRate, years);
+    return (
+      balance *
+      Math.pow(
+        1 + annualRate,
+        years
+      )
+    );
   }
 
 
   function calculateAssets() {
 
-    const { yearsToRetire } =
-      getBasicData();
+    const {
+      yearsToRetire
+    } = getBasicData();
+
 
     const cash =
       compoundValue(
@@ -161,12 +279,14 @@ document.addEventListener("DOMContentLoaded", () => {
         yearsToRetire
       );
 
+
     const fixed =
       compoundValue(
         number("fixedBalance"),
         percentage("fixedReturn"),
         yearsToRetire
       );
+
 
     const insurance =
       compoundValue(
@@ -175,6 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
         yearsToRetire
       );
 
+
     const investment =
       compoundValue(
         number("investmentBalance"),
@@ -182,11 +303,13 @@ document.addEventListener("DOMContentLoaded", () => {
         yearsToRetire
       );
 
+
     return {
       cash,
       fixed,
       insurance,
       investment,
+
       total:
         cash +
         fixed +
@@ -202,29 +325,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function calculateMPF() {
 
-    const { yearsToRetire } =
-      getBasicData();
+    const {
+      yearsToRetire
+    } = getBasicData();
+
 
     const balance =
       number("mpfBalance");
 
+
     const monthly =
       number("mpfMonthly");
+
 
     const annualRate =
       percentage("mpfReturn");
 
+
     const months =
       yearsToRetire * 12;
+
 
     const monthlyRate =
       annualRate / 12;
 
+
     const futureBalance =
       balance *
-      Math.pow(1 + annualRate, yearsToRetire);
+      Math.pow(
+        1 + annualRate,
+        yearsToRetire
+      );
+
 
     let futureContribution = 0;
+
 
     if (months > 0) {
 
@@ -238,7 +373,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 1 + monthlyRate,
                 months
               ) - 1
-            ) / monthlyRate
+            ) /
+            monthlyRate
           );
 
       } else {
@@ -248,16 +384,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+
     const total =
       futureBalance +
       futureContribution;
 
+
     const output =
-      document.getElementById("futureMPF");
+      document.getElementById(
+        "futureMPF"
+      );
+
 
     if (output) {
-      output.textContent = money(total);
+
+      output.textContent =
+        money(total);
     }
+
 
     return total;
   }
@@ -273,6 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
       retirementYears
     } = getBasicData();
 
+
     const monthlyIncome =
       number("governmentSupport") +
       number("familySupport") +
@@ -281,10 +426,12 @@ document.addEventListener("DOMContentLoaded", () => {
       number("reverseMortgage") +
       number("otherIncome");
 
+
     const totalIncome =
       monthlyIncome *
       12 *
       retirementYears;
+
 
     return {
       monthlyIncome,
@@ -302,22 +449,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const expense =
       calculateRetirementExpenses();
 
+
     const assets =
       calculateAssets();
+
 
     const mpf =
       calculateMPF();
 
+
     const income =
       calculateRetirementIncome();
 
+
     const totalAssets =
       assets.total + mpf;
+
 
     const gap =
       expense.totalExpense -
       totalAssets -
       income.totalIncome;
+
 
     return {
       expense,
@@ -337,15 +490,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateExpenseSummary() {
 
     const container =
-      document.getElementById("expenseSummary");
+      document.getElementById(
+        "expenseSummary"
+      );
+
 
     if (!container) return;
+
 
     const {
       firstMonthlyExpense,
       totalExpense,
       rows
     } = calculateRetirementExpenses();
+
 
     if (!firstMonthlyExpense) {
 
@@ -355,38 +513,61 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+
     let html = `
+
       <div class="calculation-preview">
         <p>退休第一年每月生活費</p>
-        <strong>${money(firstMonthlyExpense)}</strong>
+        <strong>
+          ${money(firstMonthlyExpense)}
+        </strong>
       </div>
+
 
       <div class="calculation-preview">
         <p>整個退休期估算總支出</p>
-        <strong>${money(totalExpense)}</strong>
+        <strong>
+          ${money(totalExpense)}
+        </strong>
       </div>
 
-      <h3>退休年度支出預覽</h3>
+
+      <h3>
+        退休年度支出預覽
+      </h3>
+
     `;
 
-    rows.slice(0, 10).forEach((row) => {
 
-      html += `
-        <p>
-          退休第 ${row.year} 年：
-          ${money(row.annualExpense)} / 年
-        </p>
-      `;
-    });
+    rows
+      .slice(0, 10)
+      .forEach((row) => {
+
+        html += `
+
+          <p>
+            退休第 ${row.year} 年：
+            ${money(row.annualExpense)}
+            / 年
+          </p>
+
+        `;
+      });
+
 
     if (rows.length > 10) {
+
       html += `
+
         <p>
-          ……其餘 ${rows.length - 10} 年
-          將繼續按通脹計算。
+          ……其餘
+          ${rows.length - 10}
+          年將繼續按通脹計算。
         </p>
+
       `;
     }
+
 
     container.innerHTML = html;
   }
@@ -401,49 +582,72 @@ document.addEventListener("DOMContentLoaded", () => {
     const data =
       calculateGap();
 
+
     const totalExpense =
       document.getElementById(
         "totalExpenseResult"
       );
+
 
     const totalAssets =
       document.getElementById(
         "totalAssetsResult"
       );
 
+
     const income =
       document.getElementById(
         "incomeValueResult"
       );
+
 
     const gap =
       document.getElementById(
         "retirementGapResult"
       );
 
-    if (totalExpense)
+
+    if (totalExpense) {
+
       totalExpense.textContent =
-        money(data.expense.totalExpense);
+        money(
+          data.expense.totalExpense
+        );
+    }
 
-    if (totalAssets)
+
+    if (totalAssets) {
+
       totalAssets.textContent =
-        money(data.totalAssets);
+        money(
+          data.totalAssets
+        );
+    }
 
-    if (income)
+
+    if (income) {
+
       income.textContent =
-        money(data.income.totalIncome);
+        money(
+          data.income.totalIncome
+        );
+    }
+
 
     if (gap) {
 
       if (data.gap > 0) {
 
         gap.textContent =
-          money(data.gap) + " 缺口";
+          money(data.gap) +
+          " 缺口";
 
       } else {
 
         gap.textContent =
-          money(Math.abs(data.gap)) +
+          money(
+            Math.abs(data.gap)
+          ) +
           " 盈餘";
       }
     }
@@ -461,14 +665,18 @@ document.addEventListener("DOMContentLoaded", () => {
         "comparisonResult"
       );
 
+
     if (!container) return;
+
 
     const {
       yearsToRetire
     } = getBasicData();
 
+
     const assets =
       calculateAssets();
+
 
     const currentTotal =
       number("cashBalance") +
@@ -477,8 +685,10 @@ document.addEventListener("DOMContentLoaded", () => {
       number("investmentBalance") +
       number("mpfBalance");
 
+
     const bankRate =
       percentage("bankOnlyReturn");
+
 
     const bankOnly =
       compoundValue(
@@ -487,33 +697,61 @@ document.addEventListener("DOMContentLoaded", () => {
         yearsToRetire
       );
 
+
     const planned =
       assets.total +
       calculateMPF();
 
+
     const difference =
-      planned - bankOnly;
+      planned -
+      bankOnly;
+
 
     container.innerHTML = `
 
       <div class="result-grid">
 
         <div class="result-box">
-          <span>乜都唔做，只放銀行</span>
-          <strong>${money(bankOnly)}</strong>
+
+          <span>
+            乜都唔做，只放銀行
+          </span>
+
+          <strong>
+            ${money(bankOnly)}
+          </strong>
+
         </div>
 
-        <div class="result-box">
-          <span>按目前退休規劃</span>
-          <strong>${money(planned)}</strong>
-        </div>
 
         <div class="result-box">
-          <span>兩者差距</span>
-          <strong>${money(difference)}</strong>
+
+          <span>
+            按目前退休規劃
+          </span>
+
+          <strong>
+            ${money(planned)}
+          </strong>
+
+        </div>
+
+
+        <div class="result-box">
+
+          <span>
+            兩者差距
+          </span>
+
+          <strong>
+            ${money(difference)}
+          </strong>
+
         </div>
 
       </div>
+
     `;
   }
 
@@ -527,52 +765,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const data =
       calculateGap();
 
+
     const finalExpense =
       document.getElementById(
         "finalExpense"
       );
+
 
     const finalTotalExpense =
       document.getElementById(
         "finalTotalExpense"
       );
 
+
     const finalAssets =
       document.getElementById(
         "finalAssets"
       );
+
 
     const finalGap =
       document.getElementById(
         "finalGap"
       );
 
-    if (finalExpense)
+
+    if (finalExpense) {
+
       finalExpense.textContent =
         money(
-          data.expense.firstMonthlyExpense
+          data.expense
+            .firstMonthlyExpense
         );
+    }
 
-    if (finalTotalExpense)
+
+    if (finalTotalExpense) {
+
       finalTotalExpense.textContent =
         money(
-          data.expense.totalExpense
+          data.expense
+            .totalExpense
         );
+    }
 
-    if (finalAssets)
+
+    if (finalAssets) {
+
       finalAssets.textContent =
         money(
           data.totalAssets
         );
+    }
+
 
     if (finalGap) {
 
       finalGap.textContent =
         data.gap > 0
-          ? money(data.gap) + " 缺口"
-          : money(Math.abs(data.gap)) +
+          ? money(data.gap) +
+            " 缺口"
+
+          : money(
+              Math.abs(data.gap)
+            ) +
             " 盈餘";
     }
+
 
     createCashflowTable();
   }
@@ -585,10 +844,13 @@ document.addEventListener("DOMContentLoaded", () => {
         "cashflowTable"
       );
 
+
     if (!container) return;
+
 
     const data =
       calculateGap();
+
 
     const {
       retirementAge,
@@ -596,32 +858,46 @@ document.addEventListener("DOMContentLoaded", () => {
       inflation
     } = getBasicData();
 
+
     let remainingAssets =
       data.totalAssets;
 
+
     const fixedIncomeAnnual =
-      data.income.monthlyIncome * 12;
+      data.income.monthlyIncome *
+      12;
+
 
     let html = `
+
       <div style="overflow-x:auto;">
-      <table style="
-        width:100%;
-        border-collapse:collapse;
-        margin-top:20px;
-      ">
 
-      <thead>
-        <tr>
-          <th>年齡</th>
-          <th>年度支出</th>
-          <th>固定收入</th>
-          <th>資產提款</th>
-          <th>年末剩餘資產</th>
-        </tr>
-      </thead>
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+          "
+        >
 
-      <tbody>
+          <thead>
+
+            <tr>
+
+              <th>年齡</th>
+              <th>年度支出</th>
+              <th>固定收入</th>
+              <th>資產提款</th>
+              <th>年末剩餘資產</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
     `;
+
 
     for (
       let year = 0;
@@ -630,9 +906,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       const annualExpense =
-        data.expense.firstMonthlyExpense *
+        data.expense
+          .firstMonthlyExpense *
         12 *
-        Math.pow(1 + inflation, year);
+        Math.pow(
+          1 + inflation,
+          year
+        );
+
 
       const withdrawal =
         Math.max(
@@ -641,13 +922,21 @@ document.addEventListener("DOMContentLoaded", () => {
           0
         );
 
-      remainingAssets -= withdrawal;
 
-      if (remainingAssets < 0)
+      remainingAssets -=
+        withdrawal;
+
+
+      if (remainingAssets < 0) {
+
         remainingAssets = 0;
+      }
+
 
       html += `
+
         <tr>
+
           <td>
             ${retirementAge + year}
           </td>
@@ -667,17 +956,26 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>
             ${money(remainingAssets)}
           </td>
+
         </tr>
+
       `;
     }
 
+
     html += `
-      </tbody>
-      </table>
+
+          </tbody>
+
+        </table>
+
       </div>
+
     `;
 
-    container.innerHTML = html;
+
+    container.innerHTML =
+      html;
   }
 
 
@@ -689,17 +987,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentStep =
       Math.min(
-        Math.max(step, 1),
+        Math.max(
+          step,
+          1
+        ),
         steps.length
       );
 
-    steps.forEach((section, index) => {
 
-      section.style.display =
-        index === currentStep - 1
-          ? "block"
-          : "none";
-    });
+    steps.forEach(
+      (section, index) => {
+
+        section.style.display =
+          index === currentStep - 1
+            ? "block"
+            : "none";
+      }
+    );
+
 
     if (stepLabel) {
 
@@ -707,41 +1012,69 @@ document.addEventListener("DOMContentLoaded", () => {
         `第 ${currentStep} 步，共 ${steps.length} 步`;
     }
 
+
     if (progressBar) {
 
       progressBar.style.width =
-        `${(currentStep / steps.length) * 100}%`;
+        `${
+          (
+            currentStep /
+            steps.length
+          ) * 100
+        }%`;
     }
 
-   if (prevBtn) {
-  prevBtn.style.display = "block";
-}
+
+    if (prevBtn) {
+
+      prevBtn.style.display =
+        "block";
+    }
+
 
     if (nextBtn) {
 
       nextBtn.textContent =
-        currentStep === steps.length
+        currentStep ===
+        steps.length
+
           ? "完成退休規劃"
+
           : "下一步";
     }
 
 
     /* 每頁即時計算 */
 
-    if (currentStep === 2)
+    if (currentStep === 2) {
+
       updateExpenseSummary();
+    }
 
-    if (currentStep === 4)
+
+    if (currentStep === 4) {
+
       calculateMPF();
+    }
 
-    if (currentStep === 6)
+
+    if (currentStep === 6) {
+
       updateGapResult();
+    }
 
-    if (currentStep === 8)
+
+    if (currentStep === 8) {
+
       updateComparison();
+    }
 
-    if (currentStep === 9)
+
+    if (currentStep === 9) {
+
       updateFinalSummary();
+    }
+
 
     window.scrollTo({
       top: 0,
@@ -762,10 +1095,16 @@ document.addEventListener("DOMContentLoaded", () => {
       lifeExpectancy
     } = getBasicData();
 
+
     if (!currentAge) {
-      alert("請輸入目前年齡。");
+
+      alert(
+        "請輸入目前年齡。"
+      );
+
       return false;
     }
+
 
     if (
       !retirementAge ||
@@ -779,9 +1118,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
+
     if (
       !lifeExpectancy ||
-      lifeExpectancy <= retirementAge
+      lifeExpectancy <=
+        retirementAge
     ) {
 
       alert(
@@ -791,21 +1132,23 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
+
     if (!number("todayExpense")) {
 
       alert(
-        "請輸入如果今日退休，希望每月有多少生活費。"
+        "請輸入生活費，或選擇基本、舒適或豐裕生活模式。"
       );
 
       return false;
     }
+
 
     return true;
   }
 
 
   /* =========================
-     按鈕
+     下一步
   ========================== */
 
   if (nextBtn) {
@@ -818,8 +1161,10 @@ document.addEventListener("DOMContentLoaded", () => {
           currentStep === 1 &&
           !validateStepOne()
         ) {
+
           return;
         }
+
 
         if (
           currentStep <
@@ -828,7 +1173,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
           currentStep++;
 
-          showStep(currentStep);
+          showStep(
+            currentStep
+          );
 
         } else {
 
@@ -841,22 +1188,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  /* =========================
+     上一步
+  ========================== */
+
   if (prevBtn) {
 
     prevBtn.addEventListener(
       "click",
       () => {
 
-        if (currentStep > 1) {
+        if (
+          currentStep > 1
+        ) {
 
-  currentStep--;
+          currentStep--;
 
-  showStep(currentStep);
+          showStep(
+            currentStep
+          );
 
-} else {
+        } else {
 
-  window.location.href = "index.html";
-}
+          window.location.href =
+            "index.html";
+        }
       }
     );
   }
@@ -869,81 +1225,80 @@ document.addEventListener("DOMContentLoaded", () => {
   [
     "currentAge",
     "retirementAge",
-    "inflationRate",
-    "todayExpense"
+    "inflationRate"
   ].forEach((id) => {
 
     const el =
       document.getElementById(id);
 
+
     if (el) {
 
       el.addEventListener(
         "input",
-        calculateSuggestedExpense
+        updateSuggestedAndAccepted
+      );
+
+      el.addEventListener(
+        "change",
+        updateSuggestedAndAccepted
       );
     }
   });
+
+
   /* =========================
-     Step 1 退休生活模式選擇
+     退休生活模式
   ========================== */
 
-  const lifestyleCards =
-    document.querySelectorAll(".lifestyle-card");
+  lifestyleCards.forEach(
+    (card) => {
 
-  const todayExpenseInput =
-    document.getElementById("todayExpense");
+      card.addEventListener(
+        "click",
+        () => {
 
-  const acceptedExpenseInput =
-    document.getElementById("acceptedExpense");
+          lifestyleCards.forEach(
+            (item) => {
 
-
-  lifestyleCards.forEach((card) => {
-
-    card.addEventListener("click", () => {
-
-      /* 移除其他卡片的選取狀態 */
-      lifestyleCards.forEach((item) => {
-        item.classList.remove("selected");
-      });
-
-      /* 標示目前選擇 */
-      card.classList.add("selected");
+              item.classList.remove(
+                "selected"
+              );
+            }
+          );
 
 
-      /* 取得生活模式金額 */
-      const expense =
-        Number(card.dataset.expense) || 0;
+          card.classList.add(
+            "selected"
+          );
 
 
-      /* 自動填入今日生活費 */
-      if (todayExpenseInput) {
-        todayExpenseInput.value = expense;
-      }
+          const expense =
+            Number(
+              card.dataset.expense
+            ) || 0;
 
 
-      /* 即時計算退休時生活費 */
-      const suggested =
-        calculateSuggestedExpense();
+          if (todayExpenseInput) {
+
+            todayExpenseInput.value =
+              expense;
+          }
 
 
-      /* 自動把系統建議填入最終生活費 */
-      if (
-        acceptedExpenseInput &&
-        suggested > 0
-      ) {
+          acceptedExpenseAuto =
+            true;
 
-        acceptedExpenseInput.value =
-          Math.round(suggested);
-      }
 
-    });
-
-  });
+          updateSuggestedAndAccepted();
+        }
+      );
+    }
+  );
 
 
   /* =========================
-     客人自行修改生活費
+     客戶自行修改今日生活費
   ========================== */
 
   if (todayExpenseInput) {
@@ -952,35 +1307,52 @@ document.addEventListener("DOMContentLoaded", () => {
       "input",
       () => {
 
-        /*
-          客人自行修改金額後，
-          取消基本／舒適／豐裕的選取狀態
-        */
+        lifestyleCards.forEach(
+          (item) => {
 
-        lifestyleCards.forEach((item) => {
-          item.classList.remove("selected");
-        });
-
-
-        const suggested =
-          calculateSuggestedExpense();
+            item.classList.remove(
+              "selected"
+            );
+          }
+        );
 
 
-        if (
-          acceptedExpenseInput &&
-          suggested > 0
-        ) {
+        acceptedExpenseAuto =
+          true;
 
-          acceptedExpenseInput.value =
-            Math.round(suggested);
-        }
 
+        updateSuggestedAndAccepted();
       }
     );
 
+
+    todayExpenseInput.addEventListener(
+      "change",
+      updateSuggestedAndAccepted
+    );
   }
 
-  /* 預設顯示第一步 */
+
+  /* =========================
+     客戶自行修改最終退休生活費
+  ========================== */
+
+  if (acceptedExpenseInput) {
+
+    acceptedExpenseInput.addEventListener(
+      "input",
+      () => {
+
+        acceptedExpenseAuto =
+          false;
+      }
+    );
+  }
+
+
+  /* =========================
+     預設顯示第一步
+  ========================== */
 
   showStep(1);
 
