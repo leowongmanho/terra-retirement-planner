@@ -881,8 +881,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const insuranceBalance =
       number("insuranceBalance");
 
-    const investmentBalance =
-      number("investmentBalance");
+    const stockBalance =
+      number("stockBalance");
+
+    const fundBalance =
+      number("fundBalance");
 
 
     const cash =
@@ -909,10 +912,18 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    const investment =
+    const stock =
       compoundValue(
-        investmentBalance,
-        percentage("investmentReturn"),
+        stockBalance,
+        percentage("stockReturn"),
+        yearsToRetire
+      );
+
+
+    const fund =
+      compoundValue(
+        fundBalance,
+        percentage("fundReturn"),
         yearsToRetire
       );
 
@@ -921,14 +932,16 @@ document.addEventListener("DOMContentLoaded", () => {
       cashBalance +
       fixedBalance +
       insuranceBalance +
-      investmentBalance;
+      stockBalance +
+      fundBalance;
 
 
     const futureTotal =
       cash +
       fixed +
       insurance +
-      investment;
+      stock +
+      fund;
 
 
     return {
@@ -936,12 +949,14 @@ document.addEventListener("DOMContentLoaded", () => {
       cashBalance,
       fixedBalance,
       insuranceBalance,
-      investmentBalance,
+      stockBalance,
+      fundBalance,
 
       cash,
       fixed,
       insurance,
-      investment,
+      stock,
+      fund,
 
       currentTotal,
 
@@ -992,11 +1007,6 @@ document.addEventListener("DOMContentLoaded", () => {
       container.id =
         "assetProjectionSummary";
 
-
-      /*
-        自動放在第3頁所有input之後。
-        不需要修改planner.html。
-      */
 
       step3.appendChild(
         container
@@ -1218,9 +1228,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
           ${assetCard(
-            "投資戶口",
-            data.investmentBalance,
-            data.investment
+            "股票戶口",
+            data.stockBalance,
+            data.stock
+          )}
+
+
+          ${assetCard(
+            "基金戶口",
+            data.fundBalance,
+            data.fund
           )}
 
         </div>
@@ -1872,11 +1889,18 @@ document.addEventListener("DOMContentLoaded", () => {
       calculateAssets();
 
 
+    /*
+      將所有現有資產，
+      包括股票、基金及MPF，
+      假設全部只放銀行作比較。
+    */
+
     const currentTotal =
       number("cashBalance") +
       number("fixedBalance") +
       number("insuranceBalance") +
-      number("investmentBalance") +
+      number("stockBalance") +
+      number("fundBalance") +
       number("mpfBalance");
 
 
@@ -2261,11 +2285,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /*
-      第3頁：
-      即時計算資產退休預計值
-    */
-
     if (
       currentStep === 3
     ) {
@@ -2635,8 +2654,11 @@ document.addEventListener("DOMContentLoaded", () => {
     "insuranceBalance",
     "insuranceReturn",
 
-    "investmentBalance",
-    "investmentReturn"
+    "stockBalance",
+    "stockReturn",
+
+    "fundBalance",
+    "fundReturn"
   ].forEach(
     id => {
 
