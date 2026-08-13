@@ -3179,6 +3179,1754 @@ function updateRetirementIncomeSummary() {
 
 updateGovernmentSupport();
 updateRetirementIncomeSummary();
+  /* =========================================
+   STEP 6 UPGRADE
+   退休資產可持續性分析
+========================================= */
+
+
+/* =========================================
+   資產名稱及預設提取次序
+========================================= */
+
+const sustainabilityAssetLabels = {
+
+  mpf:
+    "MPF",
+
+  stock:
+    "股票戶口",
+
+  fund:
+    "基金戶口",
+
+  fixed:
+    "定息戶口",
+
+  insurance:
+    "保險戶口",
+
+  cash:
+    "銀行活期存款"
+
+};
+
+
+let withdrawalOrder = [
+
+  "mpf",
+  "stock",
+  "fund",
+  "fixed",
+  "insurance",
+  "cash"
+
+];
+
+
+/* =========================================
+   政府退休收入：
+   按開始年齡計算
+========================================= */
+
+function getGovernmentSupportAtAge(age) {
+
+  const select =
+    document.getElementById(
+      "governmentSupportSelect"
+    );
+
+
+  if (!select) {
+
+    return 0;
+  }
+
+
+  const selectedOption =
+    select.options[
+      select.selectedIndex
+    ];
+
+
+  if (!selectedOption) {
+
+    return 0;
+  }
+
+
+  const type =
+    selectedOption.dataset
+      .supportType;
+
+
+  const amount =
+    Number(
+      select.value
+    ) || 0;
+
+
+  /*
+    高齡津貼：
+    70歲開始
+  */
+
+  if (
+    type === "oaa"
+  ) {
+
+    return age >= 70
+      ? amount
+      : 0;
+  }
+
+
+  /*
+    長者生活津貼：
+    65歲開始
+  */
+
+  if (
+    type === "oala"
+  ) {
+
+    return age >= 65
+      ? amount
+      : 0;
+  }
+
+
+  return 0;
+}
+
+
+/* =========================================
+   指定年齡的固定退休收入
+========================================= */
+
+function getFixedIncomeAtAge(age) {
+
+  return (
+
+    getGovernmentSupportAtAge(age) +
+
+    number(
+      "familySupport"
+    ) +
+
+    number(
+      "rentalIncome"
+    ) +
+
+    number(
+      "hkAnnuity"
+    ) +
+
+    number(
+      "reverseMortgage"
+    ) +
+
+    number(
+      "otherIncome"
+    )
+
+  );
+}
+
+
+/* =========================================
+   升級退休收入計算
+
+   固定收入不跟通脹。
+   政府津貼按適用年齡開始。
+========================================= */
+
+calculateRetirementIncome =
+  function() {
+
+    const {
+      retirementAge,
+      retirementYears
+    } = getBasicData();
+
+
+    const rows = [];
+
+    let totalIncome = 0;
+
+
+    for (
+      let year = 0;
+      year < retirementYears;
+      year++
+    ) {
+
+      const age =
+        retirementAge +
+        year;
+
+
+      const monthlyIncome =
+        getFixedIncomeAtAge(
+          age
+        );
+
+
+      const annualIncome =
+        monthlyIncome *
+        12;
+
+
+      totalIncome +=
+        annualIncome;
+
+
+      rows.push({
+
+        age,
+
+        year:
+          year + 1,
+
+        monthlyIncome,
+
+        annualIncome
+
+      });
+
+    }
+
+
+    return {
+
+      monthlyIncome:
+        getFixedIncomeAtAge(
+          retirementAge
+        ),
+
+      totalIncome,
+
+      rows
+
+    };
+
+  };
+
+
+/* =========================================
+   計算資產總和
+========================================= */
+
+function sumSustainabilityAssets(
+  balances
+) {
+
+  return Object
+    .values(
+      balances
+    )
+    .reduce(
+      (
+        total,
+        value
+      ) =>
+        total +
+        (
+          Number(value) ||
+          0
+        ),
+      0
+    );
+}
+
+
+/* =========================================
+   退休資產年度模擬
+========================================= */
+
+function simulateRetirementSustainability() {
+
+  const basic =
+    getBasicData();
+
+
+  const expenses =
+    calculateRetirementExpenses();
+
+
+  const assets =
+    calculateAssets();
+
+
+  const mpf =
+    calculateMPF();
+
+
+  /*
+    退休開始時的資產
+  */
+
+  let balances = {
+
+    mpf,
+
+    stock:
+      assets.stock,
+
+    fund:
+      assets.fund,
+
+    fixed:
+      assets.fixed,
+
+    insurance:
+      assets.insurance,
+
+    cash:
+      assets.cash
+
+  };
+
+
+  /*
+    各資產在退休後
+    繼續沿用目前設定的回報率
+  */
+
+  const returns = {
+
+    mpf:
+      percentage(
+        "mpfReturn"
+      ),
+
+    stock:
+      percentage(
+        "stockReturn"
+      ),
+
+    fund:
+      percentage(
+        "fundReturn"
+      ),
+
+    fixed:
+      percentage(
+        "fixedReturn"
+      ),
+
+    insurance:
+      percentage(
+        "insuranceReturn"
+      ),
+
+    cash:
+      percentage(
+        "cashReturn"
+      )
+
+  };
+
+
+  const initialAssets =
+    sumSustainabilityAssets(
+      balances
+    );
+
+
+  const rows = [];
+
+  let fundingGap = 0;
+
+  let firstShortfallAge =
+    null;
+
+
+  expenses.rows.forEach(
+    expenseRow => {
+
+      const age =
+        expenseRow.age;
+
+
+      const openingAssets =
+        sumSustainabilityAssets(
+          balances
+        );
+
+
+      /*
+        固定退休收入先抵銷支出
+      */
+
+      const annualIncome =
+        getFixedIncomeAtAge(
+          age
+        ) *
+        12;
+
+
+      const amountRequired =
+        Math.max(
+          expenseRow.annualExpense -
+          annualIncome,
+          0
+        );
+
+
+      let remainingNeed =
+        amountRequired;
+
+
+      const withdrawals = {
+
+        mpf: 0,
+        stock: 0,
+        fund: 0,
+        fixed: 0,
+        insurance: 0,
+        cash: 0
+
+      };
+
+
+      /*
+        按客戶設定次序提款
+      */
+
+      withdrawalOrder.forEach(
+        assetKey => {
+
+          if (
+            remainingNeed <= 0
+          ) {
+
+            return;
+          }
+
+
+          /*
+            本版本採較保守做法：
+            65歲前暫不使用 MPF。
+          */
+
+          if (
+            assetKey === "mpf" &&
+            age < 65
+          ) {
+
+            return;
+          }
+
+
+          const available =
+            Math.max(
+              balances[
+                assetKey
+              ] || 0,
+              0
+            );
+
+
+          const take =
+            Math.min(
+              available,
+              remainingNeed
+            );
+
+
+          balances[
+            assetKey
+          ] -=
+            take;
+
+
+          withdrawals[
+            assetKey
+          ] +=
+            take;
+
+
+          remainingNeed -=
+            take;
+
+        }
+      );
+
+
+      /*
+        如果所有可用資產都不足，
+        剩餘數字就是真正資金不足
+      */
+
+      const unmetShortfall =
+        Math.max(
+          remainingNeed,
+          0
+        );
+
+
+      if (
+        unmetShortfall > 0
+      ) {
+
+        fundingGap +=
+          unmetShortfall;
+
+
+        if (
+          firstShortfallAge ===
+          null
+        ) {
+
+          firstShortfallAge =
+            age;
+        }
+
+      }
+
+
+      /*
+        尚未提取的資產，
+        在年度結束後繼續增值
+      */
+
+      Object
+        .keys(
+          balances
+        )
+        .forEach(
+          assetKey => {
+
+            if (
+              balances[
+                assetKey
+              ] > 0
+            ) {
+
+              balances[
+                assetKey
+              ] *=
+                (
+                  1 +
+                  (
+                    returns[
+                      assetKey
+                    ] || 0
+                  )
+                );
+
+            }
+
+          }
+        );
+
+
+      const endingAssets =
+        sumSustainabilityAssets(
+          balances
+        );
+
+
+      const totalWithdrawal =
+        Object
+          .values(
+            withdrawals
+          )
+          .reduce(
+            (
+              total,
+              value
+            ) =>
+              total +
+              value,
+            0
+          );
+
+
+      rows.push({
+
+        age,
+
+        year:
+          expenseRow.year,
+
+        annualExpense:
+          expenseRow.annualExpense,
+
+        annualIncome,
+
+        amountRequired,
+
+        totalWithdrawal,
+
+        unmetShortfall,
+
+        openingAssets,
+
+        endingAssets,
+
+        withdrawals,
+
+        balances:
+          {
+            ...balances
+          }
+
+      });
+
+    }
+  );
+
+
+  const endingAssets =
+    sumSustainabilityAssets(
+      balances
+    );
+
+
+  return {
+
+    initialAssets,
+
+    endingAssets,
+
+    fundingGap,
+
+    firstShortfallAge,
+
+    sustainableToLifeExpectancy:
+      fundingGap <= 0,
+
+    rows,
+
+    finalBalances:
+      {
+        ...balances
+      },
+
+    retirementAge:
+      basic.retirementAge,
+
+    lifeExpectancy:
+      basic.lifeExpectancy
+
+  };
+
+}
+
+
+/* =========================================
+   升級 calculateGap
+   令 Step 6 / Step 9 使用同一套結果
+========================================= */
+
+calculateGap =
+  function() {
+
+    const expense =
+      calculateRetirementExpenses();
+
+
+    const assets =
+      calculateAssets();
+
+
+    const mpf =
+      calculateMPF();
+
+
+    const income =
+      calculateRetirementIncome();
+
+
+    const simulation =
+      simulateRetirementSustainability();
+
+
+    return {
+
+      expense,
+
+      assets,
+
+      mpf,
+
+      income,
+
+      totalAssets:
+        simulation.initialAssets,
+
+      gap:
+        simulation.fundingGap,
+
+      simulation
+
+    };
+
+  };
+
+
+/* =========================================
+   Money chart
+========================================= */
+
+function createSustainabilityChart(
+  simulation
+) {
+
+  const rows =
+    simulation.rows;
+
+
+  if (
+    !rows ||
+    rows.length === 0
+  ) {
+
+    return "";
+  }
+
+
+  const width = 840;
+  const height = 390;
+
+  const left = 84;
+  const right = 82;
+  const top = 42;
+  const bottom = 62;
+
+
+  const chartWidth =
+    width -
+    left -
+    right;
+
+
+  const chartHeight =
+    height -
+    top -
+    bottom;
+
+
+  const maxAssets =
+    Math.max(
+      simulation.initialAssets,
+      ...rows.map(
+        row =>
+          row.endingAssets
+      ),
+      1
+    ) *
+    1.08;
+
+
+  const maxExpense =
+    Math.max(
+      ...rows.map(
+        row =>
+          row.annualExpense
+      ),
+      1
+    ) *
+    1.10;
+
+
+  const points =
+    rows.map(
+      (
+        row,
+        index
+      ) => {
+
+        const x =
+          left +
+          (
+            index /
+            Math.max(
+              rows.length - 1,
+              1
+            )
+          ) *
+          chartWidth;
+
+
+        const assetY =
+          top +
+          chartHeight -
+          (
+            row.endingAssets /
+            maxAssets
+          ) *
+          chartHeight;
+
+
+        const expenseY =
+          top +
+          chartHeight -
+          (
+            row.annualExpense /
+            maxExpense
+          ) *
+          chartHeight;
+
+
+        return {
+
+          ...row,
+
+          x,
+
+          assetY,
+
+          expenseY
+
+        };
+
+      }
+    );
+
+
+  const assetLine =
+    points
+      .map(
+        point =>
+          `${point.x},${point.assetY}`
+      )
+      .join(" ");
+
+
+  const expenseLine =
+    points
+      .map(
+        point =>
+          `${point.x},${point.expenseY}`
+      )
+      .join(" ");
+
+
+  const gridLines = [];
+
+
+  for (
+    let i = 0;
+    i <= 4;
+    i++
+  ) {
+
+    const ratio =
+      i / 4;
+
+
+    const y =
+      top +
+      chartHeight -
+      ratio *
+      chartHeight;
+
+
+    const assetValue =
+      maxAssets *
+      ratio;
+
+
+    const expenseValue =
+      maxExpense *
+      ratio;
+
+
+    gridLines.push(`
+
+      <line
+        x1="${left}"
+        y1="${y}"
+        x2="${left + chartWidth}"
+        y2="${y}"
+        stroke="#eadfcd"
+        stroke-width="1"
+      />
+
+
+      <text
+        x="${left - 12}"
+        y="${y + 4}"
+        text-anchor="end"
+        font-size="11"
+        fill="#687386"
+      >
+        ${compactMoney(assetValue)}
+      </text>
+
+
+      <text
+        x="${left + chartWidth + 12}"
+        y="${y + 4}"
+        text-anchor="start"
+        font-size="11"
+        fill="#b38200"
+      >
+        ${compactMoney(expenseValue)}
+      </text>
+
+    `);
+
+  }
+
+
+  let shortfallMarker = "";
+
+
+  if (
+    simulation.firstShortfallAge
+  ) {
+
+    const point =
+      points.find(
+        item =>
+          item.age ===
+          simulation
+            .firstShortfallAge
+      );
+
+
+    if (point) {
+
+      shortfallMarker = `
+
+        <line
+          x1="${point.x}"
+          y1="${top}"
+          x2="${point.x}"
+          y2="${top + chartHeight}"
+          stroke="#9f1020"
+          stroke-width="2"
+          stroke-dasharray="6 6"
+        />
+
+
+        <text
+          x="${point.x + 7}"
+          y="${top + 17}"
+          font-size="11"
+          fill="#9f1020"
+          font-weight="700"
+        >
+          ${point.age}歲開始出現資金不足
+        </text>
+
+      `;
+
+    }
+
+  }
+
+
+  const startPoint =
+    points[0];
+
+
+  const middlePoint =
+    points[
+      Math.floor(
+        points.length / 2
+      )
+    ];
+
+
+  const endPoint =
+    points[
+      points.length - 1
+    ];
+
+
+  return `
+
+    <div
+      style="
+        padding:20px;
+        border:1px solid #eadfcd;
+        border-radius:18px;
+        background:#fffdf8;
+      "
+    >
+
+      <div
+        style="
+          width:100%;
+          overflow-x:auto;
+        "
+      >
+
+        <svg
+          viewBox="0 0 ${width} ${height}"
+          width="100%"
+          style="
+            min-width:680px;
+            display:block;
+          "
+        >
+
+          ${gridLines.join("")}
+
+
+          <!-- 左軸標示 -->
+
+          <text
+            x="${left}"
+            y="20"
+            text-anchor="start"
+            font-size="12"
+            fill="#122f57"
+            font-weight="700"
+          >
+            資產餘額
+          </text>
+
+
+          <!-- 右軸標示 -->
+
+          <text
+            x="${left + chartWidth}"
+            y="20"
+            text-anchor="end"
+            font-size="12"
+            fill="#b38200"
+            font-weight="700"
+          >
+            年度支出
+          </text>
+
+
+          <!-- 資產線 -->
+
+          <polyline
+            points="${assetLine}"
+            fill="none"
+            stroke="#122f57"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+
+          <!-- 支出線 -->
+
+          <polyline
+            points="${expenseLine}"
+            fill="none"
+            stroke="#d7a922"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+
+          ${shortfallMarker}
+
+
+          <!-- X 軸 -->
+
+          <line
+            x1="${left}"
+            y1="${top + chartHeight}"
+            x2="${left + chartWidth}"
+            y2="${top + chartHeight}"
+            stroke="#122f57"
+            stroke-width="2"
+          />
+
+
+          <text
+            x="${startPoint.x}"
+            y="${height - 22}"
+            text-anchor="start"
+            font-size="12"
+            fill="#687386"
+          >
+            ${startPoint.age}歲
+          </text>
+
+
+          <text
+            x="${middlePoint.x}"
+            y="${height - 22}"
+            text-anchor="middle"
+            font-size="12"
+            fill="#687386"
+          >
+            ${middlePoint.age}歲
+          </text>
+
+
+          <text
+            x="${endPoint.x}"
+            y="${height - 22}"
+            text-anchor="end"
+            font-size="12"
+            fill="#687386"
+          >
+            ${endPoint.age}歲
+          </text>
+
+        </svg>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================
+   資產提款次序 UI
+========================================= */
+
+function renderWithdrawalOrder() {
+
+  const container =
+    document.getElementById(
+      "withdrawalOrderList"
+    );
+
+
+  if (!container) {
+
+    return;
+  }
+
+
+  container.innerHTML =
+    withdrawalOrder
+      .map(
+        (
+          assetKey,
+          index
+        ) => `
+
+          <div
+            data-withdrawal-asset="${assetKey}"
+            style="
+              display:flex;
+              align-items:center;
+              justify-content:space-between;
+              gap:12px;
+              padding:13px 15px;
+              border:1px solid #eadfcd;
+              border-radius:13px;
+              background:#fffdf8;
+            "
+          >
+
+            <div
+              style="
+                display:flex;
+                align-items:center;
+                gap:12px;
+              "
+            >
+
+              <span
+                style="
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  width:32px;
+                  height:32px;
+                  border-radius:50%;
+                  background:#122f57;
+                  color:#ffffff;
+                  font-weight:800;
+                "
+              >
+                ${index + 1}
+              </span>
+
+
+              <strong
+                style="
+                  color:#122f57;
+                "
+              >
+                ${
+                  sustainabilityAssetLabels[
+                    assetKey
+                  ]
+                }
+              </strong>
+
+            </div>
+
+
+            <div
+              style="
+                display:flex;
+                gap:7px;
+              "
+            >
+
+              <button
+                type="button"
+                data-order-direction="up"
+                data-order-index="${index}"
+                ${
+                  index === 0
+                    ? "disabled"
+                    : ""
+                }
+                style="
+                  width:38px;
+                  height:38px;
+                  border:1px solid #eadfcd;
+                  border-radius:9px;
+                  background:#ffffff;
+                  color:#122f57;
+                  font-size:18px;
+                  cursor:pointer;
+                "
+              >
+                ↑
+              </button>
+
+
+              <button
+                type="button"
+                data-order-direction="down"
+                data-order-index="${index}"
+                ${
+                  index ===
+                  withdrawalOrder.length - 1
+                    ? "disabled"
+                    : ""
+                }
+                style="
+                  width:38px;
+                  height:38px;
+                  border:1px solid #eadfcd;
+                  border-radius:9px;
+                  background:#ffffff;
+                  color:#122f57;
+                  font-size:18px;
+                  cursor:pointer;
+                "
+              >
+                ↓
+              </button>
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* =========================================
+   提款次序按鈕
+========================================= */
+
+const withdrawalOrderContainer =
+  document.getElementById(
+    "withdrawalOrderList"
+  );
+
+
+if (
+  withdrawalOrderContainer
+) {
+
+  withdrawalOrderContainer
+    .addEventListener(
+      "click",
+      event => {
+
+        const button =
+          event.target.closest(
+            "button[data-order-direction]"
+          );
+
+
+        if (!button) {
+
+          return;
+        }
+
+
+        const index =
+          Number(
+            button.dataset.orderIndex
+          );
+
+
+        const direction =
+          button.dataset
+            .orderDirection;
+
+
+        let targetIndex =
+          index;
+
+
+        if (
+          direction === "up"
+        ) {
+
+          targetIndex =
+            index - 1;
+        }
+
+
+        if (
+          direction === "down"
+        ) {
+
+          targetIndex =
+            index + 1;
+        }
+
+
+        if (
+          targetIndex < 0 ||
+          targetIndex >=
+            withdrawalOrder.length
+        ) {
+
+          return;
+        }
+
+
+        const temp =
+          withdrawalOrder[
+            index
+          ];
+
+
+        withdrawalOrder[
+          index
+        ] =
+          withdrawalOrder[
+            targetIndex
+          ];
+
+
+        withdrawalOrder[
+          targetIndex
+        ] =
+          temp;
+
+
+        renderWithdrawalOrder();
+
+
+        if (
+          currentStep === 6
+        ) {
+
+          updateGapResult();
+        }
+
+      }
+    );
+
+}
+
+
+/* =========================================
+   升級 Step 6 顯示
+========================================= */
+
+updateGapResult =
+  function() {
+
+    const data =
+      calculateGap();
+
+
+    const simulation =
+      data.simulation;
+
+
+    const totalExpense =
+      document.getElementById(
+        "totalExpenseResult"
+      );
+
+
+    const totalAssets =
+      document.getElementById(
+        "totalAssetsResult"
+      );
+
+
+    const income =
+      document.getElementById(
+        "incomeValueResult"
+      );
+
+
+    const gap =
+      document.getElementById(
+        "retirementGapResult"
+      );
+
+
+    const gapLabel =
+      document.getElementById(
+        "retirementGapLabel"
+      );
+
+
+    const gapDescription =
+      document.getElementById(
+        "retirementGapDescription"
+      );
+
+
+    const gapCard =
+      document.getElementById(
+        "retirementGapCard"
+      );
+
+
+    const status =
+      document.getElementById(
+        "sustainabilityStatus"
+      );
+
+
+    const chart =
+      document.getElementById(
+        "sustainabilityChart"
+      );
+
+
+    if (totalExpense) {
+
+      totalExpense.textContent =
+        money(
+          data.expense
+            .totalExpense
+        );
+
+    }
+
+
+    if (totalAssets) {
+
+      totalAssets.textContent =
+        money(
+          simulation
+            .initialAssets
+        );
+
+    }
+
+
+    if (income) {
+
+      income.textContent =
+        money(
+          data.income
+            .totalIncome
+        );
+
+    }
+
+
+    /*
+      有退休資金缺口
+    */
+
+    if (
+      simulation.fundingGap > 0
+    ) {
+
+      if (gapLabel) {
+
+        gapLabel.textContent =
+          "預計退休資金缺口";
+
+      }
+
+
+      if (gap) {
+
+        gap.textContent =
+          money(
+            simulation
+              .fundingGap
+          );
+
+      }
+
+
+      if (gapDescription) {
+
+        gapDescription.textContent =
+          "按目前生活支出、固定收入、資產回報及提款次序估算，以上為整個退休期仍需要補足的退休資金。";
+
+      }
+
+
+      if (gapCard) {
+
+        gapCard.style.background =
+          "#7f1020";
+
+      }
+
+
+      if (status) {
+
+        status.innerHTML =
+
+          `按目前假設，
+           預計於
+           <strong>
+             ${simulation.firstShortfallAge} 歲
+           </strong>
+           開始出現退休資金不足。`;
+
+      }
+
+    }
+
+
+    /*
+      暫時沒有缺口
+    */
+
+    else {
+
+      if (gapLabel) {
+
+        gapLabel.textContent =
+          "預計退休資金缺口";
+
+      }
+
+
+      if (gap) {
+
+        gap.textContent =
+          "HK$ 0";
+
+      }
+
+
+      if (gapDescription) {
+
+        gapDescription.innerHTML =
+
+          `按目前假設，
+           暫未出現退休資金缺口。
+           預計壽命時仍剩餘
+           <strong>
+             ${money(
+               simulation
+                 .endingAssets
+             )}
+           </strong>
+           資產。`;
+
+      }
+
+
+      if (gapCard) {
+
+        gapCard.style.background =
+          "#122f57";
+
+      }
+
+
+      if (status) {
+
+        status.innerHTML =
+
+          `按目前假設，
+           退休資產可支持至預計壽命
+           <strong>
+             ${simulation.lifeExpectancy} 歲
+           </strong>。`;
+
+      }
+
+    }
+
+
+    if (chart) {
+
+      chart.innerHTML =
+        createSustainabilityChart(
+          simulation
+        );
+
+    }
+
+  };
+
+
+/* =========================================
+   同步升級 Step 9 Cashflow Table
+========================================= */
+
+createCashflowTable =
+  function() {
+
+    const container =
+      document.getElementById(
+        "cashflowTable"
+      );
+
+
+    if (!container) {
+
+      return;
+    }
+
+
+    const data =
+      calculateGap();
+
+
+    const rows =
+      data.simulation.rows;
+
+
+    let html = `
+
+      <div
+        style="
+          overflow-x:auto;
+        "
+      >
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+          "
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                年齡
+              </th>
+
+              <th>
+                年度支出
+              </th>
+
+              <th>
+                固定收入
+              </th>
+
+              <th>
+                資產提款
+              </th>
+
+              <th>
+                年末資產
+              </th>
+
+              <th>
+                資金不足
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+    `;
+
+
+    rows.forEach(
+      row => {
+
+        html += `
+
+          <tr>
+
+            <td>
+              ${row.age}
+            </td>
+
+            <td>
+              ${money(
+                row.annualExpense
+              )}
+            </td>
+
+            <td>
+              ${money(
+                row.annualIncome
+              )}
+            </td>
+
+            <td>
+              ${money(
+                row.totalWithdrawal
+              )}
+            </td>
+
+            <td>
+              ${money(
+                row.endingAssets
+              )}
+            </td>
+
+            <td>
+              ${
+                row.unmetShortfall > 0
+                  ? money(
+                      row.unmetShortfall
+                    )
+                  : "—"
+              }
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    );
+
+
+    html += `
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    `;
+
+
+    container.innerHTML =
+      html;
+
+  };
+
+
+/* =========================================
+   初始提款次序
+========================================= */
+
+renderWithdrawalOrder();
   showStep(1);
 
 });
