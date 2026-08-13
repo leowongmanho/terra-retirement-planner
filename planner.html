@@ -580,9 +580,47 @@
         data-step="3"
       >
 
-        <h2>
-          現有累積財富
-        </h2>
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:24px;
+          "
+        >
+
+          <div>
+
+            <h2>
+              現有累積財富
+            </h2>
+
+            <p
+              style="
+                color:#687386;
+                margin-top:8px;
+              "
+            >
+              輸入你目前持有的主要資產及預期回報率，
+              系統會估算退休時的預計價值。
+            </p>
+
+          </div>
+
+
+          <img
+            src="tero tea.png"
+            alt="TERO Tea"
+            style="
+              width:105px;
+              max-width:22vw;
+              height:auto;
+              flex-shrink:0;
+              object-fit:contain;
+            "
+          >
+
+        </div>
 
 
         <div class="form-group">
@@ -681,12 +719,12 @@
         <div class="form-group">
 
           <label>
-            投資戶口（HK$）
+            股票戶口（HK$）
           </label>
 
           <input
             type="number"
-            id="investmentBalance"
+            id="stockBalance"
             value="0"
           >
 
@@ -696,12 +734,43 @@
         <div class="form-group">
 
           <label>
-            投資戶口預期回報率（%）
+            股票戶口預期回報率（%）
           </label>
 
           <input
             type="number"
-            id="investmentReturn"
+            id="stockReturn"
+            value="7"
+            step="0.1"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            基金戶口（HK$）
+          </label>
+
+          <input
+            type="number"
+            id="fundBalance"
+            value="0"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            基金戶口預期回報率（%）
+          </label>
+
+          <input
+            type="number"
+            id="fundReturn"
             value="5"
             step="0.1"
           >
@@ -1156,11 +1225,15 @@
           </p>
 
           <p>
-            2. 投資戶口
+            2. 股票戶口
           </p>
 
           <p>
-            3. 保險戶口
+            3. 基金戶口
+          </p>
+
+          <p>
+            4. 保險戶口
           </p>
 
           <small>
@@ -1326,7 +1399,7 @@
 </main>
 
 
-<script src="script.js?v=20260813-4"></script>
+<script src="script.js?v=20260813-5"></script>
 
 </body>
 
