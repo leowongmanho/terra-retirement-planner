@@ -1187,3 +1187,111 @@ body.terra-home {
     width: 100%;
   }
 }
+/* =========================================
+   STEP 1 - TERO Corner Decoration
+========================================= */
+
+.step-layout {
+  position: relative;
+}
+
+.step-main {
+  min-width: 0;
+}
+
+/* TERO 只作右上角點綴 */
+.step-tero-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 210px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  z-index: 2;
+
+  pointer-events: none;
+}
+
+/* TERO 圖片 */
+.step-tero-image {
+  width: 190px;
+  max-width: 190px;
+  height: auto;
+
+  object-fit: contain;
+
+  display: block;
+
+  filter:
+    drop-shadow(
+      0 10px 18px
+      rgba(18, 47, 87, 0.12)
+    );
+}
+
+/* TERO 提示文字 */
+.tero-message {
+  display: none;
+}
+
+/* 預留右上角空間，避免表格撞到 TERO */
+.step-main {
+  padding-right: 230px;
+}
+
+
+/* =========================
+   Tablet / iPad
+========================= */
+
+@media (max-width: 1100px) {
+
+  .step-tero-panel {
+    width: 160px;
+    top: 5px;
+    right: 5px;
+  }
+
+  .step-tero-image {
+    width: 145px;
+    max-width: 145px;
+  }
+
+  .step-main {
+    padding-right: 175px;
+  }
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 700px) {
+
+  .step-tero-panel {
+    position: relative;
+
+    top: auto;
+    right: auto;
+
+    width: 100%;
+
+    margin: 8px 0 18px;
+
+    align-items: flex-end;
+  }
+
+  .step-tero-image {
+    width: 110px;
+    max-width: 110px;
+  }
+
+  .step-main {
+    padding-right: 0;
+  }
+}
