@@ -31,9 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       'input[name="age80ExpenseOption"]'
     );
 
-
   let currentStep = 1;
-
   let acceptedExpenseAuto = true;
 
 
@@ -67,16 +65,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const amount =
       Number(value) || 0;
 
-
     if (amount >= 1000000) {
 
       return (
         "HK$" +
-        (amount / 1000000).toFixed(1) +
+        (amount / 1000000)
+          .toFixed(1) +
         "M"
       );
     }
-
 
     if (amount >= 1000) {
 
@@ -86,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "K"
       );
     }
-
 
     return (
       "HK$" +
@@ -112,31 +108,14 @@ document.addEventListener("DOMContentLoaded", () => {
         'input[name="age80ExpenseOption"]:checked'
       );
 
-
     if (!selected) {
 
       return true;
     }
 
-
     return (
       selected.value === "reduce"
     );
-  }
-
-
-  function ageExpenseFactor(age) {
-
-    if (
-      age >= 80 &&
-      shouldReduceAfter80()
-    ) {
-
-      return 0.70;
-    }
-
-
-    return 1;
   }
 
 
@@ -161,14 +140,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const yearsToRetire =
       Math.max(
-        retirementAge - currentAge,
+        retirementAge -
+        currentAge,
         0
       );
 
 
     const retirementYears =
       Math.max(
-        lifeExpectancy - retirementAge,
+        lifeExpectancy -
+        retirementAge,
         0
       );
 
@@ -210,8 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /*
-      如果客戶本身退休時已經80歲或以上，
-      才需要在第一年直接套用70%。
+      如果退休第一年已經80歲或以上，
+      而客戶選擇80歲後下降30%，
+      第一年的生活費直接以70%計算。
     */
 
     if (
@@ -309,7 +291,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       const age =
-        retirementAge + year;
+        retirementAge +
+        year;
 
 
       let factor = 1;
@@ -317,11 +300,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       /*
         如果退休年齡未到80歲，
-        到80歲先開始下調30%。
+        到80歲開始才下降30%。
 
         如果退休第一年已經80歲或以上，
-        firstMonthlyExpense 已經調整過，
-        所以避免再乘一次0.70。
+        firstMonthlyExpense 已經包含70%調整，
+        所以不會再重複扣減。
       */
 
       if (
@@ -344,7 +327,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       const annualExpense =
-        monthlyExpense * 12;
+        monthlyExpense *
+        12;
 
 
       totalExpense +=
@@ -352,10 +336,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       rows.push({
-        year: year + 1,
+
+        year:
+          year + 1,
+
         age,
+
         monthlyExpense,
+
         annualExpense,
+
         reducedAfter80:
           age >= 80 &&
           shouldReduceAfter80()
@@ -387,12 +377,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const width = 760;
-    const height = 330;
+    const height = 350;
 
-    const paddingLeft = 72;
+    const paddingLeft = 76;
     const paddingRight = 30;
-    const paddingTop = 34;
-    const paddingBottom = 58;
+    const paddingTop = 38;
+    const paddingBottom = 62;
 
 
     const chartWidth =
@@ -409,23 +399,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const values =
       rows.map(
-        row => row.annualExpense
+        row =>
+          row.annualExpense
       );
 
 
-    const maxValue =
+    const actualMaxValue =
       Math.max(...values);
 
 
-    const minValue =
-      Math.min(...values);
+    /*
+      關鍵修正：
+
+      Y軸最低值固定為0，
+      最高值比實際最高支出多10%。
+
+      因此80歲下降30%時，
+      只會合理向下移動，
+      不會再視覺上好像跌到零。
+    */
+
+    const minValue = 0;
+
+    const maxValue =
+      Math.max(
+        actualMaxValue *
+        1.10,
+        1
+      );
 
 
     const range =
-      Math.max(
-        maxValue - minValue,
-        1
-      );
+      maxValue -
+      minValue;
 
 
     const points =
@@ -460,11 +466,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
           return {
+
             x,
             y,
-            year: row.year,
-            age: row.age,
-            value: row.annualExpense
+
+            year:
+              row.year,
+
+            age:
+              row.age,
+
+            value:
+              row.annualExpense
           };
         }
       );
@@ -481,6 +494,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const areaPoints =
       [
+
         `${paddingLeft},${paddingTop + chartHeight}`,
 
         ...points.map(
@@ -489,20 +503,28 @@ document.addEventListener("DOMContentLoaded", () => {
         ),
 
         `${paddingLeft + chartWidth},${paddingTop + chartHeight}`
+
       ].join(" ");
 
 
+    /* =========================
+       Y軸水平線
+    ========================== */
+
     const horizontalLines = [];
+
+    const lineCount = 4;
 
 
     for (
       let i = 0;
-      i <= 4;
+      i <= lineCount;
       i++
     ) {
 
       const ratio =
-        i / 4;
+        i /
+        lineCount;
 
 
       const y =
@@ -528,7 +550,6 @@ document.addEventListener("DOMContentLoaded", () => {
           stroke="#eadfcd"
           stroke-width="1"
         />
-
 
         <text
           x="${paddingLeft - 12}"
@@ -569,6 +590,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
+    /* =========================
+       80歲標記
+    ========================== */
+
     let age80Marker = "";
 
 
@@ -589,12 +614,12 @@ document.addEventListener("DOMContentLoaded", () => {
           stroke-dasharray="6 6"
         />
 
-
         <text
           x="${age80Point.x + 8}"
-          y="${paddingTop + 16}"
+          y="${paddingTop + 18}"
           font-size="12"
           fill="#9f1020"
+          font-weight="700"
         >
           80歲後 -30%
         </text>
@@ -647,6 +672,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div
           style="
+            display:flex;
+            gap:22px;
+            flex-wrap:wrap;
+            margin-bottom:14px;
+            font-size:13px;
+            color:#687386;
+          "
+        >
+
+          <span>
+            退休第一年：
+            <strong
+              style="
+                color:#122f57;
+              "
+            >
+              ${money(startPoint.value)} / 年
+            </strong>
+          </span>
+
+
+          <span>
+            最高年度支出：
+            <strong
+              style="
+                color:#122f57;
+              "
+            >
+              ${money(actualMaxValue)} / 年
+            </strong>
+          </span>
+
+        </div>
+
+
+        <div
+          style="
             width:100%;
             overflow-x:auto;
           "
@@ -659,6 +721,8 @@ document.addEventListener("DOMContentLoaded", () => {
               min-width:620px;
               display:block;
             "
+            role="img"
+            aria-label="退休年度生活開支趨勢圖"
           >
 
             <defs>
@@ -708,6 +772,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             ${age80Marker}
+
+
+            ${points
+              .map(
+                (point, index) => {
+
+                  const showPoint =
+                    index === 0 ||
+                    index ===
+                      points.length - 1 ||
+                    point.age === 80;
+
+
+                  if (!showPoint) {
+
+                    return "";
+                  }
+
+
+                  return `
+
+                    <circle
+                      cx="${point.x}"
+                      cy="${point.y}"
+                      r="6"
+                      fill="#ffffff"
+                      stroke="#9f1020"
+                      stroke-width="3"
+                    />
+
+                  `;
+                }
+              )
+              .join("")}
 
 
             <line
@@ -861,11 +959,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const months =
-      yearsToRetire * 12;
+      yearsToRetire *
+      12;
 
 
     const monthlyRate =
-      annualRate / 12;
+      annualRate /
+      12;
 
 
     const futureBalance =
@@ -876,12 +976,15 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    let futureContribution = 0;
+    let futureContribution =
+      0;
 
 
     if (months > 0) {
 
-      if (monthlyRate > 0) {
+      if (
+        monthlyRate > 0
+      ) {
 
         futureContribution =
           monthly *
@@ -960,7 +1063,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     缺口
+     退休缺口
   ================================= */
 
   function calculateGap() {
@@ -1097,6 +1200,42 @@ document.addEventListener("DOMContentLoaded", () => {
       ${chart}
 
 
+      <div
+        style="
+          margin-top:18px;
+          padding:15px 18px;
+          background:#fff8f7;
+          border-left:4px solid #9f1020;
+          border-radius:10px;
+          color:#27364a;
+          font-size:14px;
+          line-height:1.75;
+        "
+      >
+
+        <strong>
+          提示：
+        </strong>
+
+        ${
+          shouldReduceAfter80()
+
+            ? `
+              本規劃假設 80 歲後日常生活消費下降 30%，
+              並在其後年份繼續按通脹調整；
+              實際支出仍會因個人生活模式及醫療需要而有所不同。
+            `
+
+            : `
+              你已選擇維持80歲後原有生活費水平，
+              系統會繼續按通脹調整；
+              實際支出仍會因個人生活模式及醫療需要而有所不同。
+            `
+        }
+
+      </div>
+
+
       <h3
         style="
           margin-top:28px;
@@ -1133,6 +1272,7 @@ document.addEventListener("DOMContentLoaded", () => {
               </strong>
 
               / 年
+
 
               ${
                 row.age === 80 &&
@@ -1226,7 +1366,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       totalExpense.textContent =
         money(
-          data.expense.totalExpense
+          data.expense
+            .totalExpense
         );
     }
 
@@ -1244,7 +1385,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       income.textContent =
         money(
-          data.income.totalIncome
+          data.income
+            .totalIncome
         );
     }
 
@@ -1254,7 +1396,9 @@ document.addEventListener("DOMContentLoaded", () => {
       gap.textContent =
         data.gap > 0
 
-          ? money(data.gap) +
+          ? money(
+              data.gap
+            ) +
             " 缺口"
 
           : money(
@@ -1477,7 +1621,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const fixedIncomeAnnual =
-      data.income.monthlyIncome *
+      data.income
+        .monthlyIncome *
       12;
 
 
@@ -1536,7 +1681,8 @@ document.addEventListener("DOMContentLoaded", () => {
             remainingAssets < 0
           ) {
 
-            remainingAssets = 0;
+            remainingAssets =
+              0;
           }
 
 
@@ -1708,8 +1854,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     window.scrollTo({
+
       top: 0,
-      behavior: "smooth"
+
+      behavior:
+        "smooth"
+
     });
   }
 
@@ -1866,7 +2016,9 @@ document.addEventListener("DOMContentLoaded", () => {
     id => {
 
       const el =
-        document.getElementById(id);
+        document.getElementById(
+          id
+        );
 
 
       if (el) {
@@ -1995,7 +2147,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     Step 2
      80歲後生活費選擇
   ================================= */
 
@@ -2008,19 +2159,11 @@ document.addEventListener("DOMContentLoaded", () => {
           () => {
 
             /*
-              Step 2即時重新畫圖
-              及重新計算總支出
+              一轉選項，
+              第二頁立即重新計數及畫圖。
             */
 
             updateExpenseSummary();
-
-
-            /*
-              如之後再去Step 6 / 9，
-              calculateGap會自動使用
-              最新選項。
-            */
-
           }
         );
       }
