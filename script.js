@@ -2391,7 +2391,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       calculateMPF();
     }
+if (
+  currentStep === 5
+) {
 
+  updateGovernmentSupport();
+  updateRetirementIncomeSummary();
+}
 
     if (
       currentStep === 6
@@ -2890,7 +2896,289 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =================================
      預設第一步
   ================================= */
+/* =================================
+   Step 5
+   退休固定收入及其他支援
+================================= */
 
+const governmentSupportSelect =
+  document.getElementById(
+    "governmentSupportSelect"
+  );
+
+
+const governmentSupportInput =
+  document.getElementById(
+    "governmentSupport"
+  );
+
+
+const terraInfoToggles =
+  document.querySelectorAll(
+    ".terra-info-toggle"
+  );
+
+
+/* =================================
+   Step 5
+   資料說明 ? 開關
+================================= */
+
+terraInfoToggles.forEach(
+  button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const targetId =
+          button.dataset.target;
+
+
+        const panel =
+          document.getElementById(
+            targetId
+          );
+
+
+        if (!panel) {
+
+          return;
+        }
+
+
+        const isOpen =
+          !panel.hidden;
+
+
+        panel.hidden =
+          isOpen;
+
+
+        button.setAttribute(
+          "aria-expanded",
+          String(!isOpen)
+        );
+
+
+        /*
+          TERRA style：
+          展開時轉金色
+        */
+
+        if (!isOpen) {
+
+          button.style.background =
+            "#d7a922";
+
+          button.style.color =
+            "#122f57";
+
+          button.style.transform =
+            "scale(1.06)";
+
+        } else {
+
+          button.style.background =
+            "#122f57";
+
+          button.style.color =
+            "#ffffff";
+
+          button.style.transform =
+            "scale(1)";
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =================================
+   Step 5
+   政府津貼選擇
+================================= */
+
+function updateGovernmentSupport() {
+
+  if (
+    !governmentSupportSelect ||
+    !governmentSupportInput
+  ) {
+
+    return;
+  }
+
+
+  const amount =
+    Number(
+      governmentSupportSelect.value
+    ) || 0;
+
+
+  governmentSupportInput.value =
+    amount;
+
+
+  updateRetirementIncomeSummary();
+}
+
+
+if (governmentSupportSelect) {
+
+  governmentSupportSelect
+    .addEventListener(
+      "change",
+      updateGovernmentSupport
+    );
+}
+
+
+/* =================================
+   Step 5
+   每月收入總覽
+================================= */
+
+function updateRetirementIncomeSummary() {
+
+  const government =
+    number(
+      "governmentSupport"
+    );
+
+
+  const family =
+    number(
+      "familySupport"
+    );
+
+
+  const rental =
+    number(
+      "rentalIncome"
+    );
+
+
+  const annuity =
+    number(
+      "hkAnnuity"
+    );
+
+
+  const reverseMortgage =
+    number(
+      "reverseMortgage"
+    );
+
+
+  const other =
+    number(
+      "otherIncome"
+    );
+
+
+  const total =
+    government +
+    family +
+    rental +
+    annuity +
+    reverseMortgage +
+    other;
+
+
+  const previewMap = {
+
+    incomeGovernmentPreview:
+      government,
+
+    incomeFamilyPreview:
+      family,
+
+    incomeRentalPreview:
+      rental,
+
+    incomeAnnuityPreview:
+      annuity,
+
+    incomeReverseMortgagePreview:
+      reverseMortgage,
+
+    incomeOtherPreview:
+      other,
+
+    monthlyRetirementIncomeTotal:
+      total
+  };
+
+
+  Object.entries(
+    previewMap
+  ).forEach(
+    ([id, value]) => {
+
+      const el =
+        document.getElementById(id);
+
+
+      if (el) {
+
+        el.textContent =
+          money(value);
+      }
+
+    }
+  );
+}
+
+
+/* =================================
+   Step 5
+   所有收入即時更新
+================================= */
+
+[
+  "familySupport",
+  "rentalIncome",
+  "hkAnnuity",
+  "reverseMortgage",
+  "otherIncome"
+].forEach(
+  id => {
+
+    const el =
+      document.getElementById(id);
+
+
+    if (!el) {
+
+      return;
+    }
+
+
+    el.addEventListener(
+      "input",
+      updateRetirementIncomeSummary
+    );
+
+
+    el.addEventListener(
+      "change",
+      updateRetirementIncomeSummary
+    );
+
+  }
+);
+
+
+/* =================================
+   Step 5
+   初次載入
+================================= */
+
+updateGovernmentSupport();
+updateRetirementIncomeSummary();
   showStep(1);
 
 });
