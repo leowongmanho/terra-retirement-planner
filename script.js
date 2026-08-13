@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       'input[name="age80ExpenseOption"]'
     );
 
+
   let currentStep = 1;
   let acceptedExpenseAuto = true;
 
@@ -65,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const amount =
       Number(value) || 0;
 
+
     if (amount >= 1000000) {
 
       return (
@@ -75,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
+
     if (amount >= 1000) {
 
       return (
@@ -83,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "K"
       );
     }
+
 
     return (
       "HK$" +
@@ -108,10 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
         'input[name="age80ExpenseOption"]:checked'
       );
 
+
     if (!selected) {
 
       return true;
     }
+
 
     return (
       selected.value === "reduce"
@@ -190,12 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    /*
-      如果退休第一年已經80歲或以上，
-      而客戶選擇80歲後下降30%，
-      第一年的生活費直接以70%計算。
-    */
-
     if (
       retirementAge >= 80 &&
       shouldReduceAfter80()
@@ -215,7 +215,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       output.textContent =
         todayExpense > 0
-          ? money(suggested) + " / 月"
+
+          ? money(suggested) +
+            " / 月"
+
           : "HK$ —";
     }
 
@@ -297,15 +300,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let factor = 1;
 
-
-      /*
-        如果退休年齡未到80歲，
-        到80歲開始才下降30%。
-
-        如果退休第一年已經80歲或以上，
-        firstMonthlyExpense 已經包含70%調整，
-        所以不會再重複扣減。
-      */
 
       if (
         retirementAge < 80 &&
@@ -409,22 +403,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /*
-      關鍵修正：
-
-      Y軸最低值固定為0，
-      最高值比實際最高支出多10%。
-
-      因此80歲下降30%時，
-      只會合理向下移動，
-      不會再視覺上好像跌到零。
+      Y軸由0開始，
+      避免80歲下降30%
+      視覺上被誇大。
     */
 
     const minValue = 0;
 
+
     const maxValue =
       Math.max(
-        actualMaxValue *
-        1.10,
+        actualMaxValue * 1.10,
         1
       );
 
@@ -466,18 +455,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
           return {
-
             x,
             y,
-
-            year:
-              row.year,
-
-            age:
-              row.age,
-
-            value:
-              row.annualExpense
+            year: row.year,
+            age: row.age,
+            value: row.annualExpense
           };
         }
       );
@@ -507,24 +489,17 @@ document.addEventListener("DOMContentLoaded", () => {
       ].join(" ");
 
 
-    /* =========================
-       Y軸水平線
-    ========================== */
-
     const horizontalLines = [];
-
-    const lineCount = 4;
 
 
     for (
       let i = 0;
-      i <= lineCount;
+      i <= 4;
       i++
     ) {
 
       const ratio =
-        i /
-        lineCount;
+        i / 4;
 
 
       const y =
@@ -550,6 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
           stroke="#eadfcd"
           stroke-width="1"
         />
+
 
         <text
           x="${paddingLeft - 12}"
@@ -590,10 +566,6 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    /* =========================
-       80歲標記
-    ========================== */
-
     let age80Marker = "";
 
 
@@ -613,6 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
           stroke-width="2"
           stroke-dasharray="6 6"
         />
+
 
         <text
           x="${age80Point.x + 8}"
@@ -682,26 +655,36 @@ document.addEventListener("DOMContentLoaded", () => {
         >
 
           <span>
+
             退休第一年：
+
             <strong
               style="
                 color:#122f57;
               "
             >
-              ${money(startPoint.value)} / 年
+              ${money(
+                startPoint.value
+              )} / 年
             </strong>
+
           </span>
 
 
           <span>
+
             最高年度支出：
+
             <strong
               style="
                 color:#122f57;
               "
             >
-              ${money(actualMaxValue)} / 年
+              ${money(
+                actualMaxValue
+              )} / 年
             </strong>
+
           </span>
 
         </div>
@@ -721,8 +704,6 @@ document.addEventListener("DOMContentLoaded", () => {
               min-width:620px;
               display:block;
             "
-            role="img"
-            aria-label="退休年度生活開支趨勢圖"
           >
 
             <defs>
@@ -861,7 +842,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     資產
+     資產複利
   ================================= */
 
   function compoundValue(
@@ -880,6 +861,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  /* =================================
+     Step 3 資產計算
+  ================================= */
+
   function calculateAssets() {
 
     const {
@@ -887,9 +872,22 @@ document.addEventListener("DOMContentLoaded", () => {
     } = getBasicData();
 
 
+    const cashBalance =
+      number("cashBalance");
+
+    const fixedBalance =
+      number("fixedBalance");
+
+    const insuranceBalance =
+      number("insuranceBalance");
+
+    const investmentBalance =
+      number("investmentBalance");
+
+
     const cash =
       compoundValue(
-        number("cashBalance"),
+        cashBalance,
         percentage("cashReturn"),
         yearsToRetire
       );
@@ -897,7 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const fixed =
       compoundValue(
-        number("fixedBalance"),
+        fixedBalance,
         percentage("fixedReturn"),
         yearsToRetire
       );
@@ -905,7 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const insurance =
       compoundValue(
-        number("insuranceBalance"),
+        insuranceBalance,
         percentage("insuranceReturn"),
         yearsToRetire
       );
@@ -913,25 +911,457 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const investment =
       compoundValue(
-        number("investmentBalance"),
+        investmentBalance,
         percentage("investmentReturn"),
         yearsToRetire
       );
 
 
+    const currentTotal =
+      cashBalance +
+      fixedBalance +
+      insuranceBalance +
+      investmentBalance;
+
+
+    const futureTotal =
+      cash +
+      fixed +
+      insurance +
+      investment;
+
+
     return {
+
+      cashBalance,
+      fixedBalance,
+      insuranceBalance,
+      investmentBalance,
 
       cash,
       fixed,
       insurance,
       investment,
 
+      currentTotal,
+
+      futureTotal,
+
+      growth:
+        futureTotal -
+        currentTotal,
+
       total:
-        cash +
-        fixed +
-        insurance +
-        investment
+        futureTotal
     };
+  }
+
+
+  /* =================================
+     Step 3 資產增值預覽
+  ================================= */
+
+  function updateAssetSummary() {
+
+    const step3 =
+      document.querySelector(
+        '.planner-step[data-step="3"]'
+      );
+
+
+    if (!step3) {
+
+      return;
+    }
+
+
+    let container =
+      document.getElementById(
+        "assetProjectionSummary"
+      );
+
+
+    if (!container) {
+
+      container =
+        document.createElement(
+          "div"
+        );
+
+
+      container.id =
+        "assetProjectionSummary";
+
+
+      /*
+        自動放在第3頁所有input之後。
+        不需要修改planner.html。
+      */
+
+      step3.appendChild(
+        container
+      );
+    }
+
+
+    const data =
+      calculateAssets();
+
+
+    const {
+      yearsToRetire
+    } = getBasicData();
+
+
+    function assetCard(
+      title,
+      current,
+      future
+    ) {
+
+      const growth =
+        future -
+        current;
+
+
+      return `
+
+        <div
+          style="
+            padding:18px;
+            border:1px solid #eadfcd;
+            border-radius:16px;
+            background:#fffdf8;
+          "
+        >
+
+          <div
+            style="
+              font-size:16px;
+              font-weight:800;
+              color:#122f57;
+              margin-bottom:12px;
+            "
+          >
+            ${title}
+          </div>
+
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:
+                repeat(
+                  3,
+                  minmax(0,1fr)
+                );
+              gap:12px;
+            "
+          >
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  color:#687386;
+                  font-size:13px;
+                "
+              >
+                現有金額
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:4px;
+                  color:#122f57;
+                  font-size:18px;
+                "
+              >
+                ${money(current)}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  color:#687386;
+                  font-size:13px;
+                "
+              >
+                預計增值
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:4px;
+                  color:#9f1020;
+                  font-size:18px;
+                "
+              >
+                + ${money(growth)}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  color:#687386;
+                  font-size:13px;
+                "
+              >
+                退休時預計
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:4px;
+                  color:#122f57;
+                  font-size:18px;
+                "
+              >
+                ${money(future)}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+    }
+
+
+    container.innerHTML = `
+
+      <div
+        style="
+          margin-top:30px;
+        "
+      >
+
+        <h3
+          style="
+            margin-bottom:6px;
+          "
+        >
+          資產增值預覽
+        </h3>
+
+
+        <p
+          style="
+            color:#687386;
+            margin-bottom:18px;
+          "
+        >
+
+          根據你設定的預期回報率，
+          以下估算現有資產在
+
+          <strong
+            style="
+              color:#122f57;
+            "
+          >
+            ${yearsToRetire} 年
+          </strong>
+
+          後退休時的預計價值。
+
+        </p>
+
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:
+              repeat(
+                2,
+                minmax(0,1fr)
+              );
+            gap:14px;
+          "
+        >
+
+          ${assetCard(
+            "銀行活期存款",
+            data.cashBalance,
+            data.cash
+          )}
+
+
+          ${assetCard(
+            "定息戶口",
+            data.fixedBalance,
+            data.fixed
+          )}
+
+
+          ${assetCard(
+            "保險戶口",
+            data.insuranceBalance,
+            data.insurance
+          )}
+
+
+          ${assetCard(
+            "投資戶口",
+            data.investmentBalance,
+            data.investment
+          )}
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:18px;
+            padding:22px;
+            border-radius:18px;
+            background:#122f57;
+            color:#ffffff;
+          "
+        >
+
+          <div
+            style="
+              margin-bottom:14px;
+              font-size:17px;
+              font-weight:800;
+            "
+          >
+            資產總覽
+          </div>
+
+
+          <div
+            style="
+              display:grid;
+              grid-template-columns:
+                repeat(
+                  3,
+                  minmax(0,1fr)
+                );
+              gap:16px;
+            "
+          >
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  opacity:0.72;
+                  font-size:13px;
+                "
+              >
+                現有總資產
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:5px;
+                  font-size:22px;
+                "
+              >
+                ${money(
+                  data.currentTotal
+                )}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  opacity:0.72;
+                  font-size:13px;
+                "
+              >
+                預計總增值
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:5px;
+                  font-size:22px;
+                  color:#d7a922;
+                "
+              >
+                + ${money(
+                  data.growth
+                )}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span
+                style="
+                  display:block;
+                  opacity:0.72;
+                  font-size:13px;
+                "
+              >
+                退休時預計總資產
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:5px;
+                  font-size:22px;
+                "
+              >
+                ${money(
+                  data.futureTotal
+                )}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <p
+          style="
+            margin-top:12px;
+            color:#687386;
+            font-size:13px;
+            line-height:1.7;
+          "
+        >
+
+          *以上只按你輸入的預期回報率作複利估算，
+          不代表保證回報，實際結果可能有所不同。
+
+        </p>
+
+      </div>
+
+    `;
   }
 
 
@@ -1108,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     Step 2
+     Step 2 顯示
   ================================= */
 
   function updateExpenseSummary() {
@@ -1119,7 +1549,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    if (!container) return;
+    if (!container) {
+
+      return;
+    }
 
 
     const data =
@@ -1216,6 +1649,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <strong>
           提示：
         </strong>
+
 
         ${
           shouldReduceAfter80()
@@ -1423,7 +1857,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    if (!container) return;
+    if (!container) {
+
+      return;
+    }
 
 
     const {
@@ -1609,7 +2046,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    if (!container) return;
+    if (!container) {
+
+      return;
+    }
 
 
     const data =
@@ -1742,7 +2182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     導航
+     頁面導航
   ================================= */
 
   function showStep(step) {
@@ -1818,6 +2258,19 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
 
       updateExpenseSummary();
+    }
+
+
+    /*
+      第3頁：
+      即時計算資產退休預計值
+    */
+
+    if (
+      currentStep === 3
+    ) {
+
+      updateAssetSummary();
     }
 
 
@@ -1959,6 +2412,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           currentStep++;
 
+
           showStep(
             currentStep
           );
@@ -1989,6 +2443,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
 
           currentStep--;
+
 
           showStep(
             currentStep
@@ -2158,11 +2613,6 @@ document.addEventListener("DOMContentLoaded", () => {
           "change",
           () => {
 
-            /*
-              一轉選項，
-              第二頁立即重新計數及畫圖。
-            */
-
             updateExpenseSummary();
           }
         );
@@ -2171,7 +2621,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     預設顯示第一步
+     Step 3
+     資產即時計算
+  ================================= */
+
+  [
+    "cashBalance",
+    "cashReturn",
+
+    "fixedBalance",
+    "fixedReturn",
+
+    "insuranceBalance",
+    "insuranceReturn",
+
+    "investmentBalance",
+    "investmentReturn"
+  ].forEach(
+    id => {
+
+      const el =
+        document.getElementById(
+          id
+        );
+
+
+      if (el) {
+
+        el.addEventListener(
+          "input",
+          () => {
+
+            updateAssetSummary();
+          }
+        );
+
+
+        el.addEventListener(
+          "change",
+          () => {
+
+            updateAssetSummary();
+          }
+        );
+      }
+    }
+  );
+
+
+  /* =================================
+     預設第一步
   ================================= */
 
   showStep(1);
