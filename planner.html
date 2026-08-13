@@ -2098,84 +2098,600 @@
 </section>
       
 
-      <!-- ==================================
-           STEP 6
-      =================================== -->
+     <!-- ==================================
+     STEP 6
+     退休資產可持續性分析
+=================================== -->
 
-      <section
-        class="planner-step"
-        data-step="6"
+<section
+  class="planner-step"
+  data-step="6"
+>
+
+  <!-- 標題 + TERO -->
+
+  <div
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:24px;
+      margin-bottom:24px;
+    "
+  >
+
+    <div>
+
+      <h2>
+        退休資產可持續性分析
+      </h2>
+
+      <p
+        style="
+          color:#687386;
+          margin-top:8px;
+          line-height:1.75;
+        "
+      >
+        系統會整合你的退休支出、累積資產、
+        MPF 及固定退休收入，
+        分析現有退休資源能否持續支持整個退休生活。
+      </p>
+
+    </div>
+
+
+    <img
+      src="tero-calculation.png"
+      alt="TERO Retirement Calculation"
+      style="
+        width:125px;
+        max-width:22vw;
+        height:auto;
+        flex-shrink:0;
+        object-fit:contain;
+      "
+    >
+
+  </div>
+
+
+  <!-- ==================================
+       基本摘要
+  =================================== -->
+
+  <div
+    style="
+      display:grid;
+      grid-template-columns:
+        repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-top:24px;
+    "
+  >
+
+    <!-- 退休總支出 -->
+
+    <div
+      style="
+        padding:20px;
+        border:1px solid #eadfcd;
+        border-radius:18px;
+        background:#fffdf8;
+      "
+    >
+
+      <span
+        style="
+          display:block;
+          color:#687386;
+          font-size:14px;
+          margin-bottom:8px;
+        "
+      >
+        退休總支出
+      </span>
+
+      <strong
+        id="totalExpenseResult"
+        style="
+          display:block;
+          color:#122f57;
+          font-size:25px;
+          margin-bottom:10px;
+        "
+      >
+        HK$ —
+      </strong>
+
+      <small
+        style="
+          color:#687386;
+          line-height:1.6;
+        "
+      >
+        按退休生活費、通脹及80歲後支出設定，
+        估算整個退休期所需生活開支。
+      </small>
+
+    </div>
+
+
+    <!-- 可動用資產 -->
+
+    <div
+      style="
+        padding:20px;
+        border:1px solid #eadfcd;
+        border-radius:18px;
+        background:#fffdf8;
+      "
+    >
+
+      <span
+        style="
+          display:block;
+          color:#687386;
+          font-size:14px;
+          margin-bottom:8px;
+        "
+      >
+        退休時可動用總資產
+      </span>
+
+      <strong
+        id="totalAssetsResult"
+        style="
+          display:block;
+          color:#122f57;
+          font-size:25px;
+          margin-bottom:10px;
+        "
+      >
+        HK$ —
+      </strong>
+
+      <small
+        style="
+          color:#687386;
+          line-height:1.6;
+        "
+      >
+        包括退休時預計的銀行、定息、保險、
+        股票、基金及 MPF 資產。
+      </small>
+
+    </div>
+
+
+    <!-- 固定退休收入 -->
+
+    <div
+      style="
+        padding:20px;
+        border:1px solid #eadfcd;
+        border-radius:18px;
+        background:#fffdf8;
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:8px;
+          margin-bottom:8px;
+        "
       >
 
-        <h2>
-          退休缺口
-        </h2>
+        <span
+          style="
+            color:#687386;
+            font-size:14px;
+          "
+        >
+          退休固定收入總值
+        </span>
 
 
-        <p>
-          系統會整合退休支出、
-          現有資產、MPF 及固定退休收入，
-          計算你的退休資金缺口。
-        </p>
+        <button
+          type="button"
+          class="terra-info-toggle"
+          data-target="sustainabilityIncomeInfo"
+          aria-expanded="false"
+          aria-label="固定退休收入說明"
+          style="
+            width:27px;
+            height:27px;
+            min-width:27px;
+            padding:0;
+            border:2px solid #d7a922;
+            border-radius:50%;
+            background:#122f57;
+            color:#ffffff;
+            font-size:15px;
+            font-weight:900;
+            cursor:pointer;
+          "
+        >
+          ?
+        </button>
+
+      </div>
 
 
-        <div class="result-grid">
+      <strong
+        id="incomeValueResult"
+        style="
+          display:block;
+          color:#122f57;
+          font-size:25px;
+          margin-bottom:10px;
+        "
+      >
+        HK$ —
+      </strong>
 
-          <div class="result-box">
+      <small
+        style="
+          color:#687386;
+          line-height:1.6;
+        "
+      >
+        整個退休期內，
+        固定退休現金收入的估算總額。
+      </small>
 
-            <span>
-              退休總支出
-            </span>
+    </div>
 
-            <strong id="totalExpenseResult">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="result-box">
-
-            <span>
-              退休時累積資產
-            </span>
-
-            <strong id="totalAssetsResult">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="result-box">
-
-            <span>
-              退休收入價值
-            </span>
-
-            <strong id="incomeValueResult">
-              —
-            </strong>
-
-          </div>
+  </div>
 
 
-          <div class="result-box">
+  <!-- 固定收入說明 -->
 
-            <span>
-              退休資金缺口
-            </span>
+  <div
+    id="sustainabilityIncomeInfo"
+    class="terra-info-panel"
+    hidden
+    style="
+      margin-top:14px;
+      padding:18px;
+      border:1px solid #eadfcd;
+      border-left:5px solid #d7a922;
+      border-radius:14px;
+      background:#fffdf8;
+      color:#27364a;
+      line-height:1.75;
+    "
+  >
 
-            <strong id="retirementGapResult">
-              —
-            </strong>
+    <strong
+      style="
+        color:#122f57;
+      "
+    >
+      固定退休收入如何計算？
+    </strong>
 
-          </div>
+    <p
+      style="
+        margin:8px 0 0;
+      "
+    >
+      政府津貼、家人支援、租金收入、
+      香港年金、安老按揭及其他退休收入，
+      在本模型中視為每年的退休現金流。
+      它們會先用作抵銷當年的生活支出，
+      而不當作投資資產進行複利增值。
+    </p>
 
-        </div>
+    <p
+      style="
+        margin:8px 0 0;
+        color:#687386;
+        font-size:13px;
+      "
+    >
+      如某年的固定收入高於生活支出，
+      本版本暫不將多出的收入重新投資。
+    </p>
 
-      </section>
+  </div>
 
+
+  <!-- ==================================
+       最重要：
+       退休資金缺口
+  =================================== -->
+
+  <div
+    id="retirementGapCard"
+    style="
+      margin-top:22px;
+      padding:28px;
+      border-radius:20px;
+      background:#7f1020;
+      color:#ffffff;
+      box-shadow:
+        0 12px 30px
+        rgba(18,47,87,0.14);
+    "
+  >
+
+    <span
+      id="retirementGapLabel"
+      style="
+        display:block;
+        opacity:0.82;
+        font-size:17px;
+        font-weight:700;
+        margin-bottom:10px;
+      "
+    >
+      預計退休資金缺口
+    </span>
+
+
+    <strong
+      id="retirementGapResult"
+      style="
+        display:block;
+        font-size:42px;
+        line-height:1.15;
+        margin-bottom:12px;
+      "
+    >
+      HK$ —
+    </strong>
+
+
+    <p
+      id="retirementGapDescription"
+      style="
+        margin:0;
+        opacity:0.88;
+        line-height:1.7;
+      "
+    >
+      系統正在分析你的退休資產可持續性。
+    </p>
+
+  </div>
+
+
+  <!-- 可持續狀態 -->
+
+  <div
+    id="sustainabilityStatus"
+    style="
+      margin-top:14px;
+      padding:15px 18px;
+      border:1px solid #eadfcd;
+      border-radius:14px;
+      background:#fffdf8;
+      color:#122f57;
+      font-weight:700;
+      line-height:1.7;
+    "
+  >
+    正在分析退休資產可持續性……
+  </div>
+
+
+  <!-- ==================================
+       資產提取次序
+  =================================== -->
+
+  <div
+    style="
+      margin-top:34px;
+    "
+  >
+
+    <h3>
+      資產提取次序
+    </h3>
+
+
+    <p
+      style="
+        color:#687386;
+        line-height:1.75;
+        margin-bottom:16px;
+      "
+    >
+      當固定退休收入不足以支付當年生活費時，
+      系統會按以下次序提取資產。
+      你可以利用上下按鈕自行改變次序，
+      比較不同策略對退休資產持續性的影響。
+    </p>
+
+
+    <div
+      id="withdrawalOrderList"
+      style="
+        display:grid;
+        gap:10px;
+      "
+    >
+    </div>
+
+
+    <div
+      style="
+        margin-top:12px;
+        padding:14px 16px;
+        border-radius:12px;
+        background:#f8f4eb;
+        color:#687386;
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+      預設次序：
+      MPF → 股票 → 基金 → 定息戶口 →
+      保險戶口 → 銀行活期。
+      尚未提取的資產會繼續按各自設定的
+      預期回報率增值。
+    </div>
+
+  </div>
+
+
+  <!-- ==================================
+       TERO Reminder
+  =================================== -->
+
+  <div
+    style="
+      margin-top:24px;
+      padding:20px;
+      border:1px solid #eadfcd;
+      border-left:5px solid #d7a922;
+      border-radius:16px;
+      background:#fffdf8;
+    "
+  >
+
+    <strong
+      style="
+        display:block;
+        color:#122f57;
+        font-size:17px;
+        margin-bottom:8px;
+      "
+    >
+      TERO 提醒你
+    </strong>
+
+
+    <p
+      style="
+        margin:0;
+        color:#27364a;
+        line-height:1.8;
+      "
+    >
+      退休後的投資目標，
+      可能會由「資產增長」
+      逐步轉向「穩定現金流及降低波動」。
+      你可以考慮退休後是否需要調低
+      MPF、股票及基金的風險水平，
+      或逐步轉向較穩健的資產配置。
+    </p>
+
+
+    <p
+      style="
+        margin:10px 0 0;
+        color:#687386;
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+      本版本暫時沿用你退休前設定的回報率作估算，
+      並沒有自動降低退休後的投資回報假設。
+    </p>
+
+  </div>
+
+
+  <!-- ==================================
+       可持續走勢圖
+  =================================== -->
+
+  <div
+    style="
+      margin-top:34px;
+    "
+  >
+
+    <h3>
+      退休資產可持續走勢
+    </h3>
+
+
+    <p
+      style="
+        color:#687386;
+        line-height:1.75;
+        margin-bottom:16px;
+      "
+    >
+      比較每年的退休生活支出，
+      以及支付生活費後剩餘的退休資產，
+      讓你了解資產能否支持至預計壽命。
+    </p>
+
+
+    <div
+      style="
+        display:flex;
+        gap:22px;
+        flex-wrap:wrap;
+        margin-bottom:12px;
+        font-size:14px;
+      "
+    >
+
+      <span>
+        <strong style="color:#122f57;">
+          ━
+        </strong>
+        退休資產餘額
+      </span>
+
+      <span>
+        <strong style="color:#d7a922;">
+          ━
+        </strong>
+        每年退休支出
+      </span>
+
+    </div>
+
+
+    <div
+      id="sustainabilityChart"
+    >
+    </div>
+
+  </div>
+
+
+  <!-- ==================================
+       模型說明
+  =================================== -->
+
+  <div
+    style="
+      margin-top:20px;
+      padding:16px 18px;
+      border-radius:14px;
+      background:#f8f4eb;
+      color:#687386;
+      font-size:13px;
+      line-height:1.8;
+    "
+  >
+
+    <strong
+      style="
+        color:#122f57;
+      "
+    >
+      計算假設：
+    </strong>
+
+    固定退休收入先抵銷當年支出；
+    仍然不足的部分才從資產提取。
+    未使用的資產會按照相應的預期回報率繼續增值。
+    本分析為退休規劃估算，
+    並不代表未來投資表現或保證結果。
+
+  </div>
+
+</section>
 
       <!-- ==================================
            STEP 7
