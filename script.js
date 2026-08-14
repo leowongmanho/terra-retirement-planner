@@ -2411,6 +2411,18 @@ if (
       currentStep === 7
     ) {
 
+      /*
+        進入 Step 7 時才重新建立一次動態輸入結構，
+        以套用最新「距離退休年期」。
+        之後打字只更新結果，不再重建 input。
+      */
+
+      renderLumpSumEntries();
+
+      renderSavingPlanEntries();
+
+      syncInvestmentPlanUI();
+
       updateStep7Results();
     }
 
@@ -6844,9 +6856,11 @@ function calculateStep7Solutions() {
 
 function updateStep7Results() {
 
-  renderLumpSumEntries();
-
-  renderSavingPlanEntries();
+  /*
+    只更新計算結果，不重新建立輸入框。
+    這樣在 iPad / 電腦輸入連續數字時，
+    focus 不會因 DOM 重建而消失。
+  */
 
   syncInvestmentPlanUI();
 
