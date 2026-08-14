@@ -2359,7 +2359,7 @@
       </div>
 
 
-      <!-- Withdrawal order -->
+      <!-- Withdrawal strategy -->
 
       <div
         style="
@@ -2377,7 +2377,7 @@
             font-size:18px;
           "
         >
-          資產提取次序
+          退休提款策略
         </h3>
 
         <p
@@ -2388,8 +2388,86 @@
             line-height:1.5;
           "
         >
-          按 ↑ ↓ 改變次序，右邊圖表及缺口會即時更新。
+          回報假設與提款策略分開設定。你可以自行排序，
+          或用較簡單的防守／增長收割模式作情境比較。
         </p>
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:7px;
+            margin-bottom:10px;
+          "
+        >
+
+          <button
+            type="button"
+            data-withdrawal-mode="custom"
+            style="
+              border:2px solid #d7a922;
+              border-radius:10px;
+              background:#fff4cf;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:11px;
+            "
+          >
+            自訂次序
+          </button>
+
+          <button
+            type="button"
+            data-withdrawal-mode="defensive"
+            style="
+              border:1px solid #eadfcd;
+              border-radius:10px;
+              background:#ffffff;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:11px;
+            "
+          >
+            防守提款
+          </button>
+
+          <button
+            type="button"
+            data-withdrawal-mode="harvest"
+            style="
+              border:1px solid #eadfcd;
+              border-radius:10px;
+              background:#ffffff;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:11px;
+            "
+          >
+            增長收割
+          </button>
+
+        </div>
+
+        <div
+          id="withdrawalModeNote"
+          style="
+            padding:9px 11px;
+            border-radius:10px;
+            background:#f8f4eb;
+            color:#687386;
+            font-size:10px;
+            line-height:1.55;
+            margin-bottom:10px;
+          "
+        >
+          自訂次序：按 ↑ ↓ 自行設定提款先後。
+        </div>
 
         <div
           id="withdrawalOrderList"
@@ -2407,8 +2485,10 @@
             line-height:1.5;
           "
         >
-          * 模型一般於 65 歲後才把 MPF 視作可提取資產；
-          65 歲前會自動跳過 MPF，再按其餘次序提款。
+          * 防守提款：優先使用現金及較低波動資產，減少低位出售增長資產的需要。
+          增長收割：優先使用較高增長資產作簡化「收割」情境。
+          兩者均不會自動偵測市場升跌，亦不會改變上方退休後回報假設。
+          模型一般於 65 歲後才把 MPF 視作可提取資產。
         </p>
 
       </div>
@@ -3099,8 +3179,8 @@
           line-height:1.55;
         "
       >
-        可按情況分階段投入，最多5筆。每筆由實際投入年份開始，
-        按同一預期回報率累積至退休。
+        可按情況分階段投入，最多5筆。每筆投入後首4年不計投資回報；
+        完成第4週年後，才按同一預期回報率累積至退休。
       </p>
 
 
@@ -3261,7 +3341,8 @@
         "
       >
         每段供款5年，完成第一段後才開始下一段。
-        最多3段接力，不會同步供款。
+        每個5年方案由該段開始計首7年不計投資回報；
+        完成第7週年後才按預期回報率累積。最多3段接力，不會同步供款。
       </p>
 
 
@@ -4358,7 +4439,7 @@
 </main>
 
 
-<script src="script.js?v=20260814-4"></script>
+<script src="script.js?v=20260815-7"></script>
 </body>
 
 </html>
