@@ -3445,6 +3445,131 @@ let retirementScenario =
   "conservative";
 
 
+/*
+  Step 6 提款策略與回報假設分開。
+  custom    = 使用顧問手動排序
+  defensive = 優先低波動／高流動性資產
+  harvest   = 優先較高增長資產作簡化收割情境
+*/
+
+let withdrawalMode =
+  "custom";
+
+
+const defensiveWithdrawalOrder = [
+  "cash",
+  "fixed",
+  "insurance",
+  "fund",
+  "stock",
+  "mpf"
+];
+
+
+const harvestWithdrawalOrder = [
+  "stock",
+  "fund",
+  "mpf",
+  "insurance",
+  "fixed",
+  "cash"
+];
+
+
+function getActiveWithdrawalOrder() {
+
+  if (
+    withdrawalMode ===
+    "defensive"
+  ) {
+
+    return [
+      ...defensiveWithdrawalOrder
+    ];
+  }
+
+
+  if (
+    withdrawalMode ===
+    "harvest"
+  ) {
+
+    return [
+      ...harvestWithdrawalOrder
+    ];
+  }
+
+
+  return [
+    ...withdrawalOrder
+  ];
+}
+
+
+function syncWithdrawalModeUI() {
+
+  document
+    .querySelectorAll(
+      "[data-withdrawal-mode]"
+    )
+    .forEach(
+      button => {
+
+        const selected =
+          button.dataset
+            .withdrawalMode ===
+          withdrawalMode;
+
+
+        button.style.border =
+          selected
+            ? "2px solid #d7a922"
+            : "1px solid #eadfcd";
+
+
+        button.style.background =
+          selected
+            ? "#fff4cf"
+            : "#ffffff";
+
+      }
+    );
+
+
+  const note =
+    document.getElementById(
+      "withdrawalModeNote"
+    );
+
+
+  if (note) {
+
+    if (
+      withdrawalMode ===
+      "defensive"
+    ) {
+
+      note.textContent =
+        "防守提款：優先銀行活期、定息及較低波動資產，盡量把股票及基金延後使用。回報假設不會因此改變。";
+
+    } else if (
+      withdrawalMode ===
+      "harvest"
+    ) {
+
+      note.textContent =
+        "增長收割：優先從股票、基金及其他增長資產提款，作為市場表現較好時鎖定部分升幅的簡化情境。系統不會自動判斷牛市或熊市。";
+
+    } else {
+
+      note.textContent =
+        "自訂次序：按 ↑ ↓ 自行設定提款先後，右邊結果會即時更新。";
+    }
+  }
+
+}
+
+
 /* =========================================
    退休前回報率
 ========================================= */
@@ -4107,7 +4232,7 @@ function simulateRetirementSustainability(
 
   const order =
     options.withdrawalOrder ||
-    withdrawalOrder;
+    getActiveWithdrawalOrder();
 
 
   const initialAssets =
@@ -4975,8 +5100,17 @@ function renderWithdrawalOrder() {
   }
 
 
+  const activeOrder =
+    getActiveWithdrawalOrder();
+
+
+  const allowManualEdit =
+    withdrawalMode ===
+    "custom";
+
+
   container.innerHTML =
-    withdrawalOrder
+    activeOrder
       .map(
         (
           assetKey,
@@ -5038,6 +5172,7 @@ function renderWithdrawalOrder() {
                 data-order-direction="up"
                 data-order-index="${index}"
                 ${
+                  !allowManualEdit ||
                   index === 0
                     ? "disabled"
                     : ""
@@ -5049,7 +5184,8 @@ function renderWithdrawalOrder() {
                   border-radius:7px;
                   background:#ffffff;
                   color:#122f57;
-                  cursor:pointer;
+                  cursor:${allowManualEdit ? "pointer" : "default"};
+                  opacity:${allowManualEdit ? "1" : ".35"};
                   font-size:14px;
                   padding:0;
                 "
@@ -5062,8 +5198,9 @@ function renderWithdrawalOrder() {
                 data-order-direction="down"
                 data-order-index="${index}"
                 ${
+                  !allowManualEdit ||
                   index ===
-                  withdrawalOrder.length -
+                  activeOrder.length -
                   1
                     ? "disabled"
                     : ""
@@ -5075,7 +5212,8 @@ function renderWithdrawalOrder() {
                   border-radius:7px;
                   background:#ffffff;
                   color:#122f57;
-                  cursor:pointer;
+                  cursor:${allowManualEdit ? "pointer" : "default"};
+                  opacity:${allowManualEdit ? "1" : ".35"};
                   font-size:14px;
                   padding:0;
                 "
@@ -5116,7 +5254,7 @@ function createAssetUsageTable(
 
 
   const rows =
-    withdrawalOrder.map(
+    getActiveWithdrawalOrder().map(
       assetKey => {
 
         const stat =
@@ -5456,7 +5594,7 @@ updateGapResult =
         returnRates:
           getPreRetirementReturnRates(),
         withdrawalOrder:
-          withdrawalOrder
+          getActiveWithdrawalOrder()
       });
 
 
@@ -5775,11 +5913,30 @@ updateGapResult =
       };
 
 
+      const modeLabels = {
+        custom:
+          "自訂次序",
+        defensive:
+          "防守提款",
+        harvest:
+          "增長收割"
+      };
+
+
       activeLabel.textContent =
-        labels[
-          retirementScenario
-        ] ||
-        "目前情境";
+        (
+          labels[
+            retirementScenario
+          ] ||
+          "目前情境"
+        ) +
+        " · " +
+        (
+          modeLabels[
+            withdrawalMode
+          ] ||
+          "自訂次序"
+        );
     }
 
 
@@ -5933,6 +6090,41 @@ document
   );
 
 
+
+/* =========================================
+   提款策略模式按鈕
+========================================= */
+
+document
+  .querySelectorAll(
+    "[data-withdrawal-mode]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          withdrawalMode =
+            button.dataset
+              .withdrawalMode ||
+            "custom";
+
+
+          syncWithdrawalModeUI();
+
+          renderWithdrawalOrder();
+
+          updateGapResult();
+
+        }
+      );
+
+    }
+  );
+
+
 /* =========================================
    自訂退休後回報：即時更新
 ========================================= */
@@ -6020,6 +6212,15 @@ if (
 
 
         if (!button) {
+
+          return;
+        }
+
+
+        if (
+          withdrawalMode !==
+          "custom"
+        ) {
 
           return;
         }
@@ -7106,15 +7307,26 @@ function calculateStep7Solutions() {
       );
 
 
+    /*
+      靈活整筆投入：
+      每筆投入後首4年不計回報；
+      完成第4週年後才開始按輸入回報率增值。
+    */
+
+    const lumpGrowthYears =
+      Math.max(
+        yearsToRetire -
+        year -
+        4,
+        0
+      );
+
+
     lumpFuture +=
       amount *
       Math.pow(
         1 + lumpRate,
-        Math.max(
-          yearsToRetire -
-          year,
-          0
-        )
+        lumpGrowthYears
       );
   }
 
@@ -7158,13 +7370,35 @@ function calculateStep7Solutions() {
         5;
 
 
+      /*
+        五年儲蓄計劃：
+        每段供款5年，以該段開始日計算7年回本期。
+        首7年不計投資回報；完成第7週年後，
+        該段5年總供款本金才按輸入回報率增值至退休。
+
+        回本期內以已投入本金作退休規劃簡化值，
+        並不代表實際退保價值。
+      */
+
+      const savingPrincipal =
+        annualAmount *
+        5;
+
+
+      const savingGrowthYears =
+        Math.max(
+          yearsToRetire -
+          startYear -
+          7,
+          0
+        );
+
+
       savingFuture +=
-        futureValueOfAnnualContributions(
-          annualAmount,
-          savingRate,
-          startYear,
-          5,
-          yearsToRetire
+        savingPrincipal *
+        Math.pow(
+          1 + savingRate,
+          savingGrowthYears
         );
     }
   }
@@ -7980,6 +8214,8 @@ createCashflowTable =
 /* =========================================
    初始 Step 6 UI
 ========================================= */
+
+syncWithdrawalModeUI();
 
 renderWithdrawalOrder();
 
