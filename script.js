@@ -1962,109 +1962,321 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 8
+     退休規劃總結與建議
   ================================= */
 
   function updateComparison() {
 
-    const container =
+    const basic =
+      getBasicData();
+
+
+    const gapData =
+      calculateGap();
+
+
+    const simulation =
+      gapData.simulation;
+
+
+    const solution =
+      calculateStep7Solutions();
+
+
+    const locationSelect =
       document.getElementById(
-        "comparisonResult"
+        "retirementLocation"
       );
 
 
-    if (!container) {
+    const locationLabels = {
+      hongkong: "香港",
+      mainland: "中國內地",
+      "greater-bay-area": "大灣區",
+      asia: "亞洲其他地區",
+      overseas: "海外",
+      undecided: "尚未決定"
+    };
 
-      return;
+
+    const location =
+      locationSelect
+        ? (
+            locationLabels[
+              locationSelect.value
+            ] ||
+            locationSelect
+              .options[
+                locationSelect.selectedIndex
+              ]?.text ||
+            "—"
+          )
+        : "—";
+
+
+    const currentGap =
+      Math.max(
+        simulation.fundingGap || 0,
+        0
+      );
+
+
+    const addedReserve =
+      Math.max(
+        solution.totalFuture || 0,
+        0
+      );
+
+
+    const combinedAssets =
+      simulation.initialAssets +
+      addedReserve;
+
+
+    const remainingGap =
+      Math.max(
+        currentGap -
+        addedReserve,
+        0
+      );
+
+
+    const surplus =
+      Math.max(
+        addedReserve -
+        currentGap,
+        0
+      );
+
+
+    const coverage =
+      currentGap > 0
+        ? (
+            addedReserve /
+            currentGap
+          ) * 100
+        : 100;
+
+
+    const setText =
+      (
+        id,
+        value
+      ) => {
+
+        const el =
+          document.getElementById(id);
+
+
+        if (el) {
+          el.textContent = value;
+        }
+      };
+
+
+    setText(
+      "step8RetirementAge",
+      `${basic.retirementAge} 歲`
+    );
+
+
+    setText(
+      "step8LifeExpectancy",
+      `${basic.lifeExpectancy} 歲`
+    );
+
+
+    setText(
+      "step8Location",
+      location
+    );
+
+
+    setText(
+      "step8MonthlyExpense",
+      money(
+        gapData.expense
+          .firstMonthlyExpense
+      )
+    );
+
+
+    setText(
+      "step8TotalExpense",
+      money(
+        gapData.expense
+          .totalExpense
+      )
+    );
+
+
+    setText(
+      "step8FixedIncome",
+      money(
+        simulation
+          .totalIncomeReceived
+      )
+    );
+
+
+    setText(
+      "step8CurrentAssets",
+      money(
+        simulation
+          .initialAssets
+      )
+    );
+
+
+    setText(
+      "step8CurrentGap",
+      money(currentGap)
+    );
+
+
+    setText(
+      "step8CurrentStatus",
+      currentGap > 0
+        ? `${simulation.firstShortfallAge}歲開始不足`
+        : `可支持至${simulation.lifeExpectancy}歲`
+    );
+
+
+    setText(
+      "step8AddedReserve",
+      money(addedReserve)
+    );
+
+
+    setText(
+      "step8CombinedAssets",
+      money(combinedAssets)
+    );
+
+
+    setText(
+      "step8ActionCoverage",
+      `${Math.max(coverage,0).toFixed(0)}%`
+    );
+
+
+    setText(
+      "step8LumpFuture",
+      money(solution.lumpFuture)
+    );
+
+
+    setText(
+      "step8SavingFuture",
+      money(solution.savingFuture)
+    );
+
+
+    setText(
+      "step8InvestmentFuture",
+      money(solution.investmentFuture)
+    );
+
+
+    setText(
+      "step8SolutionTotal",
+      money(solution.totalFuture)
+    );
+
+
+    const balanceLabel =
+      document.getElementById(
+        "step8ActionBalanceLabel"
+      );
+
+
+    const message =
+      document.getElementById(
+        "step8ActionMessage"
+      );
+
+
+    const actionCard =
+      document.getElementById(
+        "step8ActionCard"
+      );
+
+
+    if (currentGap <= 0) {
+
+      if (balanceLabel) {
+        balanceLabel.textContent =
+          "目前沒有缺口";
+      }
+
+
+      setText(
+        "step8ActionBalance",
+        money(addedReserve)
+      );
+
+
+      if (message) {
+        message.textContent =
+          "Step 6 已顯示現有退休資產可支持至預計壽命；Step 7 方案可視作額外退休儲備。";
+      }
+
+
+      if (actionCard) {
+        actionCard.style.background =
+          "#122f57";
+      }
+
+    } else if (remainingGap > 0) {
+
+      if (balanceLabel) {
+        balanceLabel.textContent =
+          "尚餘缺口";
+      }
+
+
+      setText(
+        "step8ActionBalance",
+        money(remainingGap)
+      );
+
+
+      if (message) {
+        message.textContent =
+          `按 Step 7 的退休時預計價值，目前可覆蓋約 ${Math.min(coverage,999).toFixed(0)}% 的退休資金缺口。`;
+      }
+
+
+      if (actionCard) {
+        actionCard.style.background =
+          "#7f1020";
+      }
+
+    } else {
+
+      if (balanceLabel) {
+        balanceLabel.textContent =
+          "預計超額儲備";
+      }
+
+
+      setText(
+        "step8ActionBalance",
+        money(surplus)
+      );
+
+
+      if (message) {
+        message.textContent =
+          "按目前假設，Step 7 建議方案的退休時預計價值已可覆蓋 Step 6 的退休資金缺口。";
+      }
+
+
+      if (actionCard) {
+        actionCard.style.background =
+          "#122f57";
+      }
     }
-
-
-    const {
-      yearsToRetire
-    } = getBasicData();
-
-
-    const assets =
-      calculateAssets();
-
-
-    const currentTotal =
-      number("cashBalance") +
-      number("fixedBalance") +
-      number("insuranceBalance") +
-      number("stockBalance") +
-      number("fundBalance") +
-      number("mpfBalance");
-
-
-    const bankRate =
-      percentage(
-        "bankOnlyReturn"
-      );
-
-
-    const bankOnly =
-      compoundValue(
-        currentTotal,
-        bankRate,
-        yearsToRetire
-      );
-
-
-    const planned =
-      assets.total +
-      calculateMPF();
-
-
-    const difference =
-      planned -
-      bankOnly;
-
-
-    container.innerHTML = `
-
-      <div class="result-grid">
-
-        <div class="result-box">
-
-          <span>
-            乜都唔做，只放銀行
-          </span>
-
-          <strong>
-            ${money(bankOnly)}
-          </strong>
-
-        </div>
-
-
-        <div class="result-box">
-
-          <span>
-            按目前退休規劃
-          </span>
-
-          <strong>
-            ${money(planned)}
-          </strong>
-
-        </div>
-
-
-        <div class="result-box">
-
-          <span>
-            兩者差距
-          </span>
-
-          <strong>
-            ${money(difference)}
-          </strong>
-
-        </div>
-
-      </div>
-
-    `;
   }
 
 
