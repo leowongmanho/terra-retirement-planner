@@ -2408,6 +2408,14 @@ if (
 
 
     if (
+      currentStep === 7
+    ) {
+
+      updateStep7Results();
+    }
+
+
+    if (
       currentStep === 8
     ) {
 
@@ -5846,6 +5854,1537 @@ if (
     );
 
 }
+
+
+
+/* =========================================
+   STEP 7
+   填補退休缺口 / Solution Dashboard
+========================================= */
+
+let lumpSumEntryCount = 1;
+let savingPlanCount = 1;
+let investmentTopUpEnabled = false;
+
+
+/* =========================================
+   通用：按年供款的退休時未來價值
+
+   contributionYear:
+   第幾年年末作出供款，1 = 第1年年末
+========================================= */
+
+function futureValueAtRetirement(
+  amount,
+  annualRate,
+  contributionYear,
+  yearsToRetire
+) {
+
+  const yearsGrowing =
+    Math.max(
+      yearsToRetire -
+      contributionYear,
+      0
+    );
+
+
+  return (
+    amount *
+    Math.pow(
+      1 + annualRate,
+      yearsGrowing
+    )
+  );
+}
+
+
+/* =========================================
+   通用：連續每年供款
+========================================= */
+
+function futureValueOfAnnualContributions(
+  annualAmount,
+  annualRate,
+  startYear,
+  numberOfYears,
+  yearsToRetire
+) {
+
+  let total = 0;
+
+
+  for (
+    let i = 1;
+    i <= numberOfYears;
+    i++
+  ) {
+
+    const contributionYear =
+      startYear +
+      i;
+
+
+    if (
+      contributionYear >
+      yearsToRetire
+    ) {
+
+      break;
+    }
+
+
+    total +=
+      futureValueAtRetirement(
+        annualAmount,
+        annualRate,
+        contributionYear,
+        yearsToRetire
+      );
+  }
+
+
+  return total;
+}
+
+
+/* =========================================
+   Step 7 Target Gap
+========================================= */
+
+function getStep7TargetGap() {
+
+  const data =
+    calculateGap();
+
+
+  return Math.max(
+    data.gap || 0,
+    0
+  );
+}
+
+
+/* =========================================
+   靈活整筆投入方案 UI
+========================================= */
+
+function renderLumpSumEntries() {
+
+  const container =
+    document.getElementById(
+      "lumpSumEntries"
+    );
+
+
+  if (!container) {
+
+    return;
+  }
+
+
+  const {
+    yearsToRetire
+  } = getBasicData();
+
+
+  let html = "";
+
+
+  for (
+    let i = 1;
+    i <= lumpSumEntryCount;
+    i++
+  ) {
+
+    const existingYear =
+      document.getElementById(
+        `lumpSumYear${i}`
+      )?.value;
+
+
+    const existingAmount =
+      document.getElementById(
+        `lumpSumAmount${i}`
+      )?.value;
+
+
+    const defaultYear =
+      i === 1
+        ? 0
+        : Math.min(
+            i - 1,
+            yearsToRetire
+          );
+
+
+    html += `
+
+      <div
+        style="
+          padding:9px;
+          border:1px solid #eadfcd;
+          border-radius:11px;
+          background:#ffffff;
+        "
+      >
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:8px;
+            margin-bottom:6px;
+          "
+        >
+
+          <strong
+            style="
+              color:#122f57;
+              font-size:12px;
+            "
+          >
+            第 ${i} 筆投入
+          </strong>
+
+          <span
+            style="
+              color:#687386;
+              font-size:9px;
+            "
+          >
+            0 = 現在
+          </span>
+
+        </div>
+
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:.8fr 1.2fr;
+            gap:7px;
+          "
+        >
+
+          <div>
+
+            <label
+              for="lumpSumYear${i}"
+              style="
+                display:block;
+                color:#687386;
+                font-size:9px;
+                margin-bottom:4px;
+              "
+            >
+              第幾年投入
+            </label>
+
+            <input
+              type="number"
+              id="lumpSumYear${i}"
+              min="0"
+              max="${yearsToRetire}"
+              value="${
+                existingYear !== undefined
+                  ? existingYear
+                  : defaultYear
+              }"
+              style="
+                width:100%;
+                padding:8px;
+              "
+            >
+
+          </div>
+
+
+          <div>
+
+            <label
+              for="lumpSumAmount${i}"
+              style="
+                display:block;
+                color:#687386;
+                font-size:9px;
+                margin-bottom:4px;
+              "
+            >
+              投入金額（HK$）
+            </label>
+
+            <input
+              type="number"
+              id="lumpSumAmount${i}"
+              min="0"
+              value="${
+                existingAmount !== undefined
+                  ? existingAmount
+                  : 0
+              }"
+              style="
+                width:100%;
+                padding:8px;
+              "
+            >
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+
+  container.innerHTML =
+    html;
+
+
+  container
+    .querySelectorAll("input")
+    .forEach(
+      input => {
+
+        input.addEventListener(
+          "input",
+          updateStep7Results
+        );
+
+
+        input.addEventListener(
+          "change",
+          updateStep7Results
+        );
+
+      }
+    );
+
+
+  const addBtn =
+    document.getElementById(
+      "addLumpSumBtn"
+    );
+
+
+  if (addBtn) {
+
+    addBtn.disabled =
+      lumpSumEntryCount >= 5;
+
+
+    addBtn.style.opacity =
+      lumpSumEntryCount >= 5
+        ? ".45"
+        : "1";
+
+
+    addBtn.textContent =
+      lumpSumEntryCount >= 5
+        ? "已達最多5筆投入"
+        : "＋ 新增下一筆投入";
+  }
+}
+
+
+/* =========================================
+   五年儲蓄計劃 UI
+========================================= */
+
+function getMaxSavingPlanCount() {
+
+  const {
+    yearsToRetire
+  } = getBasicData();
+
+
+  if (
+    yearsToRetire >= 15
+  ) {
+
+    return 3;
+  }
+
+
+  if (
+    yearsToRetire >= 10
+  ) {
+
+    return 2;
+  }
+
+
+  if (
+    yearsToRetire >= 5
+  ) {
+
+    return 1;
+  }
+
+
+  return 0;
+}
+
+
+function renderSavingPlanEntries() {
+
+  const container =
+    document.getElementById(
+      "savingPlanEntries"
+    );
+
+
+  if (!container) {
+
+    return;
+  }
+
+
+  const maxCount =
+    getMaxSavingPlanCount();
+
+
+  savingPlanCount =
+    Math.max(
+      1,
+      Math.min(
+        savingPlanCount,
+        Math.max(
+          maxCount,
+          1
+        )
+      )
+    );
+
+
+  if (
+    maxCount === 0
+  ) {
+
+    container.innerHTML = `
+
+      <div
+        style="
+          padding:11px;
+          border:1px solid #eadfcd;
+          border-radius:11px;
+          background:#fff8f7;
+          color:#7f1020;
+          font-size:11px;
+          line-height:1.55;
+        "
+      >
+        距離退休不足5年，未能完成一個完整5年儲蓄階段。
+      </div>
+
+    `;
+
+  } else {
+
+    let html = "";
+
+
+    for (
+      let i = 1;
+      i <= savingPlanCount;
+      i++
+    ) {
+
+      const existingAmount =
+        document.getElementById(
+          `savingPlan${i}`
+        )?.value;
+
+
+      const startYear =
+        (i - 1) *
+        5 +
+        1;
+
+
+      const endYear =
+        i *
+        5;
+
+
+      html += `
+
+        <div
+          style="
+            padding:9px;
+            border:1px solid #eadfcd;
+            border-radius:11px;
+            background:#ffffff;
+          "
+        >
+
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:8px;
+              margin-bottom:6px;
+            "
+          >
+
+            <strong
+              style="
+                color:#122f57;
+                font-size:12px;
+              "
+            >
+              第 ${i} 個5年方案
+            </strong>
+
+            <span
+              style="
+                color:#687386;
+                font-size:9px;
+              "
+            >
+              第${startYear}–${endYear}年
+            </span>
+
+          </div>
+
+
+          <label
+            for="savingPlan${i}"
+            style="
+              display:block;
+              color:#687386;
+              font-size:9px;
+              margin-bottom:4px;
+            "
+          >
+            每年供款（HK$）
+          </label>
+
+          <input
+            type="number"
+            id="savingPlan${i}"
+            min="0"
+            value="${
+              existingAmount !== undefined
+                ? existingAmount
+                : 0
+            }"
+            style="
+              width:100%;
+              padding:8px;
+            "
+          >
+
+        </div>
+
+      `;
+    }
+
+
+    container.innerHTML =
+      html;
+
+
+    container
+      .querySelectorAll("input")
+      .forEach(
+        input => {
+
+          input.addEventListener(
+            "input",
+            updateStep7Results
+          );
+
+
+          input.addEventListener(
+            "change",
+            updateStep7Results
+          );
+
+        }
+      );
+  }
+
+
+  const addBtn =
+    document.getElementById(
+      "addSavingPlanBtn"
+    );
+
+
+  if (addBtn) {
+
+    const canAdd =
+      maxCount > 0 &&
+      savingPlanCount <
+        maxCount;
+
+
+    addBtn.disabled =
+      !canAdd;
+
+
+    addBtn.style.opacity =
+      canAdd
+        ? "1"
+        : ".45";
+
+
+    if (
+      maxCount === 0
+    ) {
+
+      addBtn.textContent =
+        "距離退休不足5年";
+
+    } else if (
+      savingPlanCount >=
+      maxCount
+    ) {
+
+      addBtn.textContent =
+        maxCount >= 3
+          ? "已達最多3個5年方案"
+          : "退休前未有足夠時間再加下一段";
+
+    } else {
+
+      addBtn.textContent =
+        "＋ 增加下一個5年方案";
+    }
+  }
+
+
+  const note =
+    document.getElementById(
+      "savingPlanAvailabilityNote"
+    );
+
+
+  if (note) {
+
+    if (
+      maxCount === 0
+    ) {
+
+      note.textContent =
+        "可考慮使用靈活整筆投入方案。";
+
+    } else {
+
+      note.textContent =
+        `按目前距離退休年期，可完整安排最多 ${maxCount} 個5年接力階段。`;
+    }
+  }
+}
+
+
+/* =========================================
+   十年投資計劃 UI
+========================================= */
+
+function syncInvestmentPlanUI() {
+
+  const {
+    yearsToRetire
+  } = getBasicData();
+
+
+  const mainInput =
+    document.getElementById(
+      "investmentContribution"
+    );
+
+
+  const returnInput =
+    document.getElementById(
+      "futureInvestmentReturn"
+    );
+
+
+  const addBtn =
+    document.getElementById(
+      "addInvestmentTopUpBtn"
+    );
+
+
+  const wrap =
+    document.getElementById(
+      "investmentTopUpWrap"
+    );
+
+
+  const note =
+    document.getElementById(
+      "investmentAvailabilityNote"
+    );
+
+
+  const canRunFirst =
+    yearsToRetire >= 10;
+
+
+  const canRunSecond =
+    yearsToRetire >= 20;
+
+
+  if (mainInput) {
+
+    mainInput.disabled =
+      !canRunFirst;
+  }
+
+
+  if (returnInput) {
+
+    returnInput.disabled =
+      !canRunFirst;
+  }
+
+
+  if (
+    !canRunSecond
+  ) {
+
+    investmentTopUpEnabled =
+      false;
+  }
+
+
+  if (wrap) {
+
+    wrap.hidden =
+      !investmentTopUpEnabled;
+  }
+
+
+  if (addBtn) {
+
+    addBtn.disabled =
+      !canRunSecond ||
+      investmentTopUpEnabled;
+
+
+    addBtn.style.opacity =
+      (
+        canRunSecond &&
+        !investmentTopUpEnabled
+      )
+        ? "1"
+        : ".45";
+
+
+    if (
+      !canRunFirst
+    ) {
+
+      addBtn.textContent =
+        "距離退休不足10年";
+
+    } else if (
+      !canRunSecond
+    ) {
+
+      addBtn.textContent =
+        "退休前未有足夠時間加入第2個10年";
+
+    } else if (
+      investmentTopUpEnabled
+    ) {
+
+      addBtn.textContent =
+        "第2個10年 TOP UP 已加入";
+
+    } else {
+
+      addBtn.textContent =
+        "＋ 加入第2個10年 TOP UP";
+    }
+  }
+
+
+  if (note) {
+
+    if (
+      !canRunFirst
+    ) {
+
+      note.textContent =
+        "距離退休不足10年，未能完成一個完整10年投資階段。";
+
+    } else if (
+      !canRunSecond
+    ) {
+
+      note.textContent =
+        "可完成第一個10年階段；退休前時間不足以再完成第二個10年 TOP UP。";
+
+    } else {
+
+      note.textContent =
+        "可先完成第一個10年，再按需要加入第二個10年 TOP UP。";
+    }
+  }
+}
+
+
+/* =========================================
+   Step 7 計算
+========================================= */
+
+function calculateStep7Solutions() {
+
+  const {
+    yearsToRetire
+  } = getBasicData();
+
+
+  const targetGap =
+    getStep7TargetGap();
+
+
+  /* 靈活整筆投入 */
+
+  const lumpRate =
+    percentage(
+      "lumpSumReturn"
+    );
+
+
+  let lumpFuture = 0;
+
+
+  for (
+    let i = 1;
+    i <= lumpSumEntryCount;
+    i++
+  ) {
+
+    const year =
+      Math.max(
+        0,
+        Math.min(
+          number(
+            `lumpSumYear${i}`
+          ),
+          yearsToRetire
+        )
+      );
+
+
+    const amount =
+      number(
+        `lumpSumAmount${i}`
+      );
+
+
+    lumpFuture +=
+      amount *
+      Math.pow(
+        1 + lumpRate,
+        Math.max(
+          yearsToRetire -
+          year,
+          0
+        )
+      );
+  }
+
+
+  /* 五年儲蓄 */
+
+  const savingRate =
+    percentage(
+      "savingPlanReturn"
+    );
+
+
+  const maxSavingCount =
+    getMaxSavingPlanCount();
+
+
+  let savingFuture = 0;
+
+
+  if (
+    maxSavingCount > 0
+  ) {
+
+    for (
+      let i = 1;
+      i <= Math.min(
+        savingPlanCount,
+        maxSavingCount
+      );
+      i++
+    ) {
+
+      const annualAmount =
+        number(
+          `savingPlan${i}`
+        );
+
+
+      const startYear =
+        (i - 1) *
+        5;
+
+
+      savingFuture +=
+        futureValueOfAnnualContributions(
+          annualAmount,
+          savingRate,
+          startYear,
+          5,
+          yearsToRetire
+        );
+    }
+  }
+
+
+  /* 十年投資 */
+
+  const investmentRate =
+    percentage(
+      "futureInvestmentReturn"
+    );
+
+
+  let investmentFuture = 0;
+
+
+  if (
+    yearsToRetire >= 10
+  ) {
+
+    investmentFuture +=
+      futureValueOfAnnualContributions(
+        number(
+          "investmentContribution"
+        ),
+        investmentRate,
+        0,
+        10,
+        yearsToRetire
+      );
+  }
+
+
+  if (
+    investmentTopUpEnabled &&
+    yearsToRetire >= 20
+  ) {
+
+    investmentFuture +=
+      futureValueOfAnnualContributions(
+        number(
+          "investmentTopUp"
+        ),
+        investmentRate,
+        10,
+        10,
+        yearsToRetire
+      );
+  }
+
+
+  const totalFuture =
+    lumpFuture +
+    savingFuture +
+    investmentFuture;
+
+
+  const coverage =
+    targetGap > 0
+      ? (
+          totalFuture /
+          targetGap
+        ) *
+        100
+      : 100;
+
+
+  const remainingGap =
+    Math.max(
+      targetGap -
+      totalFuture,
+      0
+    );
+
+
+  const surplus =
+    Math.max(
+      totalFuture -
+      targetGap,
+      0
+    );
+
+
+  return {
+    targetGap,
+    yearsToRetire,
+    lumpFuture,
+    savingFuture,
+    investmentFuture,
+    totalFuture,
+    coverage,
+    remainingGap,
+    surplus
+  };
+}
+
+
+/* =========================================
+   Step 7 Live Results
+========================================= */
+
+function updateStep7Results() {
+
+  renderLumpSumEntries();
+
+  renderSavingPlanEntries();
+
+  syncInvestmentPlanUI();
+
+
+  const data =
+    calculateStep7Solutions();
+
+
+  const setText =
+    (
+      id,
+      value
+    ) => {
+
+      const el =
+        document.getElementById(id);
+
+
+      if (el) {
+
+        el.textContent =
+          value;
+      }
+    };
+
+
+  setText(
+    "step7TargetGap",
+    money(
+      data.targetGap
+    )
+  );
+
+
+  setText(
+    "step7SummaryGap",
+    money(
+      data.targetGap
+    )
+  );
+
+
+  setText(
+    "step7YearsToRetire",
+    `${data.yearsToRetire} 年`
+  );
+
+
+  setText(
+    "lumpSumFutureValue",
+    money(
+      data.lumpFuture
+    )
+  );
+
+
+  setText(
+    "savingPlanFutureValue",
+    money(
+      data.savingFuture
+    )
+  );
+
+
+  setText(
+    "investmentFutureValue",
+    money(
+      data.investmentFuture
+    )
+  );
+
+
+  setText(
+    "step7TotalFutureValue",
+    money(
+      data.totalFuture
+    )
+  );
+
+
+  const displayCoverage =
+    Math.max(
+      data.coverage,
+      0
+    );
+
+
+  const coverageText =
+    `${displayCoverage.toFixed(0)}%`;
+
+
+  setText(
+    "step7HeroCoverage",
+    coverageText
+  );
+
+
+  setText(
+    "step7CoverageRate",
+    coverageText
+  );
+
+
+  const individualCoverage =
+    (
+      value
+    ) =>
+      data.targetGap > 0
+        ? Math.min(
+            (
+              value /
+              data.targetGap
+            ) *
+            100,
+            999
+          )
+        : 100;
+
+
+  setText(
+    "lumpSumCoverage",
+    `覆蓋缺口 ${individualCoverage(data.lumpFuture).toFixed(0)}%`
+  );
+
+
+  setText(
+    "savingPlanCoverage",
+    `覆蓋缺口 ${individualCoverage(data.savingFuture).toFixed(0)}%`
+  );
+
+
+  setText(
+    "investmentCoverage",
+    `覆蓋缺口 ${individualCoverage(data.investmentFuture).toFixed(0)}%`
+  );
+
+
+  const balanceLabel =
+    document.getElementById(
+      "step7BalanceLabel"
+    );
+
+
+  const resultMessage =
+    document.getElementById(
+      "step7ResultMessage"
+    );
+
+
+  const combined =
+    document.getElementById(
+      "step7CombinedResult"
+    );
+
+
+  if (
+    data.targetGap <= 0
+  ) {
+
+    if (balanceLabel) {
+
+      balanceLabel.textContent =
+        "目前沒有退休資金缺口";
+    }
+
+
+    setText(
+      "step7RemainingGap",
+      "HK$ 0"
+    );
+
+
+    if (resultMessage) {
+
+      resultMessage.textContent =
+        "按 Step 6 的目前假設，退休資產已可支持至預計壽命；本頁方案可作額外退休儲備參考。";
+    }
+
+
+    if (combined) {
+
+      combined.style.background =
+        "#122f57";
+    }
+
+  } else if (
+    data.remainingGap > 0
+  ) {
+
+    if (balanceLabel) {
+
+      balanceLabel.textContent =
+        "尚餘缺口";
+    }
+
+
+    setText(
+      "step7RemainingGap",
+      money(
+        data.remainingGap
+      )
+    );
+
+
+    if (resultMessage) {
+
+      resultMessage.textContent =
+        `按目前輸入，方案預計可填補約 ${Math.min(data.coverage,999).toFixed(0)}% 的退休資金缺口，仍可按需要調整投入金額或回報假設。`;
+    }
+
+
+    if (combined) {
+
+      combined.style.background =
+        "#7f1020";
+    }
+
+  } else {
+
+    if (balanceLabel) {
+
+      balanceLabel.textContent =
+        "預計超額儲備";
+    }
+
+
+    setText(
+      "step7RemainingGap",
+      money(
+        data.surplus
+      )
+    );
+
+
+    if (resultMessage) {
+
+      resultMessage.textContent =
+        "按目前假設，建議方案的退休時預計價值已可覆蓋退休資金缺口。";
+    }
+
+
+    if (combined) {
+
+      combined.style.background =
+        "#122f57";
+    }
+  }
+
+
+  const bar =
+    document.getElementById(
+      "step7CoverageBar"
+    );
+
+
+  if (bar) {
+
+    bar.style.width =
+      `${Math.min(
+        Math.max(
+          data.coverage,
+          0
+        ),
+        100
+      )}%`;
+  }
+
+
+  const hero =
+    document.getElementById(
+      "step7GapHero"
+    );
+
+
+  if (hero) {
+
+    hero.style.background =
+      data.targetGap > 0
+        ? "#7f1020"
+        : "#122f57";
+  }
+}
+
+
+/* =========================================
+   Step 7 Button Events
+========================================= */
+
+const addLumpSumBtn =
+  document.getElementById(
+    "addLumpSumBtn"
+  );
+
+
+if (addLumpSumBtn) {
+
+  addLumpSumBtn.addEventListener(
+    "click",
+    () => {
+
+      if (
+        lumpSumEntryCount < 5
+      ) {
+
+        lumpSumEntryCount++;
+
+        renderLumpSumEntries();
+
+        updateStep7Results();
+      }
+
+    }
+  );
+}
+
+
+const addSavingPlanBtn =
+  document.getElementById(
+    "addSavingPlanBtn"
+  );
+
+
+if (addSavingPlanBtn) {
+
+  addSavingPlanBtn.addEventListener(
+    "click",
+    () => {
+
+      const maxCount =
+        getMaxSavingPlanCount();
+
+
+      if (
+        savingPlanCount <
+        maxCount
+      ) {
+
+        savingPlanCount++;
+
+        renderSavingPlanEntries();
+
+        updateStep7Results();
+      }
+
+    }
+  );
+}
+
+
+const addInvestmentTopUpBtn =
+  document.getElementById(
+    "addInvestmentTopUpBtn"
+  );
+
+
+if (
+  addInvestmentTopUpBtn
+) {
+
+  addInvestmentTopUpBtn
+    .addEventListener(
+      "click",
+      () => {
+
+        const {
+          yearsToRetire
+        } = getBasicData();
+
+
+        if (
+          yearsToRetire >= 20 &&
+          !investmentTopUpEnabled
+        ) {
+
+          investmentTopUpEnabled =
+            true;
+
+
+          syncInvestmentPlanUI();
+
+          updateStep7Results();
+        }
+
+      }
+    );
+}
+
+
+[
+  "lumpSumReturn",
+  "savingPlanReturn",
+  "investmentContribution",
+  "futureInvestmentReturn",
+  "investmentTopUp"
+].forEach(
+  id => {
+
+    const el =
+      document.getElementById(id);
+
+
+    if (!el) {
+
+      return;
+    }
+
+
+    el.addEventListener(
+      "input",
+      updateStep7Results
+    );
+
+
+    el.addEventListener(
+      "change",
+      updateStep7Results
+    );
+
+  }
+);
+
+
+const resetStep7Btn =
+  document.getElementById(
+    "resetStep7Btn"
+  );
+
+
+if (resetStep7Btn) {
+
+  resetStep7Btn.addEventListener(
+    "click",
+    () => {
+
+      lumpSumEntryCount = 1;
+
+      savingPlanCount = 1;
+
+      investmentTopUpEnabled =
+        false;
+
+
+      const defaults = {
+        lumpSumReturn: 4,
+        savingPlanReturn: 4,
+        investmentContribution: 0,
+        futureInvestmentReturn: 6,
+        investmentTopUp: 0
+      };
+
+
+      Object.entries(
+        defaults
+      ).forEach(
+        (
+          [
+            id,
+            value
+          ]
+        ) => {
+
+          const el =
+            document.getElementById(id);
+
+
+          if (el) {
+
+            el.value =
+              value;
+          }
+
+        }
+      );
+
+
+      renderLumpSumEntries();
+
+      renderSavingPlanEntries();
+
+      syncInvestmentPlanUI();
+
+
+      const firstLumpYear =
+        document.getElementById(
+          "lumpSumYear1"
+        );
+
+
+      const firstLumpAmount =
+        document.getElementById(
+          "lumpSumAmount1"
+        );
+
+
+      const firstSaving =
+        document.getElementById(
+          "savingPlan1"
+        );
+
+
+      if (firstLumpYear) {
+
+        firstLumpYear.value =
+          0;
+      }
+
+
+      if (firstLumpAmount) {
+
+        firstLumpAmount.value =
+          0;
+      }
+
+
+      if (firstSaving) {
+
+        firstSaving.value =
+          0;
+      }
+
+
+      updateStep7Results();
+
+    }
+  );
+}
+
+
+/* =========================================
+   初始 Step 7 UI
+========================================= */
+
+renderLumpSumEntries();
+
+renderSavingPlanEntries();
+
+syncInvestmentPlanUI();
+
 
 
 /* =========================================
