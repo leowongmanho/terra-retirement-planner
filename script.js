@@ -6060,14 +6060,48 @@ function renderLumpSumEntries() {
             第 ${i} 筆投入
           </strong>
 
-          <span
+          <div
             style="
-              color:#687386;
-              font-size:9px;
+              display:flex;
+              align-items:center;
+              gap:6px;
             "
           >
-            0 = 現在
-          </span>
+
+            <span
+              style="
+                color:#687386;
+                font-size:9px;
+              "
+            >
+              0 = 現在
+            </span>
+
+            ${
+              i > 1
+                ? `
+                  <button
+                    type="button"
+                    data-remove-lump-index="${i}"
+                    style="
+                      border:1px solid #d7a922;
+                      border-radius:8px;
+                      background:#7f1020;
+                      color:#ffffff;
+                      font-size:9px;
+                      font-weight:800;
+                      padding:4px 7px;
+                      cursor:pointer;
+                      white-space:nowrap;
+                    "
+                  >
+                    － 移除此筆
+                  </button>
+                `
+                : ""
+            }
+
+          </div>
 
         </div>
 
@@ -6170,6 +6204,93 @@ function renderLumpSumEntries() {
         input.addEventListener(
           "change",
           updateStep7Results
+        );
+
+      }
+    );
+
+
+  container
+    .querySelectorAll(
+      "[data-remove-lump-index]"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const removeIndex =
+              Number(
+                button.dataset
+                  .removeLumpIndex
+              );
+
+
+            if (
+              removeIndex <= 1 ||
+              removeIndex >
+                lumpSumEntryCount
+            ) {
+
+              return;
+            }
+
+
+            for (
+              let i = removeIndex;
+              i < lumpSumEntryCount;
+              i++
+            ) {
+
+              const nextYear =
+                document.getElementById(
+                  `lumpSumYear${i + 1}`
+                )?.value ?? 0;
+
+
+              const nextAmount =
+                document.getElementById(
+                  `lumpSumAmount${i + 1}`
+                )?.value ?? 0;
+
+
+              const currentYear =
+                document.getElementById(
+                  `lumpSumYear${i}`
+                );
+
+
+              const currentAmount =
+                document.getElementById(
+                  `lumpSumAmount${i}`
+                );
+
+
+              if (currentYear) {
+
+                currentYear.value =
+                  nextYear;
+              }
+
+
+              if (currentAmount) {
+
+                currentAmount.value =
+                  nextAmount;
+              }
+
+            }
+
+
+            lumpSumEntryCount--;
+
+
+            renderLumpSumEntries();
+
+            updateStep7Results();
+          }
         );
 
       }
@@ -6352,14 +6473,49 @@ function renderSavingPlanEntries() {
               第 ${i} 個5年方案
             </strong>
 
-            <span
+            <div
               style="
-                color:#687386;
-                font-size:9px;
+                display:flex;
+                align-items:center;
+                gap:6px;
               "
             >
-              第${startYear}–${endYear}年
-            </span>
+
+              <span
+                style="
+                  color:#687386;
+                  font-size:9px;
+                "
+              >
+                第${startYear}–${endYear}年
+              </span>
+
+              ${
+                i === savingPlanCount &&
+                i > 1
+                  ? `
+                    <button
+                      type="button"
+                      data-remove-saving-plan="${i}"
+                      style="
+                        border:1px solid #d7a922;
+                        border-radius:8px;
+                        background:#7f1020;
+                        color:#ffffff;
+                        font-size:9px;
+                        font-weight:800;
+                        padding:4px 7px;
+                        cursor:pointer;
+                        white-space:nowrap;
+                      "
+                    >
+                      － 移除此段
+                    </button>
+                  `
+                  : ""
+              }
+
+            </div>
 
           </div>
 
@@ -6420,6 +6576,38 @@ function renderSavingPlanEntries() {
         }
       );
   }
+
+
+  container
+    .querySelectorAll(
+      "[data-remove-saving-plan]"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            if (
+              savingPlanCount <= 1
+            ) {
+
+              return;
+            }
+
+
+            savingPlanCount--;
+
+
+            renderSavingPlanEntries();
+
+            updateStep7Results();
+          }
+        );
+
+      }
+    );
 
 
   const addBtn =
@@ -6577,15 +6765,11 @@ function syncInvestmentPlanUI() {
   if (addBtn) {
 
     addBtn.disabled =
-      !canRunSecond ||
-      investmentTopUpEnabled;
+      !canRunSecond;
 
 
     addBtn.style.opacity =
-      (
-        canRunSecond &&
-        !investmentTopUpEnabled
-      )
+      canRunSecond
         ? "1"
         : ".45";
 
@@ -6597,6 +6781,9 @@ function syncInvestmentPlanUI() {
       addBtn.textContent =
         "距離退休不足10年";
 
+      addBtn.style.background =
+        "#9aa8b8";
+
     } else if (
       !canRunSecond
     ) {
@@ -6604,18 +6791,31 @@ function syncInvestmentPlanUI() {
       addBtn.textContent =
         "退休前未有足夠時間加入第2個10年";
 
+      addBtn.style.background =
+        "#9aa8b8";
+
     } else if (
       investmentTopUpEnabled
     ) {
 
       addBtn.textContent =
-        "第2個10年 TOP UP 已加入";
+        "－ 移除第2個10年 TOP UP";
+
+      addBtn.style.background =
+        "#7f1020";
 
     } else {
 
       addBtn.textContent =
         "＋ 加入第2個10年 TOP UP";
+
+      addBtn.style.background =
+        "#122f57";
     }
+
+
+    addBtn.style.color =
+      "#ffffff";
   }
 
 
@@ -7231,18 +7431,43 @@ if (
 
 
         if (
-          yearsToRetire >= 20 &&
-          !investmentTopUpEnabled
+          yearsToRetire < 20
+        ) {
+
+          return;
+        }
+
+
+        if (
+          investmentTopUpEnabled
         ) {
 
           investmentTopUpEnabled =
+            false;
+
+
+          const topUpInput =
+            document.getElementById(
+              "investmentTopUp"
+            );
+
+
+          if (topUpInput) {
+
+            topUpInput.value =
+              0;
+          }
+
+        } else {
+
+          investmentTopUpEnabled =
             true;
-
-
-          syncInvestmentPlanUI();
-
-          updateStep7Results();
         }
+
+
+        syncInvestmentPlanUI();
+
+        updateStep7Results();
 
       }
     );
