@@ -1962,10 +1962,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 8
-     退休規劃總結與建議
+     退休規劃總結與建議 / ACTION PLAN
   ================================= */
 
-  function updateComparison() {
+  function updateActionPlan() {
 
     const basic =
       getBasicData();
@@ -1983,37 +1983,6 @@ document.addEventListener("DOMContentLoaded", () => {
       calculateStep7Solutions();
 
 
-    const locationSelect =
-      document.getElementById(
-        "retirementLocation"
-      );
-
-
-    const locationLabels = {
-      hongkong: "香港",
-      mainland: "中國內地",
-      "greater-bay-area": "大灣區",
-      asia: "亞洲其他地區",
-      overseas: "海外",
-      undecided: "尚未決定"
-    };
-
-
-    const location =
-      locationSelect
-        ? (
-            locationLabels[
-              locationSelect.value
-            ] ||
-            locationSelect
-              .options[
-                locationSelect.selectedIndex
-              ]?.text ||
-            "—"
-          )
-        : "—";
-
-
     const currentGap =
       Math.max(
         simulation.fundingGap || 0,
@@ -2021,30 +1990,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
 
-    const addedReserve =
+    const solutionTotal =
       Math.max(
         solution.totalFuture || 0,
-        0
-      );
-
-
-    const combinedAssets =
-      simulation.initialAssets +
-      addedReserve;
-
-
-    const remainingGap =
-      Math.max(
-        currentGap -
-        addedReserve,
-        0
-      );
-
-
-    const surplus =
-      Math.max(
-        addedReserve -
-        currentGap,
         0
       );
 
@@ -2052,10 +2000,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const coverage =
       currentGap > 0
         ? (
-            addedReserve /
+            solutionTotal /
             currentGap
           ) * 100
         : 100;
+
+
+    const remainingGap =
+      Math.max(
+        currentGap -
+        solutionTotal,
+        0
+      );
+
+
+    const surplus =
+      Math.max(
+        solutionTotal -
+        currentGap,
+        0
+      );
 
 
     const setText =
@@ -2087,21 +2051,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     setText(
-      "step8Location",
-      location
-    );
-
-
-    setText(
-      "step8MonthlyExpense",
-      money(
-        gapData.expense
-          .firstMonthlyExpense
-      )
-    );
-
-
-    setText(
       "step8TotalExpense",
       money(
         gapData.expense
@@ -2111,52 +2060,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     setText(
-      "step8FixedIncome",
+      "step8ProjectedAssets",
       money(
-        simulation
-          .totalIncomeReceived
+        simulation.initialAssets
       )
     );
 
 
     setText(
-      "step8CurrentAssets",
-      money(
-        simulation
-          .initialAssets
-      )
-    );
-
-
-    setText(
-      "step8CurrentGap",
+      "step8Gap",
       money(currentGap)
     );
 
 
     setText(
-      "step8CurrentStatus",
-      currentGap > 0
-        ? `${simulation.firstShortfallAge}歲開始不足`
-        : `可支持至${simulation.lifeExpectancy}歲`
+      "step8SolutionTotal",
+      money(solutionTotal)
     );
 
 
     setText(
-      "step8AddedReserve",
-      money(addedReserve)
-    );
-
-
-    setText(
-      "step8CombinedAssets",
-      money(combinedAssets)
-    );
-
-
-    setText(
-      "step8ActionCoverage",
-      `${Math.max(coverage,0).toFixed(0)}%`
+      "step8CoverageText",
+      `覆蓋率 ${Math.max(coverage,0).toFixed(0)}%`
     );
 
 
@@ -2178,56 +2103,72 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
-    setText(
-      "step8SolutionTotal",
-      money(solution.totalFuture)
-    );
+    const gapHero =
+      document.getElementById(
+        "step8GapHero"
+      );
+
+
+    const gapMessage =
+      document.getElementById(
+        "step8GapMessage"
+      );
 
 
     const balanceLabel =
       document.getElementById(
-        "step8ActionBalanceLabel"
+        "step8BalanceLabel"
       );
 
 
-    const message =
-      document.getElementById(
-        "step8ActionMessage"
+    if (
+      currentGap <= 0
+    ) {
+
+      setText(
+        "step8Gap",
+        "HK$ 0"
       );
 
 
-    const actionCard =
-      document.getElementById(
-        "step8ActionCard"
-      );
+      if (gapHero) {
+        gapHero.style.background =
+          "#122f57";
+      }
 
 
-    if (currentGap <= 0) {
+      if (gapMessage) {
+        gapMessage.textContent =
+          `按目前 Step 6 假設，退休資產可支持至 ${simulation.lifeExpectancy} 歲。Step 7 方案可作額外退休安全儲備。`;
+      }
+
 
       if (balanceLabel) {
         balanceLabel.textContent =
-          "目前沒有缺口";
+          "額外退休儲備";
       }
 
 
       setText(
-        "step8ActionBalance",
-        money(addedReserve)
+        "step8Balance",
+        money(solutionTotal)
       );
 
+    } else if (
+      remainingGap > 0
+    ) {
 
-      if (message) {
-        message.textContent =
-          "Step 6 已顯示現有退休資產可支持至預計壽命；Step 7 方案可視作額外退休儲備。";
+      if (gapHero) {
+        gapHero.style.background =
+          "#7f1020";
       }
 
 
-      if (actionCard) {
-        actionCard.style.background =
-          "#122f57";
+      if (gapMessage) {
+        gapMessage.textContent =
+          `按目前退休資產可持續性分析，仍需處理 ${money(currentGap)} 的退休期累積缺口。`;
       }
 
-    } else if (remainingGap > 0) {
 
       if (balanceLabel) {
         balanceLabel.textContent =
@@ -2236,23 +2177,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       setText(
-        "step8ActionBalance",
+        "step8Balance",
         money(remainingGap)
       );
 
-
-      if (message) {
-        message.textContent =
-          `按 Step 7 的退休時預計價值，目前可覆蓋約 ${Math.min(coverage,999).toFixed(0)}% 的退休資金缺口。`;
-      }
-
-
-      if (actionCard) {
-        actionCard.style.background =
-          "#7f1020";
-      }
-
     } else {
+
+      if (gapHero) {
+        gapHero.style.background =
+          "#122f57";
+      }
+
+
+      if (gapMessage) {
+        gapMessage.textContent =
+          "按目前假設，Step 7 建議方案的退休時預計價值已可覆蓋退休資金缺口。";
+      }
+
 
       if (balanceLabel) {
         balanceLabel.textContent =
@@ -2261,27 +2202,741 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       setText(
-        "step8ActionBalance",
+        "step8Balance",
         money(surplus)
+      );
+    }
+
+  }
+
+
+  function getStep8ShareText() {
+
+    const basic =
+      getBasicData();
+
+
+    const gapData =
+      calculateGap();
+
+
+    const solution =
+      calculateStep7Solutions();
+
+
+    const simulation =
+      gapData.simulation;
+
+
+    const gap =
+      Math.max(
+        simulation.fundingGap || 0,
+        0
       );
 
 
-      if (message) {
-        message.textContent =
-          "按目前假設，Step 7 建議方案的退休時預計價值已可覆蓋 Step 6 的退休資金缺口。";
-      }
+    const balance =
+      solution.totalFuture >= gap
+        ? `預計超額儲備：${money(solution.totalFuture - gap)}`
+        : `尚餘缺口：${money(gap - solution.totalFuture)}`;
 
 
-      if (actionCard) {
-        actionCard.style.background =
-          "#122f57";
-      }
-    }
+    return [
+      "TERRA 退休規劃總結與建議",
+      "",
+      `退休年齡：${basic.retirementAge}歲`,
+      `規劃至：${basic.lifeExpectancy}歲`,
+      `總退休生活費用：${money(gapData.expense.totalExpense)}`,
+      `預算退休時資產總值：${money(simulation.initialAssets)}`,
+      `需要處理的退休資金缺口：${money(gap)}`,
+      "",
+      "建議退休儲備方案：",
+      `靈活整筆投入：${money(solution.lumpFuture)}`,
+      `五年儲蓄計劃：${money(solution.savingFuture)}`,
+      `十年投資計劃：${money(solution.investmentFuture)}`,
+      `方案合計退休時預計價值：${money(solution.totalFuture)}`,
+      balance,
+      "",
+      "下一步：確認退休目標、落實退休儲備方案、每年檢視及調整。",
+      "",
+      "*以上只作退休規劃及教育參考。"
+    ].join("
+");
   }
 
 
   /* =================================
      Step 9
+     Delay No More
+  ================================= */
+
+  function calculateCurrentStep7Principal() {
+
+    const {
+      yearsToRetire
+    } = getBasicData();
+
+
+    let lumpPrincipal = 0;
+
+
+    for (
+      let i = 1;
+      i <= lumpSumEntryCount;
+      i++
+    ) {
+
+      const year =
+        Math.max(
+          0,
+          Math.min(
+            number(
+              `lumpSumYear${i}`
+            ),
+            yearsToRetire
+          )
+        );
+
+
+      if (
+        year <= yearsToRetire
+      ) {
+
+        lumpPrincipal +=
+          number(
+            `lumpSumAmount${i}`
+          );
+      }
+    }
+
+
+    const maxSavingCount =
+      getMaxSavingPlanCount();
+
+
+    let savingPrincipal = 0;
+
+
+    for (
+      let i = 1;
+      i <= Math.min(
+        savingPlanCount,
+        maxSavingCount
+      );
+      i++
+    ) {
+
+      savingPrincipal +=
+        number(
+          `savingPlan${i}`
+        ) *
+        5;
+    }
+
+
+    let investmentPrincipal = 0;
+
+
+    if (
+      yearsToRetire >= 10
+    ) {
+
+      investmentPrincipal +=
+        number(
+          "investmentContribution"
+        ) *
+        10;
+    }
+
+
+    if (
+      investmentTopUpEnabled &&
+      yearsToRetire >= 20
+    ) {
+
+      investmentPrincipal +=
+        number(
+          "investmentTopUp"
+        ) *
+        10;
+    }
+
+
+    return {
+      lumpPrincipal,
+      savingPrincipal,
+      investmentPrincipal,
+      totalPrincipal:
+        lumpPrincipal +
+        savingPrincipal +
+        investmentPrincipal
+    };
+  }
+
+
+  function calculateDelayedStep7Scenario(
+    delayYears = 5
+  ) {
+
+    const {
+      yearsToRetire
+    } = getBasicData();
+
+
+    const target =
+      calculateStep7Solutions();
+
+
+    const lumpRate =
+      percentage(
+        "lumpSumReturn"
+      );
+
+
+    const savingRate =
+      percentage(
+        "savingPlanReturn"
+      );
+
+
+    const investmentRate =
+      percentage(
+        "futureInvestmentReturn"
+      );
+
+
+    let delayedLumpFuture = 0;
+    let delayedLumpPrincipal = 0;
+
+
+    for (
+      let i = 1;
+      i <= lumpSumEntryCount;
+      i++
+    ) {
+
+      const originalYear =
+        Math.max(
+          0,
+          Math.min(
+            number(
+              `lumpSumYear${i}`
+            ),
+            yearsToRetire
+          )
+        );
+
+
+      const delayedYear =
+        originalYear +
+        delayYears;
+
+
+      const amount =
+        number(
+          `lumpSumAmount${i}`
+        );
+
+
+      if (
+        delayedYear >
+        yearsToRetire
+      ) {
+
+        continue;
+      }
+
+
+      delayedLumpPrincipal +=
+        amount;
+
+
+      const growthYears =
+        Math.max(
+          yearsToRetire -
+          delayedYear -
+          4,
+          0
+        );
+
+
+      delayedLumpFuture +=
+        amount *
+        Math.pow(
+          1 + lumpRate,
+          growthYears
+        );
+    }
+
+
+    const maxSavingCount =
+      getMaxSavingPlanCount();
+
+
+    let delayedSavingFuture = 0;
+    let delayedSavingPrincipal = 0;
+
+
+    for (
+      let i = 1;
+      i <= Math.min(
+        savingPlanCount,
+        maxSavingCount
+      );
+      i++
+    ) {
+
+      const delayedStartYear =
+        (i - 1) *
+        5 +
+        delayYears;
+
+
+      const annualAmount =
+        number(
+          `savingPlan${i}`
+        );
+
+
+      /*
+        要完整完成5年供款，
+        最後一次供款不能遲過退休時點。
+      */
+
+      if (
+        delayedStartYear + 5 >
+        yearsToRetire
+      ) {
+
+        continue;
+      }
+
+
+      const principal =
+        annualAmount *
+        5;
+
+
+      delayedSavingPrincipal +=
+        principal;
+
+
+      const growthYears =
+        Math.max(
+          yearsToRetire -
+          delayedStartYear -
+          7,
+          0
+        );
+
+
+      delayedSavingFuture +=
+        principal *
+        Math.pow(
+          1 + savingRate,
+          growthYears
+        );
+    }
+
+
+    let delayedInvestmentFuture = 0;
+    let delayedInvestmentPrincipal = 0;
+
+
+    /*
+      第1個10年投資：
+      延遲5年後仍要有完整10年。
+    */
+
+    if (
+      yearsToRetire >=
+      delayYears + 10
+    ) {
+
+      const annualAmount =
+        number(
+          "investmentContribution"
+        );
+
+
+      delayedInvestmentPrincipal +=
+        annualAmount *
+        10;
+
+
+      delayedInvestmentFuture +=
+        futureValueOfAnnualContributions(
+          annualAmount,
+          investmentRate,
+          delayYears,
+          10,
+          yearsToRetire
+        );
+    }
+
+
+    /*
+      第2個10年 TOP UP：
+      原本第11年開始，延遲5年即第16年開始。
+      必須仍有完整10年才納入。
+    */
+
+    if (
+      investmentTopUpEnabled &&
+      yearsToRetire >=
+        delayYears + 20
+    ) {
+
+      const annualAmount =
+        number(
+          "investmentTopUp"
+        );
+
+
+      delayedInvestmentPrincipal +=
+        annualAmount *
+        10;
+
+
+      delayedInvestmentFuture +=
+        futureValueOfAnnualContributions(
+          annualAmount,
+          investmentRate,
+          10 + delayYears,
+          10,
+          yearsToRetire
+        );
+    }
+
+
+    const baseDelayedFuture =
+      delayedLumpFuture +
+      delayedSavingFuture +
+      delayedInvestmentFuture;
+
+
+    const baseDelayedPrincipal =
+      delayedLumpPrincipal +
+      delayedSavingPrincipal +
+      delayedInvestmentPrincipal;
+
+
+    const targetFuture =
+      Math.max(
+        target.totalFuture || 0,
+        0
+      );
+
+
+    const scaleFactor =
+      targetFuture > 0 &&
+      baseDelayedFuture > 0
+        ? targetFuture /
+          baseDelayedFuture
+        : 0;
+
+
+    return {
+      delayYears,
+      targetFuture,
+      baseDelayedFuture,
+      baseDelayedPrincipal,
+      scaleFactor,
+      delayedPrincipal:
+        baseDelayedPrincipal *
+        scaleFactor,
+      delayedLumpPrincipal:
+        delayedLumpPrincipal *
+        scaleFactor,
+      delayedSavingPrincipal:
+        delayedSavingPrincipal *
+        scaleFactor,
+      delayedInvestmentPrincipal:
+        delayedInvestmentPrincipal *
+        scaleFactor,
+      lostInvestmentTopUp:
+        investmentTopUpEnabled &&
+        yearsToRetire <
+          delayYears + 20
+    };
+  }
+
+
+  function updateDelayNoMore() {
+
+    const basic =
+      getBasicData();
+
+
+    const current =
+      calculateCurrentStep7Principal();
+
+
+    const delayed =
+      calculateDelayedStep7Scenario(
+        5
+      );
+
+
+    const setText =
+      (
+        id,
+        value
+      ) => {
+
+        const el =
+          document.getElementById(id);
+
+
+        if (el) {
+          el.textContent = value;
+        }
+      };
+
+
+    const extraCost =
+      Math.max(
+        delayed.delayedPrincipal -
+        current.totalPrincipal,
+        0
+      );
+
+
+    const increasePct =
+      current.totalPrincipal > 0
+        ? (
+            extraCost /
+            current.totalPrincipal
+          ) *
+          100
+        : 0;
+
+
+    setText(
+      "delayNowAge",
+      `${basic.currentAge} 歲開始`
+    );
+
+
+    setText(
+      "delayLaterAge",
+      `${basic.currentAge + 5} 歲開始`
+    );
+
+
+    setText(
+      "delayNowYears",
+      `${basic.yearsToRetire} 年`
+    );
+
+
+    setText(
+      "delayLaterYears",
+      `${Math.max(basic.yearsToRetire - 5,0)} 年`
+    );
+
+
+    setText(
+      "delayNowPrincipal",
+      money(current.totalPrincipal)
+    );
+
+
+    setText(
+      "delayLaterPrincipal",
+      money(delayed.delayedPrincipal)
+    );
+
+
+    setText(
+      "delayExtraCost",
+      money(extraCost)
+    );
+
+
+    setText(
+      "delayIncreasePct",
+      `+${increasePct.toFixed(0)}%`
+    );
+
+
+    setText(
+      "delayTargetFuture",
+      money(delayed.targetFuture)
+    );
+
+
+    setText(
+      "delayLumpNow",
+      money(current.lumpPrincipal)
+    );
+
+
+    setText(
+      "delaySavingNow",
+      money(current.savingPrincipal)
+    );
+
+
+    setText(
+      "delayInvestmentNow",
+      money(current.investmentPrincipal)
+    );
+
+
+    setText(
+      "delayLumpLater",
+      money(delayed.delayedLumpPrincipal)
+    );
+
+
+    setText(
+      "delaySavingLater",
+      money(delayed.delayedSavingPrincipal)
+    );
+
+
+    setText(
+      "delayInvestmentLater",
+      money(delayed.delayedInvestmentPrincipal)
+    );
+
+
+    const hero =
+      document.getElementById(
+        "delayNoMoreHero"
+      );
+
+
+    const message =
+      document.getElementById(
+        "delayHeroMessage"
+      );
+
+
+    const methodNote =
+      document.getElementById(
+        "delayMethodNote"
+      );
+
+
+    if (
+      delayed.targetFuture <= 0
+    ) {
+
+      if (hero) {
+        hero.style.background =
+          "#122f57";
+      }
+
+
+      setText(
+        "delayExtraCost",
+        "請先完成 Step 7"
+      );
+
+
+      setText(
+        "delayIncreasePct",
+        "—"
+      );
+
+
+      if (message) {
+        message.textContent =
+          "Step 7 尚未設定退休儲備方案，因此暫時未能計算延遲5年的代價。";
+      }
+
+
+      if (methodNote) {
+        methodNote.textContent =
+          "請返回 Step 7 輸入建議方案後，再作延遲比較。";
+      }
+
+
+      return;
+    }
+
+
+    if (
+      delayed.baseDelayedFuture <= 0
+    ) {
+
+      if (hero) {
+        hero.style.background =
+          "#7f1020";
+      }
+
+
+      setText(
+        "delayExtraCost",
+        "時間不足"
+      );
+
+
+      setText(
+        "delayIncreasePct",
+        "—"
+      );
+
+
+      if (message) {
+        message.textContent =
+          "延遲5年後，現有方案結構已沒有足夠時間完成，因此不能用相同方式達到原本退休儲備目標。";
+      }
+
+
+      if (methodNote) {
+        methodNote.textContent =
+          "這代表延遲除了增加供款壓力，也可能令部分原定方案失去足夠完成年期，需要重新設計退休策略。";
+      }
+
+
+      return;
+    }
+
+
+    if (hero) {
+      hero.style.background =
+        "#7f1020";
+    }
+
+
+    if (message) {
+      message.textContent =
+        `若延遲5年，按同一退休時儲備目標估算，總投入由 ${money(current.totalPrincipal)} 增至約 ${money(delayed.delayedPrincipal)}。`;
+    }
+
+
+    if (methodNote) {
+
+      let note =
+        "計算方法：把目前 Step 7 方案整體延遲5年，沿用相同回報假設；再按比例提高仍可完成的供款，使退休時預計價值回到與現在開始相同的目標。";
+
+
+      if (
+        delayed.lostInvestmentTopUp
+      ) {
+
+        note +=
+          " 由於延遲後時間不足以完成第2個10年 TOP UP，該段不再納入，所需目標由其餘可完成方案承擔。";
+      }
+
+
+      note +=
+        " 此為數學情境比較，並非產品報價或回報保證。";
+
+
+      methodNote.textContent =
+        note;
+    }
+
+  }
+
+
+  /* =================================
+     舊 Step 9 summary function
+     保留以兼容，但新流程不再使用。
   ================================= */
 
   function updateFinalSummary() {
@@ -2643,7 +3298,7 @@ if (
       currentStep === 8
     ) {
 
-      updateComparison();
+      updateActionPlan();
     }
 
 
@@ -2651,7 +3306,18 @@ if (
       currentStep === 9
     ) {
 
-      updateFinalSummary();
+      updateDelayNoMore();
+    }
+
+
+    if (
+      currentStep === 10
+    ) {
+
+      /*
+        Step 10 主要為年度跟進及教育內容，
+        暫時不需要額外計算。
+      */
     }
 
 
@@ -8060,6 +8726,125 @@ if (resetStep7Btn) {
 }
 
 
+
+/* =========================================
+   Step 8 分享 / 列印
+========================================= */
+
+const printStep8Btn =
+  document.getElementById(
+    "printStep8Btn"
+  );
+
+
+if (printStep8Btn) {
+
+  printStep8Btn.addEventListener(
+    "click",
+    () => {
+
+      updateActionPlan();
+
+      document.body
+        .classList.add(
+          "print-step8-only"
+        );
+
+
+      window.print();
+
+
+      setTimeout(
+        () => {
+
+          document.body
+            .classList.remove(
+              "print-step8-only"
+            );
+
+        },
+        300
+      );
+
+    }
+  );
+}
+
+
+const shareWhatsAppBtn =
+  document.getElementById(
+    "shareWhatsAppBtn"
+  );
+
+
+if (shareWhatsAppBtn) {
+
+  shareWhatsAppBtn.addEventListener(
+    "click",
+    () => {
+
+      updateActionPlan();
+
+
+      const text =
+        getStep8ShareText();
+
+
+      const url =
+        "https://wa.me/?text=" +
+        encodeURIComponent(
+          text
+        );
+
+
+      window.open(
+        url,
+        "_blank"
+      );
+
+    }
+  );
+}
+
+
+const shareEmailBtn =
+  document.getElementById(
+    "shareEmailBtn"
+  );
+
+
+if (shareEmailBtn) {
+
+  shareEmailBtn.addEventListener(
+    "click",
+    () => {
+
+      updateActionPlan();
+
+
+      const subject =
+        "TERRA 退休規劃總結與建議";
+
+
+      const body =
+        getStep8ShareText();
+
+
+      window.location.href =
+        "mailto:?subject=" +
+        encodeURIComponent(
+          subject
+        ) +
+        "&body=" +
+        encodeURIComponent(
+          body
+        );
+
+    }
+  );
+}
+
+
 /* =========================================
    初始 Step 7 UI
 ========================================= */
@@ -8073,8 +8858,8 @@ syncInvestmentPlanUI();
 
 
 /* =========================================
-   Step 9 Cashflow Table
-   跟 Step 6 同一套模擬
+   Legacy Cashflow Table
+   保留舊功能，現時 Step 9 已改為 Delay No More。
 ========================================= */
 
 createCashflowTable =
