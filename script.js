@@ -2257,7 +2257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `方案合計退休時預計價值：${money(solution.totalFuture)}`,
       balance,
       "",
-      "下一步：確認退休目標、落實退休儲備方案、每年檢視及調整。",
+      "下一步：落實退休儲備方案，按現金流、風險承受能力及資產配置確認適合的組合，並由現在開始逐步執行。",
       "",
       "*以上只作退休規劃及教育參考。"
     ].join("\n");
@@ -2923,7 +2923,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       note +=
-        " 此為數學情境比較，並非產品報價或回報保證。";
+        " 此為數學情境比較，並非產品報價或回報保證；重點是顯示延遲開始對所需投入的影響。";
 
 
       methodNote.textContent =
