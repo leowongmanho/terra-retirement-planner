@@ -107,6 +107,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
+     客戶資料 / 規劃日期
+  ================================= */
+
+  function formatDateHK(value) {
+
+    if (!value) {
+      return "—";
+    }
+
+
+    const parts =
+      String(value).split("-");
+
+
+    if (parts.length !== 3) {
+      return value;
+    }
+
+
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+
+
+  function getClientInfo() {
+
+    const nameEl =
+      document.getElementById("clientName");
+
+
+    const dateEl =
+      document.getElementById("planningDate");
+
+
+    return {
+      clientName:
+        nameEl && nameEl.value.trim()
+          ? nameEl.value.trim()
+          : "—",
+
+      planningDate:
+        dateEl ? dateEl.value : ""
+    };
+  }
+
+
+  function addOneYearToDate(value) {
+
+    if (!value) {
+      return "";
+    }
+
+
+    const [
+      year,
+      month,
+      day
+    ] =
+      value.split("-").map(Number);
+
+
+    if (
+      !year ||
+      !month ||
+      !day
+    ) {
+      return "";
+    }
+
+
+    const date =
+      new Date(
+        year + 1,
+        month - 1,
+        day
+      );
+
+
+    return [
+      date.getFullYear(),
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0"),
+      String(
+        date.getDate()
+      ).padStart(2, "0")
+    ].join("-");
+  }
+
+
+  function setDefaultPlanningDate() {
+
+    const dateEl =
+      document.getElementById(
+        "planningDate"
+      );
+
+
+    if (
+      !dateEl ||
+      dateEl.value
+    ) {
+      return;
+    }
+
+
+    const today =
+      new Date();
+
+
+    const localDate = [
+      today.getFullYear(),
+      String(
+        today.getMonth() + 1
+      ).padStart(2, "0"),
+      String(
+        today.getDate()
+      ).padStart(2, "0")
+    ].join("-");
+
+
+    dateEl.value =
+      localDate;
+  }
+
+
+  /* =================================
      80歲後生活費選項
   ================================= */
 
@@ -2038,6 +2164,24 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
 
+    const clientInfo =
+      getClientInfo();
+
+
+    setText(
+      "step8ClientName",
+      clientInfo.clientName
+    );
+
+
+    setText(
+      "step8PlanningDate",
+      formatDateHK(
+        clientInfo.planningDate
+      )
+    );
+
+
     setText(
       "step8RetirementAge",
       `${basic.retirementAge} 歲`
@@ -2241,8 +2385,15 @@ document.addEventListener("DOMContentLoaded", () => {
         : `尚餘缺口：${money(gap - solution.totalFuture)}`;
 
 
+    const clientInfo =
+      getClientInfo();
+
+
     return [
       "TERRA 退休規劃總結與建議",
+      "",
+      `客戶姓名：${clientInfo.clientName}`,
+      `規劃日期：${formatDateHK(clientInfo.planningDate)}`,
       "",
       `退休年齡：${basic.retirementAge}歲`,
       `規劃至：${basic.lifeExpectancy}歲`,
@@ -2266,7 +2417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 9
-     Delay No More
+     時間價值分析
   ================================= */
 
   function calculateCurrentStep7Principal() {
@@ -2910,7 +3061,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (methodNote) {
 
       let note =
-        "計算方法：把目前 Step 7 方案整體延遲5年，沿用相同回報假設；再按比例提高仍可完成的供款，使退休時預計價值回到與現在開始相同的目標。";
+        "計算方法：保持同一個退休目標及同一套回報假設，只把目前 Step 7 方案整體延遲5年；再按比例提高仍可完成的供款，使退休時預計價值回到與現在開始相同的目標。";
 
 
       if (
@@ -3164,6 +3315,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
+     Step 10
+     Annual Review 客戶資料
+  ================================= */
+
+  function updateAnnualReview() {
+
+    const clientInfo =
+      getClientInfo();
+
+
+    const setText =
+      (
+        id,
+        value
+      ) => {
+
+        const el =
+          document.getElementById(id);
+
+
+        if (el) {
+          el.textContent = value;
+        }
+      };
+
+
+    setText(
+      "step10ClientName",
+      clientInfo.clientName
+    );
+
+
+    setText(
+      "step10PlanningDate",
+      formatDateHK(
+        clientInfo.planningDate
+      )
+    );
+
+
+    const nextReviewDate =
+      addOneYearToDate(
+        clientInfo.planningDate
+      );
+
+
+    setText(
+      "step10NextReviewDate",
+      nextReviewDate
+        ? formatDateHK(
+            nextReviewDate
+          )
+        : "12 個月內"
+    );
+  }
+
+
+  /* =================================
      頁面導航
   ================================= */
 
@@ -3313,10 +3522,7 @@ if (
       currentStep === 10
     ) {
 
-      /*
-        Step 10 主要為年度跟進及教育內容，
-        暫時不需要額外計算。
-      */
+      updateAnnualReview();
     }
 
 
@@ -3342,6 +3548,34 @@ if (
       retirementAge,
       lifeExpectancy
     } = getBasicData();
+
+
+    const clientInfo =
+      getClientInfo();
+
+
+    if (
+      clientInfo.clientName === "—"
+    ) {
+
+      alert(
+        "請輸入客戶姓名。"
+      );
+
+      return false;
+    }
+
+
+    if (
+      !clientInfo.planningDate
+    ) {
+
+      alert(
+        "請輸入規劃日期。"
+      );
+
+      return false;
+    }
 
 
     if (!currentAge) {
@@ -8821,8 +9055,14 @@ if (shareEmailBtn) {
       updateActionPlan();
 
 
+      const clientInfo =
+        getClientInfo();
+
+
       const subject =
-        "TERRA 退休規劃總結與建議";
+        clientInfo.clientName !== "—"
+          ? `TERRA 退休規劃總結與建議 - ${clientInfo.clientName}`
+          : "TERRA 退休規劃總結與建議";
 
 
       const body =
@@ -8858,7 +9098,7 @@ syncInvestmentPlanUI();
 
 /* =========================================
    Legacy Cashflow Table
-   保留舊功能，現時 Step 9 已改為 Delay No More。
+   保留舊功能，現時 Step 9 已改為時間價值分析。
 ========================================= */
 
 createCashflowTable =
@@ -9004,6 +9244,8 @@ syncWithdrawalModeUI();
 renderWithdrawalOrder();
 
 syncRetirementReturnUI();
+
+setDefaultPlanningDate();
 
 
 
