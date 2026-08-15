@@ -2260,8 +2260,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "下一步：確認退休目標、落實退休儲備方案、每年檢視及調整。",
       "",
       "*以上只作退休規劃及教育參考。"
-    ].join("
-");
+    ].join("\n");
   }
 
 
