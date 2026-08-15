@@ -17,6 +17,49 @@
     rel="stylesheet"
     href="style.css"
   >
+
+  <style>
+    @media print {
+      body.print-step8-only * {
+        visibility: hidden !important;
+      }
+
+      body.print-step8-only .planner-step[data-step="8"],
+      body.print-step8-only .planner-step[data-step="8"] * {
+        visibility: visible !important;
+      }
+
+      body.print-step8-only .planner-step[data-step="8"] {
+        display:block !important;
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        padding:18px;
+        background:#ffffff;
+      }
+
+      body.print-step8-only .step8-share-actions,
+      body.print-step8-only .planner-actions,
+      body.print-step8-only .top-bar,
+      body.print-step8-only .back-link,
+      body.print-step8-only .progress,
+      body.print-step8-only .step-label,
+      body.print-step8-only .eyebrow,
+      body.print-step8-only h1 {
+        display:none !important;
+      }
+
+      body.print-step8-only .planner-container,
+      body.print-step8-only .planner-page {
+        width:100% !important;
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+    }
+  </style>
+
 </head>
 
 
@@ -63,7 +106,7 @@
       id="stepLabel"
       class="step-label"
     >
-      第 1 步，共 9 步
+      第 1 步，共 10 步
     </p>
 
 
@@ -3936,15 +3979,13 @@
 
 <!-- ==================================
      STEP 8
-     退休規劃總結與建議
+     退休規劃總結與建議 / ACTION PLAN
 =================================== -->
 
 <section
   class="planner-step"
   data-step="8"
 >
-
-  <!-- Header -->
 
   <div
     style="
@@ -3958,6 +3999,18 @@
 
     <div>
 
+      <p
+        style="
+          margin:0 0 5px;
+          color:#d7a922;
+          font-size:11px;
+          font-weight:900;
+          letter-spacing:.08em;
+        "
+      >
+        TERRA RETIREMENT ACTION PLAN
+      </p>
+
       <h2 style="margin-bottom:6px;">
         退休規劃總結與建議
       </h2>
@@ -3967,11 +4020,11 @@
           margin:0;
           color:#687386;
           line-height:1.65;
-          max-width:820px;
+          max-width:800px;
         "
       >
-        綜合以上退休目標、資產、收入、資金缺口及填補方案，
-        比較維持現狀與採取建議方案的預計結果，並檢視退休前的重要風險。
+        你的退休方向已經清晰。現在最重要的，是確認需要處理的缺口，
+        並按計劃開始建立退休儲備。
       </p>
 
     </div>
@@ -3980,7 +4033,7 @@
       src="SUMMARY.png"
       alt="TERO Summary"
       style="
-        width:126px;
+        width:132px;
         max-width:16vw;
         height:auto;
         object-fit:contain;
@@ -3991,7 +4044,7 @@
   </div>
 
 
-  <!-- Planning snapshot -->
+  <!-- Key snapshot -->
 
   <div
     style="
@@ -4007,39 +4060,29 @@
     <div
       style="
         display:grid;
-        grid-template-columns:repeat(6,minmax(0,1fr));
+        grid-template-columns:repeat(4,minmax(0,1fr));
         gap:14px;
       "
     >
 
       <div>
         <span style="display:block;opacity:.68;font-size:10px;">退休年齡</span>
-        <strong id="step8RetirementAge" style="display:block;margin-top:4px;font-size:19px;">—</strong>
+        <strong id="step8RetirementAge" style="display:block;margin-top:4px;font-size:20px;">—</strong>
       </div>
 
       <div>
         <span style="display:block;opacity:.68;font-size:10px;">規劃至</span>
-        <strong id="step8LifeExpectancy" style="display:block;margin-top:4px;font-size:19px;">—</strong>
+        <strong id="step8LifeExpectancy" style="display:block;margin-top:4px;font-size:20px;">—</strong>
       </div>
 
       <div>
-        <span style="display:block;opacity:.68;font-size:10px;">退休地點</span>
-        <strong id="step8Location" style="display:block;margin-top:4px;font-size:16px;">—</strong>
+        <span style="display:block;opacity:.68;font-size:10px;">總退休生活費用</span>
+        <strong id="step8TotalExpense" style="display:block;margin-top:4px;font-size:18px;color:#d7a922;">HK$ —</strong>
       </div>
 
       <div>
-        <span style="display:block;opacity:.68;font-size:10px;">退休第一年月生活費</span>
-        <strong id="step8MonthlyExpense" style="display:block;margin-top:4px;font-size:17px;">HK$ —</strong>
-      </div>
-
-      <div>
-        <span style="display:block;opacity:.68;font-size:10px;">退休總支出</span>
-        <strong id="step8TotalExpense" style="display:block;margin-top:4px;font-size:17px;color:#d7a922;">HK$ —</strong>
-      </div>
-
-      <div>
-        <span style="display:block;opacity:.68;font-size:10px;">退休固定收入總值</span>
-        <strong id="step8FixedIncome" style="display:block;margin-top:4px;font-size:17px;">HK$ —</strong>
+        <span style="display:block;opacity:.68;font-size:10px;">預算退休時資產總值</span>
+        <strong id="step8ProjectedAssets" style="display:block;margin-top:4px;font-size:18px;">HK$ —</strong>
       </div>
 
     </div>
@@ -4047,179 +4090,101 @@
   </div>
 
 
-  <!-- Before vs After -->
+  <!-- Gap hero -->
 
   <div
+    id="step8GapHero"
     style="
-      display:flex;
-      justify-content:space-between;
-      align-items:end;
-      gap:12px;
-      margin:18px 0 10px;
+      display:grid;
+      grid-template-columns:1.3fr 1fr;
+      gap:18px;
+      align-items:center;
+      padding:18px 20px;
+      border-radius:18px;
+      background:#7f1020;
+      color:#ffffff;
+      margin-bottom:16px;
+      box-shadow:0 10px 24px rgba(18,47,87,.10);
     "
   >
 
     <div>
-      <h3 style="margin:0 0 4px;color:#122f57;">
-        維持現狀 vs 採取行動
-      </h3>
-      <p style="margin:0;color:#687386;font-size:12px;line-height:1.55;">
-        「維持現狀」只使用 Step 1–6 已有資產及供款安排；「採取行動」加入 Step 7 的退休時預計累積價值。
+      <span style="display:block;opacity:.72;font-size:11px;margin-bottom:5px;">
+        現在需要處理的退休資金缺口
+      </span>
+
+      <strong
+        id="step8Gap"
+        style="
+          display:block;
+          font-size:34px;
+          line-height:1.05;
+        "
+      >
+        HK$ —
+      </strong>
+
+      <p
+        id="step8GapMessage"
+        style="
+          margin:8px 0 0;
+          opacity:.82;
+          font-size:11px;
+          line-height:1.55;
+        "
+      >
+        正在整理退休缺口……
       </p>
     </div>
 
-  </div>
-
-
-  <div
-    style="
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      align-items:stretch;
-    "
-  >
-
-    <!-- Current -->
-
     <div
-      id="step8CurrentCard"
       style="
-        border:1px solid #eadfcd;
-        border-top:5px solid #7f1020;
-        border-radius:18px;
-        background:#fffdf8;
-        padding:17px;
+        padding:13px 15px;
+        border-radius:14px;
+        background:rgba(255,255,255,.09);
       "
     >
-
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;">
-        <div>
-          <span style="display:block;color:#687386;font-size:10px;">方案 A</span>
-          <strong style="display:block;color:#122f57;font-size:20px;margin-top:2px;">維持現狀</strong>
-        </div>
-        <span style="padding:6px 9px;border-radius:999px;background:#fff0f1;color:#7f1020;font-size:10px;font-weight:900;">不新增 Step 7 方案</span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
-
-        <div style="padding:11px;border-radius:11px;background:#f8f4eb;">
-          <span style="display:block;color:#687386;font-size:9px;">退休時原有資產</span>
-          <strong id="step8CurrentAssets" style="display:block;color:#122f57;font-size:17px;margin-top:4px;">HK$ —</strong>
-        </div>
-
-        <div style="padding:11px;border-radius:11px;background:#f8f4eb;">
-          <span style="display:block;color:#687386;font-size:9px;">退休期累積缺口</span>
-          <strong id="step8CurrentGap" style="display:block;color:#7f1020;font-size:17px;margin-top:4px;">HK$ —</strong>
-        </div>
-
-        <div style="padding:11px;border-radius:11px;background:#f8f4eb;">
-          <span style="display:block;color:#687386;font-size:9px;">可持續性結果</span>
-          <strong id="step8CurrentStatus" style="display:block;color:#122f57;font-size:14px;margin-top:4px;line-height:1.35;">—</strong>
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- Action -->
-
-    <div
-      id="step8ActionCard"
-      style="
-        border:2px solid #d7a922;
-        border-top:5px solid #d7a922;
-        border-radius:18px;
-        background:#122f57;
-        color:#ffffff;
-        padding:17px;
-        box-shadow:0 10px 26px rgba(18,47,87,.10);
-      "
-    >
-
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;">
-        <div>
-          <span style="display:block;opacity:.65;font-size:10px;">方案 B</span>
-          <strong style="display:block;font-size:20px;margin-top:2px;">採取建議方案</strong>
-        </div>
-        <span style="padding:6px 9px;border-radius:999px;background:#d7a922;color:#122f57;font-size:10px;font-weight:900;">加入 Step 7</span>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
-
-        <div style="padding:11px;border-radius:11px;background:rgba(255,255,255,.09);">
-          <span style="display:block;opacity:.68;font-size:9px;">Step 7 預計新增儲備</span>
-          <strong id="step8AddedReserve" style="display:block;color:#d7a922;font-size:17px;margin-top:4px;">HK$ —</strong>
-        </div>
-
-        <div style="padding:11px;border-radius:11px;background:rgba(255,255,255,.09);">
-          <span style="display:block;opacity:.68;font-size:9px;">退休時預計總儲備</span>
-          <strong id="step8CombinedAssets" style="display:block;font-size:17px;margin-top:4px;">HK$ —</strong>
-        </div>
-
-        <div style="padding:11px;border-radius:11px;background:rgba(255,255,255,.09);">
-          <span id="step8ActionBalanceLabel" style="display:block;opacity:.68;font-size:9px;">尚餘缺口</span>
-          <strong id="step8ActionBalance" style="display:block;font-size:17px;margin-top:4px;">HK$ —</strong>
-        </div>
-
-      </div>
-
-      <div style="margin-top:11px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <span id="step8ActionMessage" style="font-size:11px;line-height:1.5;opacity:.86;">正在整理建議方案效果……</span>
-        <strong id="step8ActionCoverage" style="font-size:22px;color:#d7a922;white-space:nowrap;">0%</strong>
-      </div>
-
+      <span style="display:block;opacity:.68;font-size:10px;">建議方案退休時預計價值</span>
+      <strong id="step8SolutionTotal" style="display:block;color:#d7a922;font-size:24px;margin-top:4px;">HK$ 0</strong>
+      <span id="step8CoverageText" style="display:block;margin-top:5px;font-size:12px;font-weight:800;">覆蓋率 0%</span>
     </div>
 
   </div>
 
 
-  <div
-    style="
-      margin-top:10px;
-      padding:10px 13px;
-      border-left:4px solid #d7a922;
-      border-radius:10px;
-      background:#f8f4eb;
-      color:#687386;
-      font-size:10px;
-      line-height:1.6;
-    "
-  >
-    *「採取建議方案」以 Step 7 各方案在退休時的預計累積價值，與 Step 6 的退休期累積缺口作比較；
-    用作展示改善幅度，並不代表重新設定退休後投資回報或保證實際結果。
-  </div>
+  <!-- Recommended solution -->
 
+  <div style="margin-top:18px;">
 
-  <!-- Step 7 solution summary -->
-
-  <div style="margin-top:20px;">
-
-    <h3 style="margin:0 0 10px;color:#122f57;">
-      建議方案摘要
-    </h3>
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:10px;">
+      <div>
+        <h3 style="margin:0 0 4px;color:#122f57;">建議退休儲備方案</h3>
+        <p style="margin:0;color:#687386;font-size:11px;line-height:1.55;">
+          以下沿用 Step 7 已設定的方案，重點是把退休缺口轉化成可以執行的儲備行動。
+        </p>
+      </div>
+    </div>
 
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
 
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
         <span style="display:block;color:#687386;font-size:9px;">靈活整筆投入</span>
-        <strong id="step8LumpFuture" style="display:block;color:#122f57;font-size:17px;margin-top:4px;">HK$ 0</strong>
+        <strong id="step8LumpFuture" style="display:block;color:#122f57;font-size:18px;margin-top:4px;">HK$ 0</strong>
       </div>
 
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
         <span style="display:block;color:#687386;font-size:9px;">五年儲蓄計劃</span>
-        <strong id="step8SavingFuture" style="display:block;color:#122f57;font-size:17px;margin-top:4px;">HK$ 0</strong>
+        <strong id="step8SavingFuture" style="display:block;color:#122f57;font-size:18px;margin-top:4px;">HK$ 0</strong>
       </div>
 
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
         <span style="display:block;color:#687386;font-size:9px;">十年投資計劃</span>
-        <strong id="step8InvestmentFuture" style="display:block;color:#122f57;font-size:17px;margin-top:4px;">HK$ 0</strong>
+        <strong id="step8InvestmentFuture" style="display:block;color:#122f57;font-size:18px;margin-top:4px;">HK$ 0</strong>
       </div>
 
-      <div style="padding:13px;border:2px solid #d7a922;border-radius:13px;background:#fff9e8;">
-        <span style="display:block;color:#687386;font-size:9px;">方案合計退休時預計價值</span>
-        <strong id="step8SolutionTotal" style="display:block;color:#7f1020;font-size:18px;margin-top:4px;">HK$ 0</strong>
+      <div style="padding:14px;border:2px solid #d7a922;border-radius:14px;background:#fff9e8;">
+        <span id="step8BalanceLabel" style="display:block;color:#687386;font-size:9px;">尚餘缺口</span>
+        <strong id="step8Balance" style="display:block;color:#7f1020;font-size:19px;margin-top:4px;">HK$ —</strong>
       </div>
 
     </div>
@@ -4227,74 +4192,44 @@
   </div>
 
 
-  <!-- Retirement reminders -->
+  <!-- Action plan -->
 
   <div
     style="
       margin-top:22px;
+      padding-top:18px;
       border-top:1px solid #eadfcd;
-      padding-top:20px;
     "
   >
 
-    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:10px;">
-      <div>
-        <h3 style="margin:0 0 4px;color:#122f57;">退休前重要提醒</h3>
-        <p style="margin:0;color:#687386;font-size:11px;line-height:1.55;">
-          退休唔只係計夠唔夠錢，保障、居住、流動性、長壽風險及資產安全同樣重要。
+    <h3 style="margin:0 0 10px;color:#122f57;">
+      下一步 Action Plan
+    </h3>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
+
+      <div style="padding:16px;border:1px solid #eadfcd;border-radius:15px;background:#fffdf8;">
+        <span style="display:flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:12px;font-weight:900;margin-bottom:9px;">1</span>
+        <strong style="display:block;color:#122f57;font-size:15px;">確認退休目標</strong>
+        <p style="margin:6px 0 0;color:#687386;font-size:11px;line-height:1.6;">
+          確認退休年齡、預計退休年期及整體生活費預算仍符合你的期望。
         </p>
       </div>
-      <span style="color:#d7a922;font-weight:900;font-size:11px;white-space:nowrap;">TERO REMINDER</span>
-    </div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">1</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">醫療保障要充足</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">檢視住院、門診、藥物及長期護理風險，避免醫療開支直接侵蝕退休資產。</p>
+      <div style="padding:16px;border:2px solid #d7a922;border-radius:15px;background:#fff9e8;">
+        <span style="display:flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:#7f1020;color:#fff;font-size:12px;font-weight:900;margin-bottom:9px;">2</span>
+        <strong style="display:block;color:#7f1020;font-size:15px;">落實退休儲備方案</strong>
+        <p style="margin:6px 0 0;color:#687386;font-size:11px;line-height:1.6;">
+          按現金流、風險承受能力及資產配置，落實適合的整筆投入、五年儲蓄及十年投資組合。
+        </p>
       </div>
 
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">2</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">醫療保費要供得完</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">保障不只睇今日保費，要考慮退休後保費上升時，現金流能否長期承擔。</p>
-      </div>
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">3</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">要有穩定居所</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">退休後應預先考慮自住、租住、管理費、維修及搬遷需要，避免租金長期上升造成壓力。</p>
-      </div>
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">4</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">資產流動性要足夠</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">不要把全部資產鎖在難以套現的安排，要保留可靈活提款的資金應付日常及突發需要。</p>
-      </div>
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">5</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">提款及管理要方便</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">若日後搬遷、移居或由家人協助管理，銀行、投資及保險資產都要考慮提款與管理便利性。</p>
-      </div>
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">6</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">預留長壽 Buffer</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">不要只計到平均壽命，應為更長壽命、額外生活費及晚年護理需要預留安全墊。</p>
-      </div>
-
-      <div style="padding:13px;border:1px solid #eadfcd;border-radius:13px;background:#fffdf8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">7</span>
-        <strong style="display:block;color:#122f57;font-size:13px;">保留緊急備用金</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">預留一筆不依賴市場升跌、可以即時使用的資金，應付醫療、家居維修及其他突發支出。</p>
-      </div>
-
-      <div style="padding:13px;border:2px solid #d7a922;border-radius:13px;background:#fff9e8;">
-        <span style="display:flex;width:25px;height:25px;border-radius:50%;align-items:center;justify-content:center;background:#7f1020;color:#fff;font-size:10px;font-weight:900;margin-bottom:7px;">8</span>
-        <strong style="display:block;color:#7f1020;font-size:13px;">防騙與資產安全</strong>
-        <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">重要轉帳、投資或索取個人資料的要求都應再次核實，避免因電話、訊息或假投資造成重大損失。</p>
+      <div style="padding:16px;border:1px solid #eadfcd;border-radius:15px;background:#fffdf8;">
+        <span style="display:flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:#122f57;color:#fff;font-size:12px;font-weight:900;margin-bottom:9px;">3</span>
+        <strong style="display:block;color:#122f57;font-size:15px;">每年檢視及調整</strong>
+        <p style="margin:6px 0 0;color:#687386;font-size:11px;line-height:1.6;">
+          收入、家庭、健康或市場環境出現改變時，重新檢視退休方案，保持計劃貼近實際需要。
+        </p>
       </div>
 
     </div>
@@ -4302,110 +4237,439 @@
   </div>
 
 
-  <p
+  <!-- Key reminders -->
+
+  <div
     style="
-      margin:16px 0 0;
-      color:#687386;
-      font-size:10px;
-      line-height:1.65;
+      margin-top:22px;
+      padding-top:18px;
+      border-top:1px solid #eadfcd;
     "
   >
-    *本頁為退休規劃總結及教育用途，並非正式財務、投資、保險、醫療或法律建議。
-    實際安排應按個人需要、風險承受能力及最新條款與專業顧問詳細商討。
+
+    <h3 style="margin:0 0 10px;color:#122f57;">退休前 6 個重要提醒</h3>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+
+      <div style="padding:12px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+        <strong style="color:#122f57;font-size:12px;">醫療保障要充足</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">住院、門診、藥物及長期護理風險都要納入退休準備。</p>
+      </div>
+
+      <div style="padding:12px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+        <strong style="color:#122f57;font-size:12px;">醫療保費要供得完</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">除保障額外，也要評估退休後保費能否長期承擔。</p>
+      </div>
+
+      <div style="padding:12px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+        <strong style="color:#122f57;font-size:12px;">要有穩定居所</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">預先考慮自住、租住、維修、管理費及搬遷需要。</p>
+      </div>
+
+      <div style="padding:12px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+        <strong style="color:#122f57;font-size:12px;">資產流動性要足夠</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">保留可靈活提款的資金，避免所有資產都被長期鎖定。</p>
+      </div>
+
+      <div style="padding:12px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+        <strong style="color:#122f57;font-size:12px;">預留長壽 Buffer</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">規劃不只計平均壽命，要為更長壽命及晚年需要留下安全墊。</p>
+      </div>
+
+      <div style="padding:12px;border:2px solid #d7a922;border-radius:12px;background:#fff9e8;">
+        <strong style="color:#7f1020;font-size:12px;">防騙與資產安全</strong>
+        <p style="margin:4px 0 0;color:#687386;font-size:10px;line-height:1.5;">重要轉帳、投資及索取資料的要求都應再次核實。</p>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- Share / Print -->
+
+  <div
+    class="step8-share-actions"
+    style="
+      margin-top:20px;
+      padding:15px;
+      border-radius:15px;
+      background:#f8f4eb;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    "
+  >
+
+    <div>
+      <strong style="display:block;color:#122f57;font-size:13px;">保存這份退休行動方案</strong>
+      <span style="display:block;color:#687386;font-size:10px;margin-top:3px;">可列印、WhatsApp 或 Email 給客戶重溫。</span>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+      <button
+        type="button"
+        id="printStep8Btn"
+        style="padding:10px 13px;border:1px solid #eadfcd;border-radius:10px;background:#ffffff;color:#122f57;font-weight:800;cursor:pointer;"
+      >
+        列印總結
+      </button>
+
+      <button
+        type="button"
+        id="shareWhatsAppBtn"
+        style="padding:10px 13px;border:2px solid #d7a922;border-radius:10px;background:#122f57;color:#ffffff;font-weight:800;cursor:pointer;"
+      >
+        WhatsApp 分享
+      </button>
+
+      <button
+        type="button"
+        id="shareEmailBtn"
+        style="padding:10px 13px;border:1px solid #eadfcd;border-radius:10px;background:#ffffff;color:#122f57;font-weight:800;cursor:pointer;"
+      >
+        Email 分享
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <p style="margin:14px 0 0;color:#687386;font-size:10px;line-height:1.6;">
+    *本頁為退休規劃及教育用途，並非正式財務、投資、保險、醫療或法律建議。
   </p>
 
 </section>
 
 
 <!-- ==================================
-           STEP 9
-      =================================== -->
+     STEP 9
+     DELAY NO MORE
+=================================== -->
 
-      <section
-        class="planner-step"
-        data-step="9"
-      >
+<section
+  class="planner-step"
+  data-step="9"
+>
 
-        <h2>
-          退休規劃總結
-        </h2>
+  <div
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:22px;
+      margin-bottom:16px;
+    "
+  >
 
+    <div>
+      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">DELAY NO MORE</p>
 
-        <div class="result-grid">
+      <h2 style="margin-bottom:6px;">
+        延遲 5 年的代價
+      </h2>
 
-          <div class="result-box">
+      <p style="margin:0;color:#687386;line-height:1.65;max-width:810px;">
+        要達到相同的退休儲備目標，時間愈少，所需投入通常愈高。
+        以下用你目前的 Step 7 建議方案作同一目標比較。
+      </p>
+    </div>
 
-            <span>
-              退休第一年每月生活費
-            </span>
+    <img
+      src="action.png"
+      alt="TERO Action"
+      style="
+        width:132px;
+        max-width:16vw;
+        height:auto;
+        object-fit:contain;
+        flex-shrink:0;
+      "
+    >
 
-            <strong id="finalExpense">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="result-box">
-
-            <span>
-              退休總支出
-            </span>
-
-            <strong id="finalTotalExpense">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="result-box">
-
-            <span>
-              退休總資產
-            </span>
-
-            <strong id="finalAssets">
-              —
-            </strong>
-
-          </div>
+  </div>
 
 
-          <div class="result-box">
+  <div
+    id="delayNoMoreHero"
+    style="
+      padding:20px 22px;
+      border-radius:19px;
+      background:#7f1020;
+      color:#ffffff;
+      box-shadow:0 10px 28px rgba(18,47,87,.12);
+      margin-bottom:16px;
+    "
+  >
 
-            <span>
-              退休資金缺口
-            </span>
+    <div style="display:grid;grid-template-columns:1.2fr .9fr .9fr;gap:18px;align-items:end;">
 
-            <strong id="finalGap">
-              —
-            </strong>
+      <div>
+        <span style="display:block;opacity:.7;font-size:11px;">如果延遲 5 年才開始</span>
+        <strong id="delayExtraCost" style="display:block;font-size:36px;line-height:1.05;margin-top:4px;">HK$ —</strong>
+        <span style="display:block;margin-top:5px;font-size:11px;opacity:.82;">預計需要額外投入</span>
+      </div>
 
-          </div>
+      <div>
+        <span style="display:block;opacity:.68;font-size:10px;">投入壓力增加</span>
+        <strong id="delayIncreasePct" style="display:block;font-size:24px;margin-top:4px;color:#d7a922;">—</strong>
+      </div>
 
+      <div>
+        <span style="display:block;opacity:.68;font-size:10px;">相同退休儲備目標</span>
+        <strong id="delayTargetFuture" style="display:block;font-size:19px;margin-top:4px;">HK$ —</strong>
+      </div>
+
+    </div>
+
+    <p id="delayHeroMessage" style="margin:11px 0 0;font-size:11px;line-height:1.6;opacity:.86;">
+      正在計算延遲成本……
+    </p>
+
+  </div>
+
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+    <div style="padding:17px;border:2px solid #d7a922;border-radius:17px;background:#fff9e8;">
+      <span style="display:block;color:#687386;font-size:10px;">現在開始</span>
+      <strong id="delayNowAge" style="display:block;color:#122f57;font-size:21px;margin-top:3px;">—</strong>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;">
+        <div style="padding:10px;border-radius:10px;background:#ffffff;">
+          <span style="display:block;color:#687386;font-size:9px;">距離退休</span>
+          <strong id="delayNowYears" style="display:block;color:#122f57;font-size:16px;margin-top:3px;">—</strong>
         </div>
-
-
-        <h3>
-          退休年度現金流
-        </h3>
-
-
-        <div id="cashflowTable">
-          每年的退休支出、
-          固定收入、資產提款來源及剩餘資產
-          將顯示在這裡。
+        <div style="padding:10px;border-radius:10px;background:#ffffff;">
+          <span style="display:block;color:#687386;font-size:9px;">計劃總投入</span>
+          <strong id="delayNowPrincipal" style="display:block;color:#122f57;font-size:16px;margin-top:3px;">HK$ —</strong>
         </div>
+      </div>
+    </div>
+
+    <div style="padding:17px;border:2px solid #7f1020;border-radius:17px;background:#fff8f7;">
+      <span style="display:block;color:#687386;font-size:10px;">延遲 5 年才開始</span>
+      <strong id="delayLaterAge" style="display:block;color:#7f1020;font-size:21px;margin-top:3px;">—</strong>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;">
+        <div style="padding:10px;border-radius:10px;background:#ffffff;">
+          <span style="display:block;color:#687386;font-size:9px;">距離退休</span>
+          <strong id="delayLaterYears" style="display:block;color:#7f1020;font-size:16px;margin-top:3px;">—</strong>
+        </div>
+        <div style="padding:10px;border-radius:10px;background:#ffffff;">
+          <span style="display:block;color:#687386;font-size:9px;">達到同一目標所需總投入</span>
+          <strong id="delayLaterPrincipal" style="display:block;color:#7f1020;font-size:16px;margin-top:3px;">HK$ —</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
 
 
-        <p class="disclaimer">
-          此工具只作退休規劃教育及參考用途。
-          所有回報率、通脹、政府福利、
-          壽命及其他假設均可能與實際結果不同。
-        </p>
+  <div style="margin-top:18px;">
 
-      </section>
+    <h3 style="margin:0 0 10px;color:#122f57;">方案投入對比</h3>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <strong style="display:block;color:#122f57;font-size:13px;">靈活整筆投入</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:8px;">現在投入合計</span>
+        <strong id="delayLumpNow" style="display:block;color:#122f57;font-size:16px;margin-top:2px;">HK$ —</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:7px;">延遲後所需</span>
+        <strong id="delayLumpLater" style="display:block;color:#7f1020;font-size:17px;margin-top:2px;">HK$ —</strong>
+      </div>
+
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <strong style="display:block;color:#122f57;font-size:13px;">五年儲蓄計劃</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:8px;">現在總供款</span>
+        <strong id="delaySavingNow" style="display:block;color:#122f57;font-size:16px;margin-top:2px;">HK$ —</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:7px;">延遲後所需</span>
+        <strong id="delaySavingLater" style="display:block;color:#7f1020;font-size:17px;margin-top:2px;">HK$ —</strong>
+      </div>
+
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+        <strong style="display:block;color:#122f57;font-size:13px;">十年投資計劃</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:8px;">現在總投資</span>
+        <strong id="delayInvestmentNow" style="display:block;color:#122f57;font-size:16px;margin-top:2px;">HK$ —</strong>
+        <span style="display:block;color:#687386;font-size:9px;margin-top:7px;">延遲後所需</span>
+        <strong id="delayInvestmentLater" style="display:block;color:#7f1020;font-size:17px;margin-top:2px;">HK$ —</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    style="
+      margin-top:18px;
+      padding:16px 18px;
+      border-left:5px solid #d7a922;
+      border-radius:13px;
+      background:#f8f4eb;
+    "
+  >
+    <strong style="display:block;color:#122f57;font-size:14px;">時間，是退休規劃最重要的資產之一。</strong>
+    <p id="delayMethodNote" style="margin:6px 0 0;color:#687386;font-size:10px;line-height:1.65;">
+      延遲情境以相同回報假設及相同退休時儲備目標作數學比較。
+    </p>
+  </div>
+
+</section>
+
+
+<!-- ==================================
+     STEP 10
+     Annual Review
+=================================== -->
+
+<section
+  class="planner-step"
+  data-step="10"
+>
+
+  <div
+    style="
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:22px;
+      margin-bottom:16px;
+    "
+  >
+
+    <div>
+
+      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">REVIEW · ADJUST · STAY ON TRACK</p>
+
+      <h2 style="margin-bottom:6px;">
+        持續檢視與年度跟進
+      </h2>
+
+      <p style="margin:0;color:#687386;line-height:1.65;max-width:820px;">
+        退休規劃不是一次完成，而是一個持續的計劃。
+        身體、家庭、收入、居住安排及經濟環境都可能改變，
+        因此建議每年作一次完整 Review。
+      </p>
+
+    </div>
+
+    <img
+      src="allbest.png"
+      alt="TERO All Best"
+      style="
+        width:142px;
+        max-width:17vw;
+        height:auto;
+        object-fit:contain;
+        flex-shrink:0;
+      "
+    >
+
+  </div>
+
+
+  <div
+    style="
+      padding:18px 20px;
+      border-radius:18px;
+      background:#122f57;
+      color:#ffffff;
+      margin-bottom:18px;
+    "
+  >
+    <span style="display:block;opacity:.68;font-size:10px;">TERRA ANNUAL REVIEW</span>
+    <strong style="display:block;font-size:24px;margin-top:4px;color:#d7a922;">每年至少檢視一次退休計劃</strong>
+    <p style="margin:7px 0 0;font-size:11px;line-height:1.6;opacity:.84;">
+      如健康、家庭責任、收入、資產或市場出現重大改變，不需要等到下一年，應提早重新評估。
+    </p>
+  </div>
+
+
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;">
+
+    <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+      <strong style="display:block;color:#122f57;font-size:13px;">健康與醫療保障</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">身體狀況、醫療需要、保單保障及退休後保費負擔有否改變。</p>
+    </div>
+
+    <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+      <strong style="display:block;color:#122f57;font-size:13px;">家庭與責任</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">子女、父母、配偶及其他家庭責任有否增加或減少。</p>
+    </div>
+
+    <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+      <strong style="display:block;color:#122f57;font-size:13px;">收入與生活開支</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">收入、儲蓄能力、日常支出及預期退休生活模式有否改變。</p>
+    </div>
+
+    <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+      <strong style="display:block;color:#122f57;font-size:13px;">經濟環境與投資</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">利率、市場環境、資產配置及退休後提款策略是否仍然合適。</p>
+    </div>
+
+    <div style="padding:15px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+      <strong style="display:block;color:#122f57;font-size:13px;">居住與退休地點</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">自住、租住、搬遷、移居及居住成本是否與原先假設一致。</p>
+    </div>
+
+    <div style="padding:15px;border:2px solid #d7a922;border-radius:14px;background:#fff9e8;">
+      <strong style="display:block;color:#7f1020;font-size:13px;">退休目標與進度</strong>
+      <p style="margin:5px 0 0;color:#687386;font-size:10px;line-height:1.55;">退休年齡、壽命假設、資金缺口及已累積退休儲備是否仍然在軌道上。</p>
+    </div>
+
+  </div>
+
+
+  <div
+    style="
+      margin-top:20px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    "
+  >
+
+    <div style="padding:14px;border-radius:13px;background:#f8f4eb;">
+      <span style="display:block;color:#687386;font-size:9px;">固定節奏</span>
+      <strong style="display:block;color:#122f57;font-size:14px;margin-top:3px;">每年 1 次全面 Review</strong>
+    </div>
+
+    <div style="padding:14px;border-radius:13px;background:#f8f4eb;">
+      <span style="display:block;color:#687386;font-size:9px;">重大改變</span>
+      <strong style="display:block;color:#122f57;font-size:14px;margin-top:3px;">即時重新評估</strong>
+    </div>
+
+    <div style="padding:14px;border-radius:13px;background:#7f1020;color:#ffffff;">
+      <span style="display:block;opacity:.68;font-size:9px;">服務目標</span>
+      <strong style="display:block;color:#d7a922;font-size:14px;margin-top:3px;">讓退休計劃一直保持在軌道上</strong>
+    </div>
+
+  </div>
+
+
+  <div
+    style="
+      margin-top:22px;
+      padding:18px 20px;
+      border:2px solid #d7a922;
+      border-radius:16px;
+      background:#fffdf8;
+      text-align:center;
+    "
+  >
+    <strong style="display:block;color:#122f57;font-size:18px;">規劃今天，檢視每年，讓退休目標一步一步成為現實。</strong>
+    <p style="margin:7px 0 0;color:#687386;font-size:11px;line-height:1.6;">
+      建議與理財顧問保持定期聯絡，按最新情況更新退休方案。
+    </p>
+  </div>
+
+</section>
 
 
       <!-- ==================================
@@ -4439,7 +4703,7 @@
 </main>
 
 
-<script src="script.js?v=20260815-7"></script>
+<script src="script.js?v=20260815-8"></script>
 </body>
 
 </html>
