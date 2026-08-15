@@ -137,6 +137,52 @@
             </p>
 
 
+            <div
+              style="
+                display:grid;
+                grid-template-columns:1.35fr .85fr;
+                gap:14px;
+                margin:20px 0 24px;
+                padding:16px;
+                border:1px solid #eadfcd;
+                border-left:5px solid #d7a922;
+                border-radius:14px;
+                background:#fffdf8;
+              "
+            >
+
+              <div class="form-group" style="margin:0;">
+
+                <label for="clientName">
+                  客戶姓名
+                </label>
+
+                <input
+                  type="text"
+                  id="clientName"
+                  autocomplete="name"
+                  placeholder="例如：陳先生"
+                >
+
+              </div>
+
+
+              <div class="form-group" style="margin:0;">
+
+                <label for="planningDate">
+                  規劃日期
+                </label>
+
+                <input
+                  type="date"
+                  id="planningDate"
+                >
+
+              </div>
+
+            </div>
+
+
             <div class="form-group">
 
               <label for="planningMode">
@@ -4044,6 +4090,44 @@
   </div>
 
 
+  <!-- Client / planning date -->
+
+  <div
+    style="
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
+    "
+  >
+
+    <div
+      style="
+        padding:11px 14px;
+        border:1px solid #eadfcd;
+        border-radius:12px;
+        background:#fffdf8;
+      "
+    >
+      <span style="display:block;color:#687386;font-size:9px;">客戶姓名</span>
+      <strong id="step8ClientName" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">—</strong>
+    </div>
+
+    <div
+      style="
+        padding:11px 14px;
+        border:1px solid #eadfcd;
+        border-radius:12px;
+        background:#fffdf8;
+      "
+    >
+      <span style="display:block;color:#687386;font-size:9px;">規劃日期</span>
+      <strong id="step8PlanningDate" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">—</strong>
+    </div>
+
+  </div>
+
+
   <!-- Key snapshot -->
 
   <div
@@ -4414,7 +4498,7 @@
 
 <!-- ==================================
      STEP 9
-     DELAY NO MORE
+     時間價值分析
 =================================== -->
 
 <section
@@ -4433,7 +4517,7 @@
   >
 
     <div>
-      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">DELAY NO MORE</p>
+      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">時間價值分析</p>
 
       <h2 style="margin-bottom:6px;">
         延遲 5 年的代價
@@ -4441,7 +4525,7 @@
 
       <p style="margin:0;color:#687386;line-height:1.65;max-width:810px;">
         要達到相同的退休儲備目標，時間愈少，所需投入通常愈高。
-        以下用你目前的 Step 7 建議方案作同一目標比較。
+        以下保持同一個退休目標及同一套回報假設，只把開始時間延遲 5 年作比較。
       </p>
     </div>
 
@@ -4588,21 +4672,6 @@
   >
 
     <div>
-      <span
-        style="
-          display:inline-block;
-          margin-bottom:7px;
-          padding:4px 8px;
-          border-radius:999px;
-          background:#7f1020;
-          color:#ffffff;
-          font-size:9px;
-          font-weight:900;
-          letter-spacing:.08em;
-        "
-      >
-        DELAY NO MORE
-      </span>
 
       <strong style="display:block;color:#122f57;font-size:19px;line-height:1.45;">
         時間，是退休規劃最重要的資產之一。
@@ -4690,6 +4759,33 @@
         flex-shrink:0;
       "
     >
+
+  </div>
+
+
+  <div
+    style="
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:16px;
+    "
+  >
+
+    <div style="padding:12px 14px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+      <span style="display:block;color:#687386;font-size:9px;">客戶姓名</span>
+      <strong id="step10ClientName" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">—</strong>
+    </div>
+
+    <div style="padding:12px 14px;border:1px solid #eadfcd;border-radius:12px;background:#fffdf8;">
+      <span style="display:block;color:#687386;font-size:9px;">本次規劃日期</span>
+      <strong id="step10PlanningDate" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">—</strong>
+    </div>
+
+    <div style="padding:12px 14px;border:2px solid #d7a922;border-radius:12px;background:#fff9e8;">
+      <span style="display:block;color:#687386;font-size:9px;">建議下次 Review</span>
+      <strong id="step10NextReviewDate" style="display:block;color:#7f1020;font-size:14px;margin-top:3px;">—</strong>
+    </div>
 
   </div>
 
@@ -4823,7 +4919,7 @@
 </main>
 
 
-<script src="script.js?v=20260815-10"></script>
+<script src="script.js?v=20260816-11"></script>
 </body>
 
 </html>
