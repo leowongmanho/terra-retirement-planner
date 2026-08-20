@@ -233,6 +233,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
+     快速返回調整退休目標 / 支出假設
+  ================================= */
+
+  function installPlanningQuickLinks() {
+
+    steps.forEach(
+      section => {
+
+        const stepNumber =
+          Number(section.dataset.step) || 0;
+
+        if (
+          stepNumber < 2 ||
+          section.querySelector(".planning-quick-links")
+        ) {
+          return;
+        }
+
+        const bar =
+          document.createElement("div");
+
+        bar.className =
+          "planning-quick-links";
+
+        bar.style.cssText =
+          "display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 14px;";
+
+        bar.innerHTML = `
+          <button type="button" data-quick-step="1" style="padding:8px 11px;border:1px solid #eadfcd;border-radius:9px;background:#ffffff;color:#122f57;font-size:10px;font-weight:800;cursor:pointer;">↶ 調整退休目標</button>
+          <button type="button" data-quick-step="2" style="padding:8px 11px;border:2px solid #d7a922;border-radius:9px;background:#fff9e8;color:#7f1020;font-size:10px;font-weight:800;cursor:pointer;">調整支出假設</button>
+        `;
+
+        section.prepend(bar);
+      }
+    );
+
+    document
+      .querySelectorAll("[data-quick-step]")
+      .forEach(
+        button => {
+          button.addEventListener(
+            "click",
+            () => {
+              showStep(
+                Number(button.dataset.quickStep) || 1
+              );
+            }
+          );
+        }
+      );
+  }
+
+
+  /* =================================
      80歲後生活費選項
   ================================= */
 
@@ -2088,26 +2142,88 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 8
-     退休規劃總結與建議 / ACTION PLAN
+     解決方案 / Whole Picture
   ================================= */
+
+  function getOneOffWithdrawalMode() {
+    const selected =
+      document.querySelector(
+        'input[name="oneOffWithdrawalMode"]:checked'
+      );
+
+    return selected
+      ? selected.value
+      : "normal";
+  }
+
+
+  function calculateOneOffFourPercentProjection(
+    startAssets,
+    annualRate
+  ) {
+
+    const {
+      retirementYears
+    } = getBasicData();
+
+    const initialAssets =
+      Math.max(
+        Number(startAssets) || 0,
+        0
+      );
+
+    const annualWithdrawal =
+      initialAssets * 0.04;
+
+    let balance =
+      initialAssets;
+
+    let totalWithdrawn = 0;
+
+    for (
+      let year = 0;
+      year < retirementYears;
+      year++
+    ) {
+
+      const take =
+        Math.min(
+          balance,
+          annualWithdrawal
+        );
+
+      balance -= take;
+      totalWithdrawn += take;
+
+      balance *=
+        1 + annualRate;
+    }
+
+    return {
+      initialAssets,
+      annualWithdrawal,
+      monthlyWithdrawal:
+        annualWithdrawal / 12,
+      totalWithdrawn,
+      endingAssets:
+        Math.max(balance, 0)
+    };
+  }
+
 
   function updateActionPlan() {
 
     const basic =
       getBasicData();
 
-
     const gapData =
       calculateGap();
-
 
     const simulation =
       gapData.simulation;
 
-
     const solution =
       calculateStep7Solutions();
-
 
     const currentGap =
       Math.max(
@@ -2115,13 +2231,11 @@ document.addEventListener("DOMContentLoaded", () => {
         0
       );
 
-
     const solutionTotal =
       Math.max(
         solution.totalFuture || 0,
         0
       );
-
 
     const coverage =
       currentGap > 0
@@ -2131,14 +2245,12 @@ document.addEventListener("DOMContentLoaded", () => {
           ) * 100
         : 100;
 
-
     const remainingGap =
       Math.max(
         currentGap -
         solutionTotal,
         0
       );
-
 
     const surplus =
       Math.max(
@@ -2147,32 +2259,32 @@ document.addEventListener("DOMContentLoaded", () => {
         0
       );
 
+    const combinedRetirementAssets =
+      Math.max(
+        simulation.initialAssets || 0,
+        0
+      ) +
+      solutionTotal;
 
     const setText =
       (
         id,
         value
       ) => {
-
         const el =
           document.getElementById(id);
-
-
         if (el) {
           el.textContent = value;
         }
       };
 
-
     const clientInfo =
       getClientInfo();
-
 
     setText(
       "step8ClientName",
       clientInfo.clientName
     );
-
 
     setText(
       "step8PlanningDate",
@@ -2181,18 +2293,23 @@ document.addEventListener("DOMContentLoaded", () => {
       )
     );
 
-
     setText(
       "step8RetirementAge",
-      `${basic.retirementAge} 歲`
+      `${basic.retirementAge}歲`
     );
-
 
     setText(
       "step8LifeExpectancy",
-      `${basic.lifeExpectancy} 歲`
+      `${basic.lifeExpectancy}歲`
     );
 
+    setText(
+      "step8MonthlyExpense",
+      money(
+        gapData.expense
+          .firstMonthlyExpense
+      )
+    );
 
     setText(
       "step8TotalExpense",
@@ -2202,7 +2319,6 @@ document.addEventListener("DOMContentLoaded", () => {
       )
     );
 
-
     setText(
       "step8ProjectedAssets",
       money(
@@ -2210,93 +2326,99 @@ document.addEventListener("DOMContentLoaded", () => {
       )
     );
 
-
     setText(
       "step8Gap",
       money(currentGap)
     );
-
 
     setText(
       "step8SolutionTotal",
       money(solutionTotal)
     );
 
-
     setText(
       "step8CoverageText",
       `覆蓋率 ${Math.max(coverage,0).toFixed(0)}%`
     );
-
 
     setText(
       "step8LumpFuture",
       money(solution.lumpFuture)
     );
 
-
     setText(
       "step8SavingFuture",
       money(solution.savingFuture)
     );
 
+    setText(
+      "step8OneOffInvestmentFuture",
+      money(solution.oneOffInvestmentFuture)
+    );
+
+    setText(
+      "step8TenYearInvestmentFuture",
+      money(solution.tenYearInvestmentFuture)
+    );
 
     setText(
       "step8InvestmentFuture",
       money(solution.investmentFuture)
     );
 
+    setText(
+      "step8CombinedRetirementAssets",
+      money(combinedRetirementAssets)
+    );
 
     const gapHero =
       document.getElementById(
         "step8GapHero"
       );
 
-
     const gapMessage =
       document.getElementById(
         "step8GapMessage"
       );
-
 
     const balanceLabel =
       document.getElementById(
         "step8BalanceLabel"
       );
 
+    const outcomeHeadline =
+      document.getElementById(
+        "step8OutcomeHeadline"
+      );
 
     if (
       currentGap <= 0
     ) {
-
-      setText(
-        "step8Gap",
-        "HK$ 0"
-      );
-
 
       if (gapHero) {
         gapHero.style.background =
           "#122f57";
       }
 
-
       if (gapMessage) {
         gapMessage.textContent =
-          `按目前 Step 6 假設，退休資產可支持至 ${simulation.lifeExpectancy} 歲。Step 7 方案可作額外退休安全儲備。`;
+          `按目前 Step 6 假設，退休資產可支持至 ${simulation.lifeExpectancy} 歲；Step 7 方案可作額外退休安全儲備。`;
       }
-
 
       if (balanceLabel) {
         balanceLabel.textContent =
           "額外退休儲備";
       }
 
-
       setText(
         "step8Balance",
         money(solutionTotal)
       );
+
+      if (outcomeHeadline) {
+        outcomeHeadline.textContent =
+          "現有退休基礎已足夠，方案可增加安全墊";
+      }
 
     } else if (
       remainingGap > 0
@@ -2307,23 +2429,25 @@ document.addEventListener("DOMContentLoaded", () => {
           "#7f1020";
       }
 
-
       if (gapMessage) {
         gapMessage.textContent =
-          `按目前退休資產可持續性分析，仍需處理 ${money(currentGap)} 的退休期累積缺口。`;
+          `按目前退休資產可持續性分析，需要處理 ${money(currentGap)} 的退休期累積缺口。`;
       }
-
 
       if (balanceLabel) {
         balanceLabel.textContent =
           "尚餘缺口";
       }
 
-
       setText(
         "step8Balance",
         money(remainingGap)
       );
+
+      if (outcomeHeadline) {
+        outcomeHeadline.textContent =
+          `方案預計可填補 ${Math.min(Math.max(coverage,0),999).toFixed(0)}% 缺口`;
+      }
 
     } else {
 
@@ -2332,25 +2456,72 @@ document.addEventListener("DOMContentLoaded", () => {
           "#122f57";
       }
 
-
       if (gapMessage) {
         gapMessage.textContent =
           "按目前假設，Step 7 建議方案的退休時預計價值已可覆蓋退休資金缺口。";
       }
-
 
       if (balanceLabel) {
         balanceLabel.textContent =
           "預計超額儲備";
       }
 
-
       setText(
         "step8Balance",
         money(surplus)
       );
+
+      if (outcomeHeadline) {
+        outcomeHeadline.textContent =
+          "建議方案預計已覆蓋退休資金缺口";
+      }
     }
 
+    const fourPercentCard =
+      document.getElementById(
+        "step8FourPercentCard"
+      );
+
+    const useFourPercent =
+      getOneOffWithdrawalMode() ===
+        "fourPercent" &&
+      solution.oneOffInvestmentFuture > 0;
+
+    if (fourPercentCard) {
+      fourPercentCard.hidden =
+        !useFourPercent;
+    }
+
+    if (useFourPercent) {
+
+      const projection =
+        calculateOneOffFourPercentProjection(
+          solution.oneOffInvestmentFuture,
+          percentage(
+            "oneOffInvestmentReturn"
+          )
+        );
+
+      setText(
+        "step8FourPercentStartAssets",
+        money(projection.initialAssets)
+      );
+
+      setText(
+        "step8FourPercentAnnual",
+        money(projection.annualWithdrawal)
+      );
+
+      setText(
+        "step8FourPercentMonthly",
+        money(projection.monthlyWithdrawal)
+      );
+
+      setText(
+        "step8FourPercentLegacy",
+        money(projection.endingAssets)
+      );
+    }
   }
 
 
@@ -2359,18 +2530,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const basic =
       getBasicData();
 
-
     const gapData =
       calculateGap();
-
 
     const solution =
       calculateStep7Solutions();
 
-
     const simulation =
       gapData.simulation;
-
 
     const gap =
       Math.max(
@@ -2378,40 +2545,67 @@ document.addEventListener("DOMContentLoaded", () => {
         0
       );
 
-
     const balance =
       solution.totalFuture >= gap
         ? `預計超額儲備：${money(solution.totalFuture - gap)}`
         : `尚餘缺口：${money(gap - solution.totalFuture)}`;
 
-
     const clientInfo =
       getClientInfo();
 
-
-    return [
-      "TERRA 退休規劃總結與建議",
+    const lines = [
+      "TERRA 退休解決方案",
       "",
       `客戶姓名：${clientInfo.clientName}`,
       `規劃日期：${formatDateHK(clientInfo.planningDate)}`,
       "",
-      `退休年齡：${basic.retirementAge}歲`,
-      `規劃至：${basic.lifeExpectancy}歲`,
+      `退休目標：${basic.retirementAge}歲退休，規劃至${basic.lifeExpectancy}歲`,
+      `退休首年每月生活費：${money(gapData.expense.firstMonthlyExpense)}`,
       `總退休生活費用：${money(gapData.expense.totalExpense)}`,
-      `預算退休時資產總值：${money(simulation.initialAssets)}`,
+      `退休時預計現有資產：${money(simulation.initialAssets)}`,
       `需要處理的退休資金缺口：${money(gap)}`,
       "",
-      "建議退休儲備方案：",
+      "建議退休方案：",
       `靈活整筆投入：${money(solution.lumpFuture)}`,
       `五年儲蓄計劃：${money(solution.savingFuture)}`,
-      `十年投資計劃：${money(solution.investmentFuture)}`,
+      `一次性投資方案：${money(solution.oneOffInvestmentFuture)}`,
+      `十年投資計劃：${money(solution.tenYearInvestmentFuture)}`,
       `方案合計退休時預計價值：${money(solution.totalFuture)}`,
-      balance,
+      balance
+    ];
+
+    if (
+      getOneOffWithdrawalMode() ===
+        "fourPercent" &&
+      solution.oneOffInvestmentFuture > 0
+    ) {
+
+      const projection =
+        calculateOneOffFourPercentProjection(
+          solution.oneOffInvestmentFuture,
+          percentage(
+            "oneOffInvestmentReturn"
+          )
+        );
+
+      lines.push(
+        "",
+        "4%退休提取參考（只適用於一次性投資方案）：",
+        `每年參考提款：${money(projection.annualWithdrawal)}`,
+        `平均每月參考現金流：${money(projection.monthlyWithdrawal)}`,
+        `預計壽命時尚餘資產：${money(projection.endingAssets)}`,
+        "*4% Rule 為經驗法則，並非保證回報、保證收入或保證本金不減。"
+      );
+    }
+
+    lines.push(
       "",
-      "下一步：落實退休儲備方案，按現金流、風險承受能力及資產配置確認適合的組合，並由現在開始逐步執行。",
+      "下一步：確認退休目標、投入預算及方案組合，開始執行並每年檢視。",
       "",
       "*以上只作退休規劃及教育參考。"
-    ].join("\n");
+    );
+
+    return lines.join("\n");
   }
 
 
@@ -2485,6 +2679,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     let investmentPrincipal = 0;
+
+
+    for (
+      let i = 1;
+      i <= oneOffInvestmentEntryCount;
+      i++
+    ) {
+
+      const year =
+        Math.max(
+          0,
+          Math.min(
+            number(
+              `oneOffInvestmentYear${i}`
+            ),
+            yearsToRetire
+          )
+        );
+
+
+      if (
+        year <= yearsToRetire
+      ) {
+        investmentPrincipal +=
+          number(
+            `oneOffInvestmentAmount${i}`
+          );
+      }
+    }
 
 
     if (
@@ -2691,6 +2914,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let delayedInvestmentFuture = 0;
     let delayedInvestmentPrincipal = 0;
+
+
+    /*
+      一次性投資方案：每一筆整體延遲5年，
+      只要仍在退休前，就按相同回報率累積。
+    */
+
+    const oneOffInvestmentRate =
+      percentage(
+        "oneOffInvestmentReturn"
+      );
+
+
+    for (
+      let i = 1;
+      i <= oneOffInvestmentEntryCount;
+      i++
+    ) {
+
+      const originalYear =
+        Math.max(
+          0,
+          Math.min(
+            number(
+              `oneOffInvestmentYear${i}`
+            ),
+            yearsToRetire
+          )
+        );
+
+      const delayedYear =
+        originalYear +
+        delayYears;
+
+      const amount =
+        number(
+          `oneOffInvestmentAmount${i}`
+        );
+
+      if (
+        delayedYear > yearsToRetire
+      ) {
+        continue;
+      }
+
+      delayedInvestmentPrincipal +=
+        amount;
+
+      delayedInvestmentFuture +=
+        amount *
+        Math.pow(
+          1 + oneOffInvestmentRate,
+          Math.max(
+            yearsToRetire - delayedYear,
+            0
+          )
+        );
+    }
 
 
     /*
@@ -3495,6 +3776,8 @@ if (
       renderLumpSumEntries();
 
       renderSavingPlanEntries();
+
+      renderOneOffInvestmentEntries();
 
       syncInvestmentPlanUI();
 
@@ -7189,6 +7472,7 @@ if (
 let lumpSumEntryCount = 1;
 let savingPlanCount = 1;
 let investmentTopUpEnabled = false;
+let oneOffInvestmentEntryCount = 1;
 
 
 /* =========================================
@@ -7996,6 +8280,179 @@ function renderSavingPlanEntries() {
 
 
 /* =========================================
+   一次性投資方案 UI
+========================================= */
+
+function renderOneOffInvestmentEntries() {
+
+  const container =
+    document.getElementById(
+      "oneOffInvestmentEntries"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  const {
+    yearsToRetire
+  } = getBasicData();
+
+  let html = "";
+
+  for (
+    let i = 1;
+    i <= oneOffInvestmentEntryCount;
+    i++
+  ) {
+
+    const existingYear =
+      document.getElementById(
+        `oneOffInvestmentYear${i}`
+      )?.value;
+
+    const existingAmount =
+      document.getElementById(
+        `oneOffInvestmentAmount${i}`
+      )?.value;
+
+    const defaultYear =
+      i === 1
+        ? 0
+        : Math.min(
+            i - 1,
+            yearsToRetire
+          );
+
+    html += `
+      <div style="padding:8px;border:1px solid #eadfcd;border-radius:10px;background:#ffffff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:5px;">
+          <strong style="color:#122f57;font-size:10px;">第 ${i} 筆一次性投資</strong>
+          ${
+            i > 1
+              ? `<button type="button" data-remove-one-off-index="${i}" style="border:1px solid #d7a922;border-radius:7px;background:#7f1020;color:#ffffff;font-size:8px;font-weight:800;padding:3px 6px;cursor:pointer;">－ 移除</button>`
+              : `<span style="color:#687386;font-size:8px;">0 = 現在</span>`
+          }
+        </div>
+        <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:6px;">
+          <div>
+            <label for="oneOffInvestmentYear${i}" style="display:block;color:#687386;font-size:8px;margin-bottom:3px;">第幾年投入</label>
+            <input type="number" id="oneOffInvestmentYear${i}" min="0" max="${yearsToRetire}" value="${existingYear !== undefined ? existingYear : defaultYear}" style="width:100%;padding:7px;">
+          </div>
+          <div>
+            <label for="oneOffInvestmentAmount${i}" style="display:block;color:#687386;font-size:8px;margin-bottom:3px;">投入金額（HK$）</label>
+            <input type="number" id="oneOffInvestmentAmount${i}" min="0" value="${existingAmount !== undefined ? existingAmount : 0}" style="width:100%;padding:7px;">
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  container
+    .querySelectorAll("input")
+    .forEach(
+      input => {
+        input.addEventListener(
+          "input",
+          updateStep7Results
+        );
+        input.addEventListener(
+          "change",
+          updateStep7Results
+        );
+      }
+    );
+
+  container
+    .querySelectorAll(
+      "[data-remove-one-off-index]"
+    )
+    .forEach(
+      button => {
+        button.addEventListener(
+          "click",
+          () => {
+
+            const removeIndex =
+              Number(
+                button.dataset
+                  .removeOneOffIndex
+              );
+
+            if (
+              removeIndex <= 1 ||
+              removeIndex > oneOffInvestmentEntryCount
+            ) {
+              return;
+            }
+
+            for (
+              let i = removeIndex;
+              i < oneOffInvestmentEntryCount;
+              i++
+            ) {
+
+              const nextYear =
+                document.getElementById(
+                  `oneOffInvestmentYear${i + 1}`
+                )?.value ?? 0;
+
+              const nextAmount =
+                document.getElementById(
+                  `oneOffInvestmentAmount${i + 1}`
+                )?.value ?? 0;
+
+              const currentYear =
+                document.getElementById(
+                  `oneOffInvestmentYear${i}`
+                );
+
+              const currentAmount =
+                document.getElementById(
+                  `oneOffInvestmentAmount${i}`
+                );
+
+              if (currentYear) {
+                currentYear.value = nextYear;
+              }
+
+              if (currentAmount) {
+                currentAmount.value = nextAmount;
+              }
+            }
+
+            oneOffInvestmentEntryCount--;
+
+            renderOneOffInvestmentEntries();
+            updateStep7Results();
+          }
+        );
+      }
+    );
+
+  const addBtn =
+    document.getElementById(
+      "addOneOffInvestmentBtn"
+    );
+
+  if (addBtn) {
+    addBtn.disabled =
+      oneOffInvestmentEntryCount >= 5;
+    addBtn.style.opacity =
+      oneOffInvestmentEntryCount >= 5
+        ? ".45"
+        : "1";
+    addBtn.textContent =
+      oneOffInvestmentEntryCount >= 5
+        ? "已達最多5筆一次性投資"
+        : "＋ 新增下一筆投資";
+  }
+}
+
+
+/* =========================================
    十年投資計劃 UI
 ========================================= */
 
@@ -8166,51 +8623,31 @@ function calculateStep7Solutions() {
     yearsToRetire
   } = getBasicData();
 
-
   const targetGap =
     getStep7TargetGap();
 
-
   /* 靈活整筆投入 */
-
   const lumpRate =
-    percentage(
-      "lumpSumReturn"
-    );
-
+    percentage("lumpSumReturn");
 
   let lumpFuture = 0;
-
 
   for (
     let i = 1;
     i <= lumpSumEntryCount;
     i++
   ) {
-
     const year =
       Math.max(
         0,
         Math.min(
-          number(
-            `lumpSumYear${i}`
-          ),
+          number(`lumpSumYear${i}`),
           yearsToRetire
         )
       );
 
-
     const amount =
-      number(
-        `lumpSumAmount${i}`
-      );
-
-
-    /*
-      靈活整筆投入：
-      每筆投入後首4年不計回報；
-      完成第4週年後才開始按輸入回報率增值。
-    */
+      number(`lumpSumAmount${i}`);
 
     const lumpGrowthYears =
       Math.max(
@@ -8220,7 +8657,6 @@ function calculateStep7Solutions() {
         0
       );
 
-
     lumpFuture +=
       amount *
       Math.pow(
@@ -8229,26 +8665,16 @@ function calculateStep7Solutions() {
       );
   }
 
-
   /* 五年儲蓄 */
-
   const savingRate =
-    percentage(
-      "savingPlanReturn"
-    );
-
+    percentage("savingPlanReturn");
 
   const maxSavingCount =
     getMaxSavingPlanCount();
 
-
   let savingFuture = 0;
 
-
-  if (
-    maxSavingCount > 0
-  ) {
-
+  if (maxSavingCount > 0) {
     for (
       let i = 1;
       i <= Math.min(
@@ -8257,32 +8683,14 @@ function calculateStep7Solutions() {
       );
       i++
     ) {
-
       const annualAmount =
-        number(
-          `savingPlan${i}`
-        );
-
+        number(`savingPlan${i}`);
 
       const startYear =
-        (i - 1) *
-        5;
-
-
-      /*
-        五年儲蓄計劃：
-        每段供款5年，以該段開始日計算7年回本期。
-        首7年不計投資回報；完成第7週年後，
-        該段5年總供款本金才按輸入回報率增值至退休。
-
-        回本期內以已投入本金作退休規劃簡化值，
-        並不代表實際退保價值。
-      */
+        (i - 1) * 5;
 
       const savingPrincipal =
-        annualAmount *
-        5;
-
+        annualAmount * 5;
 
       const savingGrowthYears =
         Math.max(
@@ -8291,7 +8699,6 @@ function calculateStep7Solutions() {
           7,
           0
         );
-
 
       savingFuture +=
         savingPrincipal *
@@ -8302,23 +8709,59 @@ function calculateStep7Solutions() {
     }
   }
 
+  /* 一次性投資方案：由實際投入年份開始增值，沒有回本等待期 */
+  const oneOffInvestmentRate =
+    percentage(
+      "oneOffInvestmentReturn"
+    );
 
-  /* 十年投資 */
+  let oneOffInvestmentFuture = 0;
 
+  for (
+    let i = 1;
+    i <= oneOffInvestmentEntryCount;
+    i++
+  ) {
+    const year =
+      Math.max(
+        0,
+        Math.min(
+          number(
+            `oneOffInvestmentYear${i}`
+          ),
+          yearsToRetire
+        )
+      );
+
+    const amount =
+      number(
+        `oneOffInvestmentAmount${i}`
+      );
+
+    const growthYears =
+      Math.max(
+        yearsToRetire - year,
+        0
+      );
+
+    oneOffInvestmentFuture +=
+      amount *
+      Math.pow(
+        1 + oneOffInvestmentRate,
+        growthYears
+      );
+  }
+
+  /* 原有十年投資計劃 */
   const investmentRate =
     percentage(
       "futureInvestmentReturn"
     );
 
+  let tenYearInvestmentFuture = 0;
 
-  let investmentFuture = 0;
-
-
-  if (
-    yearsToRetire >= 10
-  ) {
-
-    investmentFuture +=
+  if (yearsToRetire >= 10) {
+    tenYearInvestmentFuture +=
       futureValueOfAnnualContributions(
         number(
           "investmentContribution"
@@ -8330,13 +8773,11 @@ function calculateStep7Solutions() {
       );
   }
 
-
   if (
     investmentTopUpEnabled &&
     yearsToRetire >= 20
   ) {
-
-    investmentFuture +=
+    tenYearInvestmentFuture +=
       futureValueOfAnnualContributions(
         number(
           "investmentTopUp"
@@ -8348,22 +8789,22 @@ function calculateStep7Solutions() {
       );
   }
 
+  const investmentFuture =
+    oneOffInvestmentFuture +
+    tenYearInvestmentFuture;
 
   const totalFuture =
     lumpFuture +
     savingFuture +
     investmentFuture;
 
-
   const coverage =
     targetGap > 0
       ? (
           totalFuture /
           targetGap
-        ) *
-        100
+        ) * 100
       : 100;
-
 
   const remainingGap =
     Math.max(
@@ -8372,7 +8813,6 @@ function calculateStep7Solutions() {
       0
     );
 
-
   const surplus =
     Math.max(
       totalFuture -
@@ -8380,12 +8820,13 @@ function calculateStep7Solutions() {
       0
     );
 
-
   return {
     targetGap,
     yearsToRetire,
     lumpFuture,
     savingFuture,
+    oneOffInvestmentFuture,
+    tenYearInvestmentFuture,
     investmentFuture,
     totalFuture,
     coverage,
@@ -8476,6 +8917,42 @@ function updateStep7Results() {
       data.investmentFuture
     )
   );
+
+
+  setText(
+    "oneOffInvestmentFutureValue",
+    money(
+      data.oneOffInvestmentFuture
+    )
+  );
+
+  const fourPercentPreview =
+    document.getElementById(
+      "oneOffFourPercentPreview"
+    );
+
+  const useFourPercent =
+    getOneOffWithdrawalMode() ===
+      "fourPercent" &&
+    data.oneOffInvestmentFuture > 0;
+
+  if (fourPercentPreview) {
+    fourPercentPreview.hidden =
+      !useFourPercent;
+
+    if (useFourPercent) {
+      const projection =
+        calculateOneOffFourPercentProjection(
+          data.oneOffInvestmentFuture,
+          percentage(
+            "oneOffInvestmentReturn"
+          )
+        );
+
+      fourPercentPreview.textContent =
+        `4%參考：每年 ${money(projection.annualWithdrawal)} ｜ 每月約 ${money(projection.monthlyWithdrawal)} ｜ 預計壽命時尚餘 ${money(projection.endingAssets)}`;
+    }
+  }
 
 
   setText(
@@ -8722,6 +9199,28 @@ if (addLumpSumBtn) {
 }
 
 
+const addOneOffInvestmentBtn =
+  document.getElementById(
+    "addOneOffInvestmentBtn"
+  );
+
+
+if (addOneOffInvestmentBtn) {
+  addOneOffInvestmentBtn.addEventListener(
+    "click",
+    () => {
+      if (
+        oneOffInvestmentEntryCount < 5
+      ) {
+        oneOffInvestmentEntryCount++;
+        renderOneOffInvestmentEntries();
+        updateStep7Results();
+      }
+    }
+  );
+}
+
+
 const addSavingPlanBtn =
   document.getElementById(
     "addSavingPlanBtn"
@@ -8822,6 +9321,7 @@ if (
 [
   "lumpSumReturn",
   "savingPlanReturn",
+  "oneOffInvestmentReturn",
   "investmentContribution",
   "futureInvestmentReturn",
   "investmentTopUp"
@@ -8853,6 +9353,20 @@ if (
 );
 
 
+document
+  .querySelectorAll(
+    'input[name="oneOffWithdrawalMode"]'
+  )
+  .forEach(
+    input => {
+      input.addEventListener(
+        "change",
+        updateStep7Results
+      );
+    }
+  );
+
+
 const resetStep7Btn =
   document.getElementById(
     "resetStep7Btn"
@@ -8872,10 +9386,14 @@ if (resetStep7Btn) {
       investmentTopUpEnabled =
         false;
 
+      oneOffInvestmentEntryCount =
+        1;
+
 
       const defaults = {
         lumpSumReturn: 4,
         savingPlanReturn: 4,
+        oneOffInvestmentReturn: 6,
         investmentContribution: 0,
         futureInvestmentReturn: 6,
         investmentTopUp: 0
@@ -8910,6 +9428,17 @@ if (resetStep7Btn) {
 
       renderSavingPlanEntries();
 
+      renderOneOffInvestmentEntries();
+
+      const normalWithdrawal =
+        document.querySelector(
+          'input[name="oneOffWithdrawalMode"][value="normal"]'
+        );
+
+      if (normalWithdrawal) {
+        normalWithdrawal.checked = true;
+      }
+
       syncInvestmentPlanUI();
 
 
@@ -8931,6 +9460,18 @@ if (resetStep7Btn) {
         );
 
 
+      const firstOneOffYear =
+        document.getElementById(
+          "oneOffInvestmentYear1"
+        );
+
+
+      const firstOneOffAmount =
+        document.getElementById(
+          "oneOffInvestmentAmount1"
+        );
+
+
       if (firstLumpYear) {
 
         firstLumpYear.value =
@@ -8949,6 +9490,16 @@ if (resetStep7Btn) {
 
         firstSaving.value =
           0;
+      }
+
+
+      if (firstOneOffYear) {
+        firstOneOffYear.value = 0;
+      }
+
+
+      if (firstOneOffAmount) {
+        firstOneOffAmount.value = 0;
       }
 
 
@@ -9061,8 +9612,8 @@ if (shareEmailBtn) {
 
       const subject =
         clientInfo.clientName !== "—"
-          ? `TERRA 退休規劃總結與建議 - ${clientInfo.clientName}`
-          : "TERRA 退休規劃總結與建議";
+          ? `TERRA 退休解決方案 - ${clientInfo.clientName}`
+          : "TERRA 退休解決方案";
 
 
       const body =
@@ -9091,6 +9642,8 @@ if (shareEmailBtn) {
 renderLumpSumEntries();
 
 renderSavingPlanEntries();
+
+renderOneOffInvestmentEntries();
 
 syncInvestmentPlanUI();
 
@@ -9247,7 +9800,7 @@ syncRetirementReturnUI();
 
 setDefaultPlanningDate();
 
-
+installPlanningQuickLinks();
 
   showStep(1);
 
