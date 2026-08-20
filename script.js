@@ -233,60 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     快速返回調整退休目標 / 支出假設
-  ================================= */
-
-  function installPlanningQuickLinks() {
-
-    steps.forEach(
-      section => {
-
-        const stepNumber =
-          Number(section.dataset.step) || 0;
-
-        if (
-          stepNumber < 2 ||
-          section.querySelector(".planning-quick-links")
-        ) {
-          return;
-        }
-
-        const bar =
-          document.createElement("div");
-
-        bar.className =
-          "planning-quick-links";
-
-        bar.style.cssText =
-          "display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 14px;";
-
-        bar.innerHTML = `
-          <button type="button" data-quick-step="1" style="padding:8px 11px;border:1px solid #eadfcd;border-radius:9px;background:#ffffff;color:#122f57;font-size:10px;font-weight:800;cursor:pointer;">↶ 調整退休目標</button>
-          <button type="button" data-quick-step="2" style="padding:8px 11px;border:2px solid #d7a922;border-radius:9px;background:#fff9e8;color:#7f1020;font-size:10px;font-weight:800;cursor:pointer;">調整支出假設</button>
-        `;
-
-        section.prepend(bar);
-      }
-    );
-
-    document
-      .querySelectorAll("[data-quick-step]")
-      .forEach(
-        button => {
-          button.addEventListener(
-            "click",
-            () => {
-              showStep(
-                Number(button.dataset.quickStep) || 1
-              );
-            }
-          );
-        }
-      );
-  }
-
-
-  /* =================================
      80歲後生活費選項
   ================================= */
 
@@ -2463,7 +2409,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (balanceLabel) {
         balanceLabel.textContent =
-          "預計超額儲備";
+          "退休時方案預計高於缺口";
       }
 
       setText(
@@ -2473,7 +2419,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (outcomeHeadline) {
         outcomeHeadline.textContent =
-          "建議方案預計已覆蓋退休資金缺口";
+          "建議方案預計已覆蓋退休資金缺口，並高於目前缺口";
       }
     }
 
@@ -2547,7 +2493,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const balance =
       solution.totalFuture >= gap
-        ? `預計超額儲備：${money(solution.totalFuture - gap)}`
+        ? `退休時方案預計高於缺口：${money(solution.totalFuture - gap)}（只代表退休時方案預計價值與 Step 6 退休期累積缺口的差額，並非預計壽命時剩餘資產）`
         : `尚餘缺口：${money(gap - solution.totalFuture)}`;
 
     const clientInfo =
@@ -3987,6 +3933,41 @@ if (
         }
       }
     );
+  }
+
+
+  /* =================================
+     Step 6
+     調整退休假設
+  ================================= */
+
+  const adjustRetirementAssumptionsBtn =
+    document.getElementById(
+      "adjustRetirementAssumptionsBtn"
+    );
+
+
+  if (
+    adjustRetirementAssumptionsBtn
+  ) {
+
+    adjustRetirementAssumptionsBtn
+      .addEventListener(
+        "click",
+        () => {
+
+          /*
+            保留所有已輸入資料，
+            只直接返回 Step 1，
+            讓顧問／客戶調高或調低
+            退休年齡、生活費、壽命、
+            通脹等核心假設。
+          */
+
+          showStep(1);
+
+        }
+      );
   }
 
 
@@ -9105,7 +9086,7 @@ function updateStep7Results() {
     if (balanceLabel) {
 
       balanceLabel.textContent =
-        "預計超額儲備";
+        "退休時方案預計高於缺口";
     }
 
 
@@ -9120,7 +9101,7 @@ function updateStep7Results() {
     if (resultMessage) {
 
       resultMessage.textContent =
-        "按目前假設，建議方案的退休時預計價值已可覆蓋退休資金缺口。";
+        "按目前假設，建議方案的退休時預計價值已可覆蓋退休資金缺口；高於缺口的金額只屬退休時點的差額比較，並非預計壽命時剩餘資產。";
     }
 
 
@@ -9800,7 +9781,6 @@ syncRetirementReturnUI();
 
 setDefaultPlanningDate();
 
-installPlanningQuickLinks();
 
   showStep(1);
 
