@@ -2195,35 +2195,70 @@ document.addEventListener("DOMContentLoaded", () => {
       tenYear: Math.max(solution.tenYearInvestmentFuture || 0, 0)
     };
 
+    /*
+      Step 8 與 Step 7 分開：
+      Step 7 負責累積方案；Step 8 負責退休後實際使用次序。
+
+      晚年簡化原則：
+      較需要管理／市場波動較高的投資資產較早補位，
+      較簡單的儲蓄及整筆安排留到較後。
+    */
+    const solutionUseOrder = [
+      "oneOff",
+      "tenYear",
+      "lump",
+      "saving"
+    ];
+
     const oneOffAnnualLimit = pools.oneOff * 0.04;
     let totalSolutionUsed = 0;
     let remainingGap = 0;
 
     const rows = simulation.rows.map(row => {
       let need = Math.max(row.unmetShortfall || 0, 0);
-      const solutionWithdrawals = { lump:0, saving:0, oneOff:0, tenYear:0 };
+
+      const solutionWithdrawals = {
+        lump: 0,
+        saving: 0,
+        oneOff: 0,
+        tenYear: 0
+      };
 
       const usePool = (key, limit = Infinity) => {
         if (need <= 0 || pools[key] <= 0) return;
-        const take = Math.min(need, pools[key], limit);
+
+        const take = Math.min(
+          need,
+          pools[key],
+          limit
+        );
+
         pools[key] -= take;
         need -= take;
         solutionWithdrawals[key] += take;
         totalSolutionUsed += take;
       };
 
-      usePool("lump");
-      usePool("saving");
-      usePool("tenYear");
+      solutionUseOrder.forEach(key => {
+        if (
+          key === "oneOff" &&
+          fourPercent
+        ) {
+          usePool(
+            "oneOff",
+            oneOffAnnualLimit
+          );
+        } else {
+          usePool(key);
+        }
+      });
 
-      if (fourPercent) {
-        usePool("oneOff", oneOffAnnualLimit);
-      } else {
-        usePool("oneOff");
-      }
-
-      if (fourPercent && pools.oneOff > 0) {
-        pools.oneOff *= 1 + percentage("oneOffInvestmentReturn");
+      if (
+        fourPercent &&
+        pools.oneOff > 0
+      ) {
+        pools.oneOff *=
+          1 + percentage("oneOffInvestmentReturn");
       }
 
       remainingGap += need;
@@ -2231,7 +2266,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return {
         ...row,
         solutionWithdrawals,
-        solutionUsed: Object.values(solutionWithdrawals).reduce((a,b) => a+b, 0),
+        solutionUsed:
+          Object.values(solutionWithdrawals)
+            .reduce((a, b) => a + b, 0),
         remainingShortfall: need,
         solutionBalances: { ...pools }
       };
@@ -2241,71 +2278,199 @@ document.addEventListener("DOMContentLoaded", () => {
       rows,
       totalSolutionUsed,
       remainingGap,
-      endingSolutionAssets: Object.values(pools).reduce((a,b) => a+b, 0),
+      endingSolutionAssets:
+        Object.values(pools)
+          .reduce((a, b) => a + b, 0),
       solution,
-      simulation
+      simulation,
+      solutionUseOrder
     };
   }
+
+
   function createStep8GapTimelineChart(finalPicture) {
     const rows = finalPicture.rows || [];
-    if (!rows.length) return "";
+
+    if (!rows.length) {
+      return "";
+    }
 
     const basic = getBasicData();
     const startAge = basic.retirementAge;
     const endAge = basic.lifeExpectancy;
     const totalYears = Math.max(endAge - startAge, 1);
 
-    const solutionKeys = [
-      ["lump","靈活整筆投入","#d7a922"],
-      ["saving","五年儲蓄計劃","#7f1020"],
-      ["oneOff","一次性投資","#6d7f99"],
-      ["tenYear","十年投資計劃","#122f57"]
-    ];
-
-    const bars = solutionKeys.map(([key,label,color]) => {
-      const usedRows = rows.filter(
+    const originalShortfallRows =
+      rows.filter(
         row =>
-          row.solutionWithdrawals &&
-          (row.solutionWithdrawals[key] || 0) > 0
+          (row.unmetShortfall || 0) > 0
       );
 
-      if (!usedRows.length) return "";
+    const firstGapAge =
+      originalShortfallRows.length
+        ? originalShortfallRows[0].age
+        : null;
 
-      const first = usedRows[0].age;
-      const last = usedRows[usedRows.length - 1].age;
-      const leftPct = Math.max(0, ((first - startAge) / totalYears) * 100);
-      const widthPct = Math.max(
+    const baseEndAge =
+      firstGapAge !== null
+        ? Math.max(
+            startAge,
+            firstGapAge - 1
+          )
+        : endAge;
+
+    const age80Pct =
+      startAge < 80 &&
+      endAge > 80
+        ? (
+            (80 - startAge) /
+            totalYears
+          ) * 100
+        : null;
+
+    const makeTrack = (
+      leftPct,
+      widthPct,
+      color
+    ) => `
+      <div style="position:relative;height:18px;border-radius:999px;background:#eee7da;overflow:hidden;">
+        ${
+          age80Pct !== null
+            ? `
+              <div style="position:absolute;left:${age80Pct}%;top:0;width:2px;height:100%;background:#7f1020;opacity:.55;z-index:2;"></div>
+            `
+            : ""
+        }
+        <div style="position:absolute;left:${leftPct}%;width:${widthPct}%;height:100%;border-radius:999px;background:${color};"></div>
+      </div>
+    `;
+
+    const baseWidthPct =
+      Math.max(
         3,
         Math.min(
-          100 - leftPct,
-          ((last - first + 1) / totalYears) * 100
+          100,
+          (
+            (baseEndAge - startAge + 1) /
+            totalYears
+          ) * 100
         )
       );
 
-      const totalUsed = usedRows.reduce(
-        (total,row) =>
-          total + (row.solutionWithdrawals[key] || 0),
-        0
+    const baseRow = `
+      <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin:9px 0;">
+        <strong style="color:#122f57;font-size:11px;">現有資產基礎</strong>
+        ${makeTrack(0, baseWidthPct, "#bfc8d4")}
+        <span style="text-align:right;color:#687386;font-size:10px;">
+          ${
+            firstGapAge !== null
+              ? `${startAge}–${baseEndAge}歲`
+              : `${startAge}–${endAge}歲`
+          }
+        </span>
+      </div>
+    `;
+
+    const solutionKeys = [
+      ["oneOff", "一次性投資", "#7f1020"],
+      ["tenYear", "十年投資計劃", "#122f57"],
+      ["lump", "靈活整筆投入", "#d7a922"],
+      ["saving", "五年儲蓄計劃", "#6d7f99"]
+    ];
+
+    const bars =
+      solutionKeys
+        .map(
+          ([key, label, color]) => {
+
+            const usedRows =
+              rows.filter(
+                row =>
+                  row.solutionWithdrawals &&
+                  (
+                    row.solutionWithdrawals[key] ||
+                    0
+                  ) > 0
+              );
+
+            if (!usedRows.length) {
+              return "";
+            }
+
+            const first =
+              usedRows[0].age;
+
+            const last =
+              usedRows[
+                usedRows.length - 1
+              ].age;
+
+            const leftPct =
+              Math.max(
+                0,
+                (
+                  (first - startAge) /
+                  totalYears
+                ) * 100
+              );
+
+            const widthPct =
+              Math.max(
+                3,
+                Math.min(
+                  100 - leftPct,
+                  (
+                    (last - first + 1) /
+                    totalYears
+                  ) * 100
+                )
+              );
+
+            const totalUsed =
+              usedRows.reduce(
+                (total, row) =>
+                  total +
+                  (
+                    row.solutionWithdrawals[key] ||
+                    0
+                  ),
+                0
+              );
+
+            return `
+              <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin:9px 0;">
+                <strong style="color:#122f57;font-size:11px;">${label}</strong>
+                ${makeTrack(leftPct, widthPct, color)}
+                <span style="text-align:right;color:#687386;font-size:10px;">${first}–${last}歲 · ${money(totalUsed)}</span>
+              </div>
+            `;
+          }
+        )
+        .join("");
+
+    const finalShortfallRows =
+      rows.filter(
+        row =>
+          (row.remainingShortfall || 0) > 0
       );
 
-      return `
-        <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin:9px 0;">
-          <strong style="color:#122f57;font-size:11px;">${label}</strong>
-          <div style="position:relative;height:18px;border-radius:999px;background:#eee7da;overflow:hidden;">
-            <div style="position:absolute;left:${leftPct}%;width:${widthPct}%;height:100%;border-radius:999px;background:${color};"></div>
+    const resultText =
+      finalShortfallRows.length
+        ? `尚有缺口 ${money(finalPicture.remainingGap)}`
+        : `已覆蓋至 ${endAge} 歲`;
+
+    const age80Label =
+      age80Pct !== null
+        ? `
+          <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin-bottom:4px;">
+            <span></span>
+            <div style="position:relative;height:14px;">
+              <span style="position:absolute;left:${age80Pct}%;transform:translateX(-50%);color:#7f1020;font-size:8px;font-weight:900;white-space:nowrap;">80歲 · 晚年簡化</span>
+            </div>
+            <span></span>
           </div>
-          <span style="text-align:right;color:#687386;font-size:10px;">${first}–${last}歲 · ${money(totalUsed)}</span>
-        </div>
-      `;
-    }).join("");
-
-    const finalShortfallRows = rows.filter(
-      row => (row.remainingShortfall || 0) > 0
-    );
-
-    const resultText = finalShortfallRows.length
-      ? `尚有缺口 ${money(finalPicture.remainingGap)}`
-      : `已覆蓋至 ${endAge} 歲`;
+        `
+        : "";
 
     return `
       <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#ffffff;">
@@ -2314,7 +2479,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <strong style="color:${finalShortfallRows.length ? "#7f1020" : "#122f57"};font-size:12px;">${resultText}</strong>
           <span style="color:#687386;font-size:10px;">${endAge}歲</span>
         </div>
-        ${bars || '<div style="padding:12px;color:#687386;font-size:11px;">Step 7 尚未設定補位方案。</div>'}
+
+        ${age80Label}
+        ${baseRow}
+        ${
+          bars ||
+          '<div style="padding:12px;color:#687386;font-size:11px;text-align:center;">Step 7 尚未設定補位方案。</div>'
+        }
       </div>
     `;
   }
@@ -2698,7 +2869,9 @@ document.addEventListener("DOMContentLoaded", () => {
       `一次性投資方案：${money(solution.oneOffInvestmentFuture)}`,
       `十年投資計劃：${money(solution.tenYearInvestmentFuture)}`,
       `方案合計退休時預計價值：${money(solution.totalFuture)}`,
-      balance
+      balance,
+      "",
+      "退休資金使用原則：投資資產較早處理，逐步補位，晚年簡化管理。"
     ];
 
     if (
