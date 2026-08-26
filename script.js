@@ -301,6 +301,55 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function getExpenseSplit() {
+    let essentialPct = Math.max(0, Math.min(number("essentialExpensePct"), 100));
+    let enjoymentPct = Math.max(0, Math.min(number("enjoymentExpensePct"), 100));
+    if (essentialPct + enjoymentPct <= 0) {
+      essentialPct = 70;
+      enjoymentPct = 30;
+    }
+    return { essentialPct, enjoymentPct };
+  }
+
+  function updateExpenseSplitPreview() {
+    const total = number("todayExpense");
+    const split = getExpenseSplit();
+    const essentialEl = document.getElementById("essentialExpensePreview");
+    const enjoymentEl = document.getElementById("enjoymentExpensePreview");
+    if (essentialEl) essentialEl.textContent = money(total * split.essentialPct / 100) + " / 月";
+    if (enjoymentEl) enjoymentEl.textContent = money(total * split.enjoymentPct / 100) + " / 月";
+  }
+
+  function getMpfAccessAge() {
+    const selected = document.querySelector('input[name="mpfAccessAge"]:checked');
+    return selected ? Number(selected.value) || 65 : 65;
+  }
+
+  function getSemiRetirementData() {
+    const enabledEl = document.getElementById("semiRetirementEnabled");
+    const basic = getBasicData();
+    const enabled = Boolean(enabledEl && enabledEl.checked);
+    const income = enabled ? number("semiRetirementIncome") : 0;
+    const startAge = enabled ? (number("semiRetirementStartAge") || basic.retirementAge) : basic.retirementAge;
+    const endAge = enabled ? (number("semiRetirementEndAge") || Math.min(getMpfAccessAge(), basic.lifeExpectancy)) : basic.retirementAge;
+    return { enabled, income, startAge, endAge: Math.max(endAge, startAge) };
+  }
+
+  function getSemiRetirementIncomeAtAge(age) {
+    const data = getSemiRetirementData();
+    return data.enabled && data.income > 0 && age >= data.startAge && age < data.endAge
+      ? data.income
+      : 0;
+  }
+
+  function syncSemiRetirementUI() {
+    const data = getSemiRetirementData();
+    const fields = document.getElementById("semiRetirementFields");
+    const preview = document.getElementById("incomeSemiRetirementPreview");
+    if (fields) fields.hidden = !data.enabled;
+    if (preview) preview.textContent = money(data.enabled ? data.income : 0);
+  }
+
 
   /* =================================
      退休第一年生活費
@@ -2157,6 +2206,129 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function simulateFinalRetirementPicture() {
+    const gapData = calculateGap();
+    const simulation = gapData.simulation;
+    const solution = calculateStep7Solutions();
+    const fourPercent = getOneOffWithdrawalMode() === "fourPercent";
+
+    const pools = {
+      lump: Math.max(solution.lumpFuture || 0, 0),
+      saving: Math.max(solution.savingFuture || 0, 0),
+      oneOff: Math.max(solution.oneOffInvestmentFuture || 0, 0),
+      tenYear: Math.max(solution.tenYearInvestmentFuture || 0, 0)
+    };
+
+    const oneOffAnnualLimit = pools.oneOff * 0.04;
+    let totalSolutionUsed = 0;
+    let remainingGap = 0;
+
+    const rows = simulation.rows.map(row => {
+      let need = Math.max(row.unmetShortfall || 0, 0);
+      const solutionWithdrawals = { lump:0, saving:0, oneOff:0, tenYear:0 };
+
+      const usePool = (key, limit = Infinity) => {
+        if (need <= 0 || pools[key] <= 0) return;
+        const take = Math.min(need, pools[key], limit);
+        pools[key] -= take;
+        need -= take;
+        solutionWithdrawals[key] += take;
+        totalSolutionUsed += take;
+      };
+
+      usePool("lump");
+      usePool("saving");
+      usePool("tenYear");
+
+      if (fourPercent) {
+        usePool("oneOff", oneOffAnnualLimit);
+      } else {
+        usePool("oneOff");
+      }
+
+      if (fourPercent && pools.oneOff > 0) {
+        pools.oneOff *= 1 + percentage("oneOffInvestmentReturn");
+      }
+
+      remainingGap += need;
+
+      return {
+        ...row,
+        solutionWithdrawals,
+        solutionUsed: Object.values(solutionWithdrawals).reduce((a,b) => a+b, 0),
+        remainingShortfall: need,
+        solutionBalances: { ...pools }
+      };
+    });
+
+    return {
+      rows,
+      totalSolutionUsed,
+      remainingGap,
+      endingSolutionAssets: Object.values(pools).reduce((a,b) => a+b, 0),
+      solution,
+      simulation
+    };
+  }
+
+
+  function createFinalRetirementTimeline(finalPicture) {
+    const basic = getBasicData();
+    const mpfAccessAge = getMpfAccessAge();
+    const breakpoints = [basic.retirementAge];
+
+    if (mpfAccessAge > basic.retirementAge && mpfAccessAge < basic.lifeExpectancy) {
+      breakpoints.push(mpfAccessAge);
+    }
+
+    if (80 > basic.retirementAge && 80 < basic.lifeExpectancy) {
+      breakpoints.push(80);
+    }
+
+    breakpoints.push(basic.lifeExpectancy);
+
+    const ages = [...new Set(breakpoints)].sort((a,b) => a-b);
+    const segments = [];
+
+    for (let i = 0; i < ages.length - 1; i++) {
+      const start = ages[i];
+      const end = ages[i+1];
+      const rows = finalPicture.rows.filter(row => row.age >= start && row.age < end);
+      if (!rows.length) continue;
+
+      const expense = rows.reduce((t,r) => t + r.annualExpense, 0);
+      const income = rows.reduce((t,r) => t + r.incomeUsed, 0);
+      const existingAsset = rows.reduce((t,r) => t + r.totalWithdrawal, 0);
+      const solutionUsed = rows.reduce((t,r) => t + r.solutionUsed, 0);
+      const shortfall = rows.reduce((t,r) => t + r.remainingShortfall, 0);
+
+      let role = "主要退休期";
+      if (start < mpfAccessAge) role = "退休橋接期";
+      if (start >= 80) role = "晚年退休期";
+
+      segments.push(`
+        <div style="padding:13px 14px;border:1px solid #eadfcd;border-left:5px solid ${shortfall > 0 ? "#7f1020" : "#d7a922"};border-radius:12px;background:#ffffff;">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+            <div>
+              <span style="display:block;color:#d7a922;font-size:8px;font-weight:900;">${role}</span>
+              <strong style="display:block;color:#122f57;font-size:14px;margin-top:2px;">${start}–${end}歲</strong>
+            </div>
+            <strong style="color:${shortfall > 0 ? "#7f1020" : "#122f57"};font-size:12px;">${shortfall > 0 ? `尚欠 ${money(shortfall)}` : "生活費已覆蓋"}</strong>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px;">
+            <div><span style="display:block;color:#687386;font-size:8px;">生活費</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(expense)}</strong></div>
+            <div><span style="display:block;color:#687386;font-size:8px;">固定／過渡收入</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(income)}</strong></div>
+            <div><span style="display:block;color:#687386;font-size:8px;">原有資產提款</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(existingAsset)}</strong></div>
+            <div><span style="display:block;color:#687386;font-size:8px;">Step 7 方案補位</span><strong style="display:block;color:#7f1020;font-size:11px;margin-top:2px;">${money(solutionUsed)}</strong></div>
+          </div>
+        </div>
+      `);
+    }
+
+    return segments.join("");
+  }
+
+
   function updateActionPlan() {
 
     const basic =
@@ -2423,6 +2595,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    const finalPicture =
+      simulateFinalRetirementPicture();
+
+    const timeline =
+      document.getElementById(
+        "step8RetirementTimeline"
+      );
+
+    if (timeline) {
+      timeline.innerHTML =
+        createFinalRetirementTimeline(
+          finalPicture
+        );
+    }
+
+    setText("finalPictureExpense", money(gapData.expense.totalExpense));
+    setText("finalPictureIncome", money(simulation.totalIncomeUsed));
+    setText("finalPictureSolutionUsed", money(finalPicture.totalSolutionUsed));
+    setText("finalPictureRemainingGap", money(finalPicture.remainingGap));
+
+
     const fourPercentCard =
       document.getElementById(
         "step8FourPercentCard"
@@ -2510,6 +2703,9 @@ document.addEventListener("DOMContentLoaded", () => {
       `總退休生活費用：${money(gapData.expense.totalExpense)}`,
       `退休時預計現有資產：${money(simulation.initialAssets)}`,
       `需要處理的退休資金缺口：${money(gap)}`,
+      `MPF預計開始動用年齡：${getMpfAccessAge()}歲`,
+      `退休橋接期：${basic.retirementAge < getMpfAccessAge() ? `${basic.retirementAge}–${getMpfAccessAge()}歲` : "沒有"}`,
+      `半退休／過渡工作收入：${getSemiRetirementData().enabled ? `${money(getSemiRetirementData().income)}／月（${getSemiRetirementData().startAge}–${getSemiRetirementData().endAge}歲）` : "沒有"}`,
       "",
       "建議退休方案：",
       `靈活整筆投入：${money(solution.lumpFuture)}`,
@@ -3672,6 +3868,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     if (
+      currentStep === 1
+    ) {
+      updateExpenseSplitPreview();
+    }
+
+
+    if (
       currentStep === 2
     ) {
 
@@ -3697,6 +3900,7 @@ if (
   currentStep === 5
 ) {
 
+  syncSemiRetirementUI();
   updateGovernmentSupport();
   updateRetirementIncomeSummary();
 }
@@ -4047,12 +4251,23 @@ if (
                 expense;
             }
 
+            const essentialPct =
+              Number(card.dataset.essentialPct) || 70;
+
+            const essentialInput =
+              document.getElementById("essentialExpensePct");
+
+            const enjoymentInput =
+              document.getElementById("enjoymentExpensePct");
+
+            if (essentialInput) essentialInput.value = essentialPct;
+            if (enjoymentInput) enjoymentInput.value = Math.max(0, 100 - essentialPct);
 
             acceptedExpenseAuto =
               true;
 
-
             updateSuggestedAndAccepted();
+            updateExpenseSplitPreview();
           }
         );
       }
@@ -4088,6 +4303,7 @@ if (
 
 
           updateSuggestedAndAccepted();
+          updateExpenseSplitPreview();
         }
       );
   }
@@ -4111,6 +4327,21 @@ if (
         }
       );
   }
+
+
+  ["essentialExpensePct","enjoymentExpensePct"].forEach(
+    id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        const otherId = id === "essentialExpensePct" ? "enjoymentExpensePct" : "essentialExpensePct";
+        const other = document.getElementById(otherId);
+        const value = Math.max(0, Math.min(Number(el.value) || 0, 100));
+        if (other) other.value = Math.max(0, 100 - value);
+        updateExpenseSplitPreview();
+      });
+    }
+  );
 
 
   /* =================================
@@ -4473,6 +4704,14 @@ function updateRetirementIncomeSummary() {
       "otherIncome"
     );
 
+  const semiRetirement =
+    getSemiRetirementData();
+
+  const semiIncome =
+    semiRetirement.enabled
+      ? semiRetirement.income
+      : 0;
+
 
   const total =
     government +
@@ -4480,7 +4719,8 @@ function updateRetirementIncomeSummary() {
     rental +
     annuity +
     reverseMortgage +
-    other;
+    other +
+    semiIncome;
 
 
   const previewMap = {
@@ -4499,6 +4739,9 @@ function updateRetirementIncomeSummary() {
 
     incomeReverseMortgagePreview:
       reverseMortgage,
+
+    incomeSemiRetirementPreview:
+      semiIncome,
 
     incomeOtherPreview:
       other,
@@ -4567,11 +4810,54 @@ function updateRetirementIncomeSummary() {
 );
 
 
+const semiRetirementEnabled =
+  document.getElementById("semiRetirementEnabled");
+
+if (semiRetirementEnabled) {
+  semiRetirementEnabled.addEventListener("change", () => {
+    const basic = getBasicData();
+    const start = document.getElementById("semiRetirementStartAge");
+    const end = document.getElementById("semiRetirementEndAge");
+    if (semiRetirementEnabled.checked) {
+      if (start && !start.value) start.value = basic.retirementAge || "";
+      if (end && !end.value) end.value = Math.min(getMpfAccessAge(), basic.lifeExpectancy || getMpfAccessAge());
+    }
+    syncSemiRetirementUI();
+    updateRetirementIncomeSummary();
+  });
+}
+
+["semiRetirementIncome","semiRetirementStartAge","semiRetirementEndAge"].forEach(
+  id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", () => {
+      syncSemiRetirementUI();
+      updateRetirementIncomeSummary();
+    });
+    el.addEventListener("change", () => {
+      syncSemiRetirementUI();
+      updateRetirementIncomeSummary();
+    });
+  }
+);
+
+document.querySelectorAll('input[name="mpfAccessAge"]').forEach(
+  input => {
+    input.addEventListener("change", () => {
+      updateRetirementIncomeSummary();
+      if (currentStep === 6) updateGapResult();
+    });
+  }
+);
+
+
 /* =================================
    Step 5
    初次載入
 ================================= */
 
+syncSemiRetirementUI();
 updateGovernmentSupport();
 updateRetirementIncomeSummary();
   /* =========================================
@@ -4638,6 +4924,15 @@ const harvestWithdrawalOrder = [
   "cash"
 ];
 
+const reserveWithdrawalOrder = [
+  "stock",
+  "fund",
+  "insurance",
+  "mpf",
+  "fixed",
+  "cash"
+];
+
 
 function getActiveWithdrawalOrder() {
 
@@ -4659,6 +4954,16 @@ function getActiveWithdrawalOrder() {
 
     return [
       ...harvestWithdrawalOrder
+    ];
+  }
+
+  if (
+    withdrawalMode ===
+    "reserve"
+  ) {
+
+    return [
+      ...reserveWithdrawalOrder
     ];
   }
 
@@ -4713,7 +5018,7 @@ function syncWithdrawalModeUI() {
     ) {
 
       note.textContent =
-        "防守提款：優先銀行活期、定息及較低波動資產，盡量把股票及基金延後使用。回報假設不會因此改變。";
+        "流動性優先：先使用銀行活期、定息及較低波動資產，做法直接易明，但會較早消耗流動安全墊。";
 
     } else if (
       withdrawalMode ===
@@ -4721,7 +5026,15 @@ function syncWithdrawalModeUI() {
     ) {
 
       note.textContent =
-        "增長收割：優先從股票、基金及其他增長資產提款，作為市場表現較好時鎖定部分升幅的簡化情境。系統不會自動判斷牛市或熊市。";
+        "資產整理優先：較早處理股票、基金及需要較多管理的資產，目標是讓年紀較大時資產結構逐步簡化。";
+
+    } else if (
+      withdrawalMode ===
+      "reserve"
+    ) {
+
+      note.textContent =
+        "保留安全墊：較早使用增長／較需要管理的資產，盡量把現金及定息資產留到退休後段作流動性及晚年安全墊。";
 
     } else {
 
@@ -5205,6 +5518,10 @@ function getFixedIncomeAtAge(
 
     number(
       "otherIncome"
+    ) +
+
+    getSemiRetirementIncomeAtAge(
+      age
     )
   );
 }
@@ -5511,7 +5828,7 @@ function simulateRetirementSustainability(
 
           if (
             assetKey === "mpf" &&
-            age < 65
+            age < getMpfAccessAge()
           ) {
 
             return;
@@ -5801,6 +6118,31 @@ function simulateRetirementSustainability(
   );
 
 
+  const mpfAccessAge =
+    getMpfAccessAge();
+
+  const bridgeRows =
+    rows.filter(
+      row =>
+        row.age < mpfAccessAge
+    );
+
+  const bridgeFundingNeed =
+    bridgeRows.reduce(
+      (total, row) =>
+        total + row.amountRequired,
+      0
+    );
+
+  const bridgeSemiIncome =
+    bridgeRows.reduce(
+      (total, row) =>
+        total +
+        getSemiRetirementIncomeAtAge(row.age) * 12,
+      0
+    );
+
+
   return {
     initialAssets,
     endingAssets,
@@ -5808,6 +6150,9 @@ function simulateRetirementSustainability(
     firstShortfallAge,
     sustainableToLifeExpectancy:
       fundingGap <= 0,
+    mpfAccessAge,
+    bridgeFundingNeed,
+    bridgeSemiIncome,
     rows,
     finalBalances:
       {
@@ -6929,6 +7274,38 @@ updateGapResult =
     }
 
 
+    const bridgeLabel = document.getElementById("bridgePeriodLabel");
+    const bridgeNeed = document.getElementById("bridgeFundingNeed");
+    const bridgeSemi = document.getElementById("bridgeSemiIncome");
+    const bridgeExplanation = document.getElementById("bridgeExplanation");
+
+    if (bridgeLabel) {
+      bridgeLabel.textContent =
+        simulation.retirementAge < simulation.mpfAccessAge
+          ? `${simulation.retirementAge}–${simulation.mpfAccessAge}歲｜退休橋接期`
+          : "沒有 MPF 橋接期";
+    }
+
+    if (bridgeNeed) {
+      bridgeNeed.textContent =
+        simulation.retirementAge < simulation.mpfAccessAge
+          ? money(simulation.bridgeFundingNeed)
+          : "HK$ 0";
+    }
+
+    if (bridgeSemi) {
+      bridgeSemi.textContent =
+        money(simulation.bridgeSemiIncome);
+    }
+
+    if (bridgeExplanation) {
+      bridgeExplanation.textContent =
+        simulation.retirementAge < simulation.mpfAccessAge
+          ? `由 ${simulation.retirementAge} 歲退休至 ${simulation.mpfAccessAge} 歲 MPF 預計開始動用前，生活費先由半退休收入、固定收入及其他可動用資產支援。`
+          : "退休年齡已達 MPF 預計開始動用年齡，沒有額外 MPF 橋接期。";
+    }
+
+
     if (
       simulation.fundingGap > 0
     ) {
@@ -7080,9 +7457,11 @@ updateGapResult =
         custom:
           "自訂次序",
         defensive:
-          "防守提款",
+          "流動性優先",
         harvest:
-          "增長收割"
+          "資產整理優先",
+        reserve:
+          "保留安全墊"
       };
 
 
@@ -9780,6 +10159,10 @@ renderWithdrawalOrder();
 syncRetirementReturnUI();
 
 setDefaultPlanningDate();
+
+updateExpenseSplitPreview();
+
+syncSemiRetirementUI();
 
 
   showStep(1);
