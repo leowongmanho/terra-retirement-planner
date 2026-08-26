@@ -2491,6 +2491,165 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function createStep8GapDonutChart(
+    preparedResources,
+    gapAmount
+  ) {
+    const prepared =
+      Math.max(
+        Number(preparedResources) || 0,
+        0
+      );
+
+    const gap =
+      Math.max(
+        Number(gapAmount) || 0,
+        0
+      );
+
+    const total =
+      Math.max(
+        prepared + gap,
+        1
+      );
+
+    const preparedPct =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          (prepared / total) * 100
+        )
+      );
+
+    const gapPct =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          (gap / total) * 100
+        )
+      );
+
+    return `
+      <div
+        style="
+          display:grid;
+          justify-items:center;
+          gap:12px;
+        "
+      >
+        <div
+          style="
+            position:relative;
+            width:230px;
+            height:230px;
+            border-radius:50%;
+            background:
+              conic-gradient(
+                #122f57 0 ${preparedPct}%,
+                #7f1020 ${preparedPct}% 100%
+              );
+            box-shadow:
+              0 14px 28px rgba(18,47,87,.12);
+          "
+        >
+          <div
+            style="
+              position:absolute;
+              inset:30px;
+              border-radius:50%;
+              background:#fffdf8;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              text-align:center;
+              padding:18px;
+              box-shadow:
+                inset 0 0 0 1px #eadfcd;
+            "
+          >
+            <div>
+              <span
+                style="
+                  display:block;
+                  color:#7f1020;
+                  font-size:10px;
+                  font-weight:900;
+                "
+              >
+                尚待填補
+              </span>
+
+              <strong
+                style="
+                  display:block;
+                  margin-top:4px;
+                  color:#7f1020;
+                  font-size:22px;
+                  line-height:1.15;
+                "
+              >
+                ${money(gap)}
+              </strong>
+
+              <span
+                style="
+                  display:block;
+                  margin-top:5px;
+                  color:#687386;
+                  font-size:9px;
+                "
+              >
+                ${gapPct.toFixed(0)}% 尚待準備
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="
+            display:flex;
+            gap:14px;
+            flex-wrap:wrap;
+            justify-content:center;
+            color:#687386;
+            font-size:9px;
+          "
+        >
+          <span>
+            <b
+              style="
+                display:inline-block;
+                width:9px;
+                height:9px;
+                border-radius:50%;
+                background:#122f57;
+                margin-right:5px;
+              "
+            ></b>
+            已準備 ${preparedPct.toFixed(0)}%
+          </span>
+
+          <span>
+            <b
+              style="
+                display:inline-block;
+                width:9px;
+                height:9px;
+                border-radius:50%;
+                background:#7f1020;
+                margin-right:5px;
+              "
+            ></b>
+            缺口 ${gapPct.toFixed(0)}%
+          </span>
+        </div>
+      </div>
+    `;
+  }
+
+
   function updateActionPlan() {
 
     const basic =
@@ -2611,6 +2770,48 @@ document.addEventListener("DOMContentLoaded", () => {
       money(currentGap)
     );
 
+    const preparedResources =
+      Math.max(
+        gapData.expense.totalExpense -
+        currentGap,
+        0
+      );
+
+    setText(
+      "step8PreparedResources",
+      money(preparedResources)
+    );
+
+    setText(
+      "step8GapOverviewAmount",
+      money(currentGap)
+    );
+
+    const gapDonut =
+      document.getElementById(
+        "step8GapDonutChart"
+      );
+
+    if (gapDonut) {
+      gapDonut.innerHTML =
+        createStep8GapDonutChart(
+          preparedResources,
+          currentGap
+        );
+    }
+
+    const positiveGapMessage =
+      document.getElementById(
+        "step8PositiveGapMessage"
+      );
+
+    if (positiveGapMessage) {
+      positiveGapMessage.textContent =
+        currentGap > 0
+          ? `只需要再準備 ${money(currentGap)}，便可享受更完善的退休生活。`
+          : "你的退休資源已覆蓋目前規劃需要，可繼續為更理想的退休生活增加儲備。";
+    }
+
     setText(
       "step8SolutionTotal",
       money(solutionTotal)
@@ -2711,7 +2912,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (gapMessage) {
         gapMessage.textContent =
-          `按目前退休資產可持續性分析，需要處理 ${money(currentGap)} 的退休期累積缺口。`;
+          `退休資金缺口為 ${money(currentGap)}，下一步集中補足這部分。`;
       }
 
       if (balanceLabel) {
@@ -2726,7 +2927,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (outcomeHeadline) {
         outcomeHeadline.textContent =
-          `方案預計可填補 ${Math.min(Math.max(coverage,0),999).toFixed(0)}% 缺口`;
+          `方案已向目標推進 ${Math.min(Math.max(coverage,0),999).toFixed(0)}%`;
       }
 
     } else {
@@ -2753,7 +2954,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (outcomeHeadline) {
         outcomeHeadline.textContent =
-          "建議方案預計已覆蓋退休資金缺口，並高於目前缺口";
+          "建議方案已覆蓋退休資金缺口";
       }
     }
 
@@ -2858,7 +3059,10 @@ document.addEventListener("DOMContentLoaded", () => {
       `退休首年每月生活費：${money(gapData.expense.firstMonthlyExpense)}`,
       `總退休生活費用：${money(gapData.expense.totalExpense)}`,
       `退休時預計現有資產：${money(simulation.initialAssets)}`,
-      `需要處理的退休資金缺口：${money(gap)}`,
+      `退休資金缺口：${money(gap)}`,
+      gap > 0
+        ? `只需要再準備 ${money(gap)}，便可享受更完善的退休生活。`
+        : "目前退休資源已覆蓋規劃需要。",
       `MPF預計開始動用年齡：${getMpfAccessAge()}歲`,
       `退休橋接期：${basic.retirementAge < getMpfAccessAge() ? `${basic.retirementAge}–${getMpfAccessAge()}歲` : "沒有"}`,
       `半退休／過渡工作收入：${getSemiRetirementData().enabled ? `${money(getSemiRetirementData().income)}／月（${getSemiRetirementData().startAge}–${getSemiRetirementData().endAge}歲）` : "沒有"}`,
