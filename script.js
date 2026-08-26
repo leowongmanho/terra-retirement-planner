@@ -2489,9 +2489,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
   }
-
-
-  function createStep8GapDonutChart(
+  function createStep8GapPieChart(
     preparedResources,
     gapAmount
   ) {
@@ -2531,118 +2529,345 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
+    /*
+      Exploded Pie：
+      用 SVG 真正畫出兩塊實心 Pie，
+      缺口那一塊向外拉開，形成「補上這一塊就完整」的視覺。
+    */
+
+    const size = 290;
+    const cx = 145;
+    const cy = 145;
+    const radius = 104;
+
+    const gapAngle =
+      gapPct / 100 * 360;
+
+    /*
+      將缺口置於左下方，較似「尚待補上的最後一塊」。
+    */
+    const gapMidAngle = 220;
+    const gapStartAngle =
+      gapMidAngle - gapAngle / 2;
+
+    const gapEndAngle =
+      gapMidAngle + gapAngle / 2;
+
+    const polar = (
+      centerX,
+      centerY,
+      r,
+      angleDeg
+    ) => {
+      const rad =
+        (angleDeg - 90) *
+        Math.PI /
+        180;
+
+      return {
+        x:
+          centerX +
+          r * Math.cos(rad),
+
+        y:
+          centerY +
+          r * Math.sin(rad)
+      };
+    };
+
+    const slicePath = (
+      centerX,
+      centerY,
+      r,
+      startAngle,
+      endAngle
+    ) => {
+      const start =
+        polar(
+          centerX,
+          centerY,
+          r,
+          endAngle
+        );
+
+      const end =
+        polar(
+          centerX,
+          centerY,
+          r,
+          startAngle
+        );
+
+      const largeArcFlag =
+        endAngle -
+          startAngle <=
+        180
+          ? 0
+          : 1;
+
+      return [
+        `M ${centerX} ${centerY}`,
+        `L ${start.x} ${start.y}`,
+        `A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+        "Z"
+      ].join(" ");
+    };
+
+    const gapOffset = 22;
+    const gapMidRad =
+      (gapMidAngle - 90) *
+      Math.PI /
+      180;
+
+    const gapCx =
+      cx +
+      gapOffset *
+      Math.cos(gapMidRad);
+
+    const gapCy =
+      cy +
+      gapOffset *
+      Math.sin(gapMidRad);
+
+    const fullCirclePath = `
+      M ${cx} ${cy - radius}
+      A ${radius} ${radius} 0 1 1 ${cx - 0.01} ${cy - radius}
+      Z
+    `;
+
+    const gapPath =
+      gapPct > 0
+        ? slicePath(
+            gapCx,
+            gapCy,
+            radius,
+            gapStartAngle,
+            gapEndAngle
+          )
+        : "";
+
+    /*
+      主體先畫完整藍色圓，再用背景色切走缺口位置；
+      再將鮮紅缺口向外拉開。
+    */
+    const cutoutPath =
+      gapPct > 0
+        ? slicePath(
+            cx,
+            cy,
+            radius + 2,
+            gapStartAngle,
+            gapEndAngle
+          )
+        : "";
+
+    const gapLabelAngle =
+      gapMidAngle;
+
+    const gapLabelPos =
+      polar(
+        gapCx,
+        gapCy,
+        radius * 0.60,
+        gapLabelAngle
+      );
+
+    const preparedLabelAngle =
+      (gapMidAngle + 180) % 360;
+
+    const preparedLabelPos =
+      polar(
+        cx,
+        cy,
+        radius * 0.52,
+        preparedLabelAngle
+      );
+
     return `
       <div
         style="
           display:grid;
           justify-items:center;
-          gap:12px;
+          gap:8px;
         "
       >
-        <div
+        <svg
+          viewBox="0 0 ${size} ${size}"
+          width="100%"
           style="
-            position:relative;
-            width:230px;
-            height:230px;
-            border-radius:50%;
-            background:
-              conic-gradient(
-                #122f57 0 ${preparedPct}%,
-                #7f1020 ${preparedPct}% 100%
-              );
-            box-shadow:
-              0 14px 28px rgba(18,47,87,.12);
+            max-width:340px;
+            display:block;
+            overflow:visible;
           "
+          aria-label="退休資金缺口圓餅圖"
         >
-          <div
-            style="
-              position:absolute;
-              inset:30px;
-              border-radius:50%;
-              background:#fffdf8;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              text-align:center;
-              padding:18px;
-              box-shadow:
-                inset 0 0 0 1px #eadfcd;
-            "
+          <defs>
+            <linearGradient
+              id="terraPreparedPie"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stop-color="#006BFF"
+              />
+              <stop
+                offset="100%"
+                stop-color="#123A8C"
+              />
+            </linearGradient>
+
+            <linearGradient
+              id="terraGapPie"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stop-color="#FF3B30"
+              />
+              <stop
+                offset="100%"
+                stop-color="#C8102E"
+              />
+            </linearGradient>
+
+            <filter
+              id="terraPieShadow"
+              x="-30%"
+              y="-30%"
+              width="160%"
+              height="170%"
+            >
+              <feDropShadow
+                dx="0"
+                dy="10"
+                stdDeviation="8"
+                flood-color="#122f57"
+                flood-opacity=".20"
+              />
+            </filter>
+
+            <filter
+              id="terraGapShadow"
+              x="-40%"
+              y="-40%"
+              width="180%"
+              height="190%"
+            >
+              <feDropShadow
+                dx="0"
+                dy="12"
+                stdDeviation="7"
+                flood-color="#7f1020"
+                flood-opacity=".30"
+              />
+            </filter>
+          </defs>
+
+          <g filter="url(#terraPieShadow)">
+            <path
+              d="${fullCirclePath}"
+              fill="url(#terraPreparedPie)"
+            />
+
+            ${
+              gapPct > 0
+                ? `
+                  <path
+                    d="${cutoutPath}"
+                    fill="#fffdf8"
+                  />
+                `
+                : ""
+            }
+          </g>
+
+          ${
+            gapPct > 0
+              ? `
+                <path
+                  d="${gapPath}"
+                  fill="url(#terraGapPie)"
+                  filter="url(#terraGapShadow)"
+                  stroke="#ffffff"
+                  stroke-width="3"
+                />
+              `
+              : ""
+          }
+
+          <text
+            x="${preparedLabelPos.x}"
+            y="${preparedLabelPos.y - 6}"
+            text-anchor="middle"
+            fill="#ffffff"
+            font-size="13"
+            font-weight="900"
           >
-            <div>
-              <span
-                style="
-                  display:block;
-                  color:#7f1020;
-                  font-size:10px;
-                  font-weight:900;
-                "
-              >
-                尚待填補
-              </span>
+            已準備
+          </text>
 
-              <strong
-                style="
-                  display:block;
-                  margin-top:4px;
-                  color:#7f1020;
-                  font-size:22px;
-                  line-height:1.15;
-                "
-              >
-                ${money(gap)}
-              </strong>
+          <text
+            x="${preparedLabelPos.x}"
+            y="${preparedLabelPos.y + 16}"
+            text-anchor="middle"
+            fill="#ffffff"
+            font-size="22"
+            font-weight="900"
+          >
+            ${preparedPct.toFixed(0)}%
+          </text>
 
-              <span
-                style="
-                  display:block;
-                  margin-top:5px;
-                  color:#687386;
-                  font-size:9px;
-                "
-              >
-                ${gapPct.toFixed(0)}% 尚待準備
-              </span>
-            </div>
-          </div>
-        </div>
+          ${
+            gapPct > 0
+              ? `
+                <text
+                  x="${gapLabelPos.x}"
+                  y="${gapLabelPos.y - 5}"
+                  text-anchor="middle"
+                  fill="#ffffff"
+                  font-size="11"
+                  font-weight="900"
+                >
+                  缺口
+                </text>
+
+                <text
+                  x="${gapLabelPos.x}"
+                  y="${gapLabelPos.y + 14}"
+                  text-anchor="middle"
+                  fill="#ffffff"
+                  font-size="19"
+                  font-weight="900"
+                >
+                  ${gapPct.toFixed(0)}%
+                </text>
+              `
+              : ""
+          }
+        </svg>
 
         <div
           style="
             display:flex;
-            gap:14px;
+            gap:16px;
             flex-wrap:wrap;
             justify-content:center;
-            color:#687386;
-            font-size:9px;
+            font-size:10px;
+            font-weight:800;
           "
         >
-          <span>
-            <b
-              style="
-                display:inline-block;
-                width:9px;
-                height:9px;
-                border-radius:50%;
-                background:#122f57;
-                margin-right:5px;
-              "
-            ></b>
-            已準備 ${preparedPct.toFixed(0)}%
+          <span style="color:#123A8C;">
+            ● 已準備 ${preparedPct.toFixed(0)}%
           </span>
 
-          <span>
-            <b
-              style="
-                display:inline-block;
-                width:9px;
-                height:9px;
-                border-radius:50%;
-                background:#7f1020;
-                margin-right:5px;
-              "
-            ></b>
-            缺口 ${gapPct.toFixed(0)}%
+          <span style="color:#E31B23;">
+            ● 缺口 ${gapPct.toFixed(0)}%
           </span>
         </div>
       </div>
@@ -2789,12 +3014,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const gapDonut =
       document.getElementById(
-        "step8GapDonutChart"
+        "step8GapPieChart"
       );
 
     if (gapDonut) {
       gapDonut.innerHTML =
-        createStep8GapDonutChart(
+        createStep8GapPieChart(
           preparedResources,
           currentGap
         );
