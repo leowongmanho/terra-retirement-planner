@@ -425,6 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    updateCashBufferTargetUI();
     return suggested;
   }
 
@@ -1970,81 +1971,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     `;
 
+    const firstFive = data.rows.slice(0, Math.min(5, data.rows.length));
+    const lastThree = data.rows.length > 5 ? data.rows.slice(-3) : [];
 
-    data.rows
-      .slice(0, 10)
-      .forEach(
-        row => {
+    const renderExpenseRows = rows => rows.map(
+      row => `
+        <div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #f0ebe1;">
+          <span style="color:#687386;font-size:12px;">${row.age}歲 · 第${row.year}年</span>
+          <strong style="color:#122f57;font-size:12px;">${money(row.annualExpense)}</strong>
+        </div>
+      `
+    ).join("");
 
-          html += `
+    html += `
+      <div style="display:grid;grid-template-columns:1fr 56px 1fr;gap:12px;align-items:stretch;margin-top:10px;">
+        <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
+          <strong style="display:block;color:#122f57;font-size:14px;margin-bottom:6px;">退休初期 · 首5年</strong>
+          ${renderExpenseRows(firstFive)}
+        </div>
 
-            <p
-              style="
-                padding:8px 0;
-                border-bottom:
-                  1px solid #f0ebe1;
-              "
-            >
+        <div style="display:flex;align-items:center;justify-content:center;color:#d7a922;font-size:26px;font-weight:900;">…</div>
 
-              ${row.age} 歲
-              （退休第 ${row.year} 年）：
-
-              <strong>
-                ${money(
-                  row.annualExpense
-                )}
-              </strong>
-
-              / 年
-
-
-              ${
-                row.age === 80 &&
-                shouldReduceAfter80()
-
-                  ? `
-                    <span
-                      style="
-                        color:#9f1020;
-                        font-weight:700;
-                        font-size:13px;
-                      "
-                    >
-                      （生活費調整 -30%）
-                    </span>
-                  `
-
-                  : ""
-              }
-
-            </p>
-
-          `;
-        }
-      );
-
-
-    if (
-      data.rows.length > 10
-    ) {
-
-      html += `
-
-        <p
-          style="
-            margin-top:12px;
-            color:#687386;
-          "
-        >
-
-          ……其餘
-          ${data.rows.length - 10}
-          年將按上述設定繼續計算。
-
-        </p>
-
-      `;
-    }
+        <div style="padding:14px;border:2px solid #d7a922;border-radius:14px;background:#fff9e8;">
+          <strong style="display:block;color:#7f1020;font-size:14px;margin-bottom:6px;">退休後期 · 最後3年</strong>
+          ${renderExpenseRows(lastThree)}
+        </div>
+      </div>
+    `;
 
 
     container.innerHTML =
@@ -2270,62 +2223,77 @@ document.addEventListener("DOMContentLoaded", () => {
       simulation
     };
   }
+  function createStep8GapTimelineChart(finalPicture) {
+    const rows = finalPicture.rows || [];
+    if (!rows.length) return "";
 
-
-  function createFinalRetirementTimeline(finalPicture) {
     const basic = getBasicData();
-    const mpfAccessAge = getMpfAccessAge();
-    const breakpoints = [basic.retirementAge];
+    const startAge = basic.retirementAge;
+    const endAge = basic.lifeExpectancy;
+    const totalYears = Math.max(endAge - startAge, 1);
 
-    if (mpfAccessAge > basic.retirementAge && mpfAccessAge < basic.lifeExpectancy) {
-      breakpoints.push(mpfAccessAge);
-    }
+    const solutionKeys = [
+      ["lump","靈活整筆投入","#d7a922"],
+      ["saving","五年儲蓄計劃","#7f1020"],
+      ["oneOff","一次性投資","#6d7f99"],
+      ["tenYear","十年投資計劃","#122f57"]
+    ];
 
-    if (80 > basic.retirementAge && 80 < basic.lifeExpectancy) {
-      breakpoints.push(80);
-    }
+    const bars = solutionKeys.map(([key,label,color]) => {
+      const usedRows = rows.filter(
+        row =>
+          row.solutionWithdrawals &&
+          (row.solutionWithdrawals[key] || 0) > 0
+      );
 
-    breakpoints.push(basic.lifeExpectancy);
+      if (!usedRows.length) return "";
 
-    const ages = [...new Set(breakpoints)].sort((a,b) => a-b);
-    const segments = [];
+      const first = usedRows[0].age;
+      const last = usedRows[usedRows.length - 1].age;
+      const leftPct = Math.max(0, ((first - startAge) / totalYears) * 100);
+      const widthPct = Math.max(
+        3,
+        Math.min(
+          100 - leftPct,
+          ((last - first + 1) / totalYears) * 100
+        )
+      );
 
-    for (let i = 0; i < ages.length - 1; i++) {
-      const start = ages[i];
-      const end = ages[i+1];
-      const rows = finalPicture.rows.filter(row => row.age >= start && row.age < end);
-      if (!rows.length) continue;
+      const totalUsed = usedRows.reduce(
+        (total,row) =>
+          total + (row.solutionWithdrawals[key] || 0),
+        0
+      );
 
-      const expense = rows.reduce((t,r) => t + r.annualExpense, 0);
-      const income = rows.reduce((t,r) => t + r.incomeUsed, 0);
-      const existingAsset = rows.reduce((t,r) => t + r.totalWithdrawal, 0);
-      const solutionUsed = rows.reduce((t,r) => t + r.solutionUsed, 0);
-      const shortfall = rows.reduce((t,r) => t + r.remainingShortfall, 0);
-
-      let role = "主要退休期";
-      if (start < mpfAccessAge) role = "退休橋接期";
-      if (start >= 80) role = "晚年退休期";
-
-      segments.push(`
-        <div style="padding:13px 14px;border:1px solid #eadfcd;border-left:5px solid ${shortfall > 0 ? "#7f1020" : "#d7a922"};border-radius:12px;background:#ffffff;">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-            <div>
-              <span style="display:block;color:#d7a922;font-size:8px;font-weight:900;">${role}</span>
-              <strong style="display:block;color:#122f57;font-size:14px;margin-top:2px;">${start}–${end}歲</strong>
-            </div>
-            <strong style="color:${shortfall > 0 ? "#7f1020" : "#122f57"};font-size:12px;">${shortfall > 0 ? `尚欠 ${money(shortfall)}` : "生活費已覆蓋"}</strong>
+      return `
+        <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin:9px 0;">
+          <strong style="color:#122f57;font-size:11px;">${label}</strong>
+          <div style="position:relative;height:18px;border-radius:999px;background:#eee7da;overflow:hidden;">
+            <div style="position:absolute;left:${leftPct}%;width:${widthPct}%;height:100%;border-radius:999px;background:${color};"></div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px;">
-            <div><span style="display:block;color:#687386;font-size:8px;">生活費</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(expense)}</strong></div>
-            <div><span style="display:block;color:#687386;font-size:8px;">固定／過渡收入</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(income)}</strong></div>
-            <div><span style="display:block;color:#687386;font-size:8px;">原有資產提款</span><strong style="display:block;color:#122f57;font-size:11px;margin-top:2px;">${money(existingAsset)}</strong></div>
-            <div><span style="display:block;color:#687386;font-size:8px;">Step 7 方案補位</span><strong style="display:block;color:#7f1020;font-size:11px;margin-top:2px;">${money(solutionUsed)}</strong></div>
-          </div>
+          <span style="text-align:right;color:#687386;font-size:10px;">${first}–${last}歲 · ${money(totalUsed)}</span>
         </div>
-      `);
-    }
+      `;
+    }).join("");
 
-    return segments.join("");
+    const finalShortfallRows = rows.filter(
+      row => (row.remainingShortfall || 0) > 0
+    );
+
+    const resultText = finalShortfallRows.length
+      ? `尚有缺口 ${money(finalPicture.remainingGap)}`
+      : `已覆蓋至 ${endAge} 歲`;
+
+    return `
+      <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#ffffff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="color:#687386;font-size:10px;">${startAge}歲</span>
+          <strong style="color:${finalShortfallRows.length ? "#7f1020" : "#122f57"};font-size:12px;">${resultText}</strong>
+          <span style="color:#687386;font-size:10px;">${endAge}歲</span>
+        </div>
+        ${bars || '<div style="padding:12px;color:#687386;font-size:11px;">Step 7 尚未設定補位方案。</div>'}
+      </div>
+    `;
   }
 
 
@@ -2597,23 +2565,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const finalPicture =
       simulateFinalRetirementPicture();
-
     const timeline =
       document.getElementById(
-        "step8RetirementTimeline"
+        "step8GapTimelineChart"
       );
 
     if (timeline) {
       timeline.innerHTML =
-        createFinalRetirementTimeline(
+        createStep8GapTimelineChart(
           finalPicture
         );
     }
-
-    setText("finalPictureExpense", money(gapData.expense.totalExpense));
-    setText("finalPictureIncome", money(simulation.totalIncomeUsed));
-    setText("finalPictureSolutionUsed", money(finalPicture.totalSolutionUsed));
-    setText("finalPictureRemainingGap", money(finalPicture.remainingGap));
 
 
     const fourPercentCard =
@@ -4324,6 +4286,7 @@ if (
 
           acceptedExpenseAuto =
             false;
+          updateCashBufferTargetUI();
         }
       );
   }
@@ -4924,14 +4887,6 @@ const harvestWithdrawalOrder = [
   "cash"
 ];
 
-const reserveWithdrawalOrder = [
-  "stock",
-  "fund",
-  "insurance",
-  "mpf",
-  "fixed",
-  "cash"
-];
 
 
 function getActiveWithdrawalOrder() {
@@ -4957,21 +4912,21 @@ function getActiveWithdrawalOrder() {
     ];
   }
 
-  if (
-    withdrawalMode ===
-    "reserve"
-  ) {
-
-    return [
-      ...reserveWithdrawalOrder
-    ];
-  }
-
 
   return [
     ...withdrawalOrder
   ];
 }
+
+function getCashBufferTarget() {
+  return Math.max(getRetirementMonthlyExpense() * 12, 0);
+}
+
+function updateCashBufferTargetUI() {
+  const el = document.getElementById("cashBufferTarget");
+  if (el) el.textContent = money(getCashBufferTarget());
+}
+
 
 
 function syncWithdrawalModeUI() {
@@ -5027,14 +4982,6 @@ function syncWithdrawalModeUI() {
 
       note.textContent =
         "資產整理優先：較早處理股票、基金及需要較多管理的資產，目標是讓年紀較大時資產結構逐步簡化。";
-
-    } else if (
-      withdrawalMode ===
-      "reserve"
-    ) {
-
-      note.textContent =
-        "保留安全墊：較早使用增長／較需要管理的資產，盡量把現金及定息資產留到退休後段作流動性及晚年安全墊。";
 
     } else {
 
@@ -5835,13 +5782,37 @@ function simulateRetirementSustainability(
           }
 
 
-          const available =
+          const rawAvailable =
             Math.max(
               balances[
                 assetKey
               ] || 0,
               0
             );
+
+          let available =
+            rawAvailable;
+
+          if (assetKey === "cash") {
+            const buffer = getCashBufferTarget();
+            const protectedCash = Math.max(rawAvailable - buffer, 0);
+            const otherAvailable = order
+              .filter(
+                key =>
+                  key !== "cash" &&
+                  !(key === "mpf" && age < getMpfAccessAge())
+              )
+              .reduce(
+                (total, key) =>
+                  total + Math.max(balances[key] || 0, 0),
+                0
+              );
+
+            available =
+              otherAvailable >= remainingNeed
+                ? protectedCash
+                : rawAvailable;
+          }
 
 
           if (
@@ -7083,6 +7054,7 @@ updateGapResult =
 
     syncRetirementReturnUI();
 
+    updateCashBufferTargetUI();
 
     const data =
       calculateGap();
@@ -7459,9 +7431,7 @@ updateGapResult =
         defensive:
           "流動性優先",
         harvest:
-          "資產整理優先",
-        reserve:
-          "保留安全墊"
+          "資產整理優先"
       };
 
 
@@ -10157,6 +10127,8 @@ syncWithdrawalModeUI();
 renderWithdrawalOrder();
 
 syncRetirementReturnUI();
+
+updateCashBufferTargetUI();
 
 setDefaultPlanningDate();
 
