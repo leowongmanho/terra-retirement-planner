@@ -1983,6 +1983,22 @@ document.addEventListener("DOMContentLoaded", () => {
       `
     ).join("");
 
+    const firstAnnual =
+      data.rows[0]
+        ? data.rows[0].annualExpense
+        : 0;
+
+    const lastAnnual =
+      data.rows.length
+        ? data.rows[data.rows.length - 1].annualExpense
+        : 0;
+
+    const expenseIncreasePct =
+      firstAnnual > 0
+        ? ((lastAnnual / firstAnnual) - 1) * 100
+        : 0;
+
+
     html += `
       <div style="display:grid;grid-template-columns:1fr 56px 1fr;gap:12px;align-items:stretch;margin-top:10px;">
         <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
@@ -1996,6 +2012,13 @@ document.addEventListener("DOMContentLoaded", () => {
           <strong style="display:block;color:#7f1020;font-size:14px;margin-bottom:6px;">退休後期 · 最後3年</strong>
           ${renderExpenseRows(lastThree)}
         </div>
+      </div>
+
+      <div style="margin-top:12px;padding:12px 14px;border-radius:12px;background:#122f57;color:#ffffff;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;text-align:center;">
+        <strong style="font-size:13px;">退休第1年 ${money(firstAnnual)}</strong>
+        <span style="color:#d7a922;font-size:18px;font-weight:900;">→</span>
+        <strong style="font-size:13px;">最後1年 ${money(lastAnnual)}</strong>
+        <span style="color:#d7a922;font-size:13px;font-weight:900;">+${expenseIncreasePct.toFixed(0)}%</span>
       </div>
     `;
 
