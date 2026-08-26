@@ -340,6 +340,7 @@
                     class="lifestyle-card"
                     data-lifestyle="basic"
                     data-expense="11000"
+                    data-essential-pct="80"
                   >
 
                     <span class="lifestyle-name">
@@ -366,6 +367,7 @@
                     class="lifestyle-card"
                     data-lifestyle="comfortable"
                     data-expense="21000"
+                    data-essential-pct="70"
                   >
 
                     <span class="lifestyle-name">
@@ -392,6 +394,7 @@
                     class="lifestyle-card"
                     data-lifestyle="affluent"
                     data-expense="32000"
+                    data-essential-pct="60"
                   >
 
                     <span class="lifestyle-name">
@@ -424,27 +427,46 @@
               </small>
 
 
-              <div class="reminder-box">
-
-                <strong>
-                  輸入生活費時，記得考慮：
-                </strong>
-
-                <p>
-                  生活費：衣食住行、水電煤、
-                  管理費、旅行、禮物及日常需要
+              <div
+                style="
+                  margin-top:18px;
+                  padding:16px;
+                  border:1px solid #eadfcd;
+                  border-left:5px solid #d7a922;
+                  border-radius:14px;
+                  background:#fffdf8;
+                "
+              >
+                <strong style="display:block;color:#122f57;font-size:16px;">退休生活預算拆分</strong>
+                <p style="margin:6px 0 12px;color:#687386;font-size:12px;line-height:1.6;">
+                  先用參考比例開始，再按客戶真正想要的退休生活自行調整。
+                  基本型 80/20、舒適型 70/30、豐裕型 60/40。
                 </p>
-
-                <p>
-                  醫療費：門診、藥物、
-                  住院及長期護理
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <label for="essentialExpensePct" style="font-size:11px;">基本生活需要（%）</label>
+                    <input type="number" id="essentialExpensePct" min="0" max="100" value="70" step="1">
+                  </div>
+                  <div>
+                    <label for="enjoymentExpensePct" style="font-size:11px;">生活享受預算（%）</label>
+                    <input type="number" id="enjoymentExpensePct" min="0" max="100" value="30" step="1">
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+                  <div style="padding:11px;border-radius:10px;background:#ffffff;">
+                    <span style="display:block;color:#687386;font-size:9px;">基本生活費參考</span>
+                    <strong id="essentialExpensePreview" style="display:block;color:#122f57;font-size:17px;margin-top:3px;">HK$ —</strong>
+                  </div>
+                  <div style="padding:11px;border-radius:10px;background:#ffffff;">
+                    <span style="display:block;color:#687386;font-size:9px;">生活享受費參考</span>
+                    <strong id="enjoymentExpensePreview" style="display:block;color:#7f1020;font-size:17px;margin-top:3px;">HK$ —</strong>
+                  </div>
+                </div>
+                <p style="margin:10px 0 0;color:#687386;font-size:10px;line-height:1.55;">
+                  基本生活包括衣食住行、水電煤、管理費及日常需要；
+                  生活享受包括旅遊、興趣、聚會、外出飲食、禮物及其他提升退休生活質素的開支。
+                  <strong style="color:#7f1020;">醫療保障及醫療保費另作獨立規劃，不納入本項拆分。</strong>
                 </p>
-
-                <p>
-                  娛樂及社交：興趣、聚會、
-                  消閒活動及退休生活質素
-                </p>
-
               </div>
 
             </div>
@@ -1216,6 +1238,30 @@
 
   </div>
 
+
+  <!-- MPF 預計開始動用年齡 -->
+  <div style="margin-top:26px;padding:16px;border:2px solid #d7a922;border-radius:15px;background:#fff9e8;">
+    <strong style="display:block;color:#122f57;font-size:16px;">MPF 預計開始動用年齡</strong>
+    <p style="margin:6px 0 12px;color:#687386;font-size:11px;line-height:1.6;">
+      如退休年齡早於 MPF 可動用年齡，兩者之間會形成「退休橋接期」，
+      需要先由其他資產及過渡收入支持生活費。
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <label style="display:flex;align-items:flex-start;gap:8px;padding:11px;border:1px solid #eadfcd;border-radius:11px;background:#ffffff;cursor:pointer;">
+        <input type="radio" name="mpfAccessAge" value="60" style="width:auto;margin-top:3px;">
+        <span><strong style="display:block;color:#7f1020;font-size:12px;">60歲｜提早退休情境</strong>
+        <small style="display:block;color:#687386;font-size:9px;line-height:1.5;">只作符合相關提早退休提取條件的規劃情境。</small></span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:8px;padding:11px;border:2px solid #d7a922;border-radius:11px;background:#ffffff;cursor:pointer;">
+        <input type="radio" name="mpfAccessAge" value="65" checked style="width:auto;margin-top:3px;">
+        <span><strong style="display:block;color:#122f57;font-size:12px;">65歲｜一般情境</strong>
+        <small style="display:block;color:#687386;font-size:9px;line-height:1.5;">MPF 在65歲前不納入可提款資產。</small></span>
+      </label>
+    </div>
+    <p id="mpfAccessAgeNote" style="margin:9px 0 0;color:#687386;font-size:9px;line-height:1.55;">
+      *實際提取資格及程序應以最新 MPF 規定及客戶實際情況確認。
+    </p>
+  </div>
 
   <!-- 即時計算結果 -->
 
@@ -1993,6 +2039,30 @@
 
 
   <!-- ==================================
+       半退休／過渡工作收入
+  =================================== -->
+
+  <div style="margin:24px 0;padding:16px;border:2px solid #d7a922;border-radius:15px;background:#fff9e8;">
+    <strong style="display:block;color:#122f57;font-size:16px;">半退休／過渡工作收入</strong>
+    <p style="margin:6px 0 12px;color:#687386;font-size:11px;line-height:1.6;">
+      如果正式退休後仍想做較輕鬆的工作，可設定一段有限年期的過渡收入，
+      用來減低提早退休橋接期的資產提款壓力。
+    </p>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;">
+      <input type="checkbox" id="semiRetirementEnabled" style="width:auto;">
+      <strong style="color:#7f1020;font-size:12px;">計入半退休／輕鬆工作收入</strong>
+    </label>
+    <div id="semiRetirementFields" hidden style="display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:10px;">
+      <div><label for="semiRetirementIncome" style="font-size:11px;">每月收入（HK$）</label><input type="number" id="semiRetirementIncome" value="0" min="0"></div>
+      <div><label for="semiRetirementStartAge" style="font-size:11px;">由幾歲開始</label><input type="number" id="semiRetirementStartAge" min="40" max="100"></div>
+      <div><label for="semiRetirementEndAge" style="font-size:11px;">做到幾歲</label><input type="number" id="semiRetirementEndAge" min="40" max="100"></div>
+    </div>
+    <p id="semiRetirementNote" style="margin:9px 0 0;color:#687386;font-size:9px;line-height:1.55;">
+      *只會在所設定的年齡期間計入，不會一路計至預計壽命。
+    </p>
+  </div>
+
+  <!-- ==================================
        其他退休收入
   =================================== -->
 
@@ -2114,6 +2184,12 @@
           HK$ 0
         </strong>
 
+      </div>
+
+
+      <div class="calculation-preview">
+        <p>半退休／過渡工作收入</p>
+        <strong id="incomeSemiRetirementPreview">HK$ 0</strong>
       </div>
 
 
@@ -2466,7 +2542,7 @@
             font-size:18px;
           "
         >
-          退休提款策略
+          退休資產使用策略
         </h3>
 
         <p
@@ -2477,14 +2553,13 @@
             line-height:1.5;
           "
         >
-          回報假設與提款策略分開設定。你可以自行排序，
-          或用較簡單的防守／增長收割模式作情境比較。
+          這不只是提款次序，而是決定退休不同階段先用哪一類資產、哪些資產留到較後期。可先選一個策略，再按需要自行調整。
         </p>
 
         <div
           style="
             display:grid;
-            grid-template-columns:repeat(3,minmax(0,1fr));
+            grid-template-columns:repeat(4,minmax(0,1fr));
             gap:7px;
             margin-bottom:10px;
           "
@@ -2521,7 +2596,7 @@
               font-size:11px;
             "
           >
-            防守提款
+            流動性優先
           </button>
 
           <button
@@ -2538,7 +2613,24 @@
               font-size:11px;
             "
           >
-            增長收割
+            資產整理優先
+          </button>
+
+          <button
+            type="button"
+            data-withdrawal-mode="reserve"
+            style="
+              border:1px solid #eadfcd;
+              border-radius:10px;
+              background:#ffffff;
+              color:#122f57;
+              padding:9px 6px;
+              font-weight:800;
+              cursor:pointer;
+              font-size:11px;
+            "
+          >
+            保留安全墊
           </button>
 
         </div>
@@ -2574,10 +2666,7 @@
             line-height:1.5;
           "
         >
-          * 防守提款：優先使用現金及較低波動資產，減少低位出售增長資產的需要。
-          增長收割：優先使用較高增長資產作簡化「收割」情境。
-          兩者均不會自動偵測市場升跌，亦不會改變上方退休後回報假設。
-          模型一般於 65 歲後才把 MPF 視作可提取資產。
+          * 流動性優先：較早使用現金及定息資產。資產整理優先：較早處理股票、基金及其他需要較多管理的資產。保留安全墊：盡量把現金及低波動資產留到退休後期。提款策略沒有唯一正確答案，應配合流動性、風險、管理能力及晚年安全需要。MPF 會按 Step 4 所選的預計開始動用年齡才加入可提款資產。
         </p>
 
       </div>
@@ -2698,6 +2787,17 @@
           系統正在計算……
         </p>
 
+      </div>
+
+
+      <!-- Retirement bridge summary -->
+      <div id="retirementBridgeCard" style="padding:14px 16px;border:1px solid #eadfcd;border-left:6px solid #d7a922;border-radius:14px;background:#fffdf8;">
+        <div style="display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:12px;align-items:center;">
+          <div><span style="display:block;color:#687386;font-size:9px;">RETIREMENT BRIDGE</span><strong id="bridgePeriodLabel" style="display:block;color:#122f57;font-size:15px;margin-top:3px;">正在分析退休橋接期……</strong></div>
+          <div><span style="display:block;color:#687386;font-size:9px;">橋接期生活費缺口</span><strong id="bridgeFundingNeed" style="display:block;color:#7f1020;font-size:17px;margin-top:3px;">HK$ —</strong></div>
+          <div><span style="display:block;color:#687386;font-size:9px;">半退休收入支援</span><strong id="bridgeSemiIncome" style="display:block;color:#122f57;font-size:17px;margin-top:3px;">HK$ —</strong></div>
+        </div>
+        <p id="bridgeExplanation" style="margin:8px 0 0;color:#687386;font-size:9px;line-height:1.55;">如果退休年齡早於 MPF 可動用年齡，系統會先以其他資產及過渡收入支持生活。</p>
       </div>
 
 
@@ -3316,6 +3416,27 @@
     </p>
   </div>
 
+  <div style="margin:18px 0;padding:18px;border:2px solid #d7a922;border-radius:17px;background:#fffdf8;">
+    <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">FINAL RETIREMENT PICTURE</p>
+    <h3 style="margin:0;color:#122f57;font-size:19px;">完善後的退休生活資金安排</h3>
+    <p style="margin:6px 0 12px;color:#687386;font-size:10px;line-height:1.6;">
+      不只看方案值多少，而是重新看退休每個階段的生活費由甚麼收入及資產支援，
+      以及 Step 7 的填補方案由甚麼時候開始發揮作用。
+    </p>
+    <div id="step8RetirementTimeline" style="display:grid;gap:9px;">正在建立退休資金時間線……</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px;">
+      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">退休期總生活費</span><strong id="finalPictureExpense" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">HK$ —</strong></div>
+      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">固定／過渡收入支援</span><strong id="finalPictureIncome" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">HK$ —</strong></div>
+      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">Step 7 方案實際補位</span><strong id="finalPictureSolutionUsed" style="display:block;color:#7f1020;font-size:14px;margin-top:3px;">HK$ —</strong></div>
+      <div style="padding:10px;border-radius:10px;background:#122f57;color:#ffffff;"><span style="display:block;opacity:.7;font-size:8px;">完善方案後尚餘缺口</span><strong id="finalPictureRemainingGap" style="display:block;color:#d7a922;font-size:14px;margin-top:3px;">HK$ —</strong></div>
+    </div>
+    <p style="margin:9px 0 0;color:#687386;font-size:8px;line-height:1.55;">
+      *此時間線以 Step 6 原有資產模擬為基礎，再把 Step 7 方案用作填補原本未能支付的退休生活費，
+      目的是讓客戶理解「哪段時間由哪筆錢補位」，並非產品現金流保證或精算預測。
+    </p>
+  </div>
+
+
   <div style="margin-top:18px;">
     <h3 style="margin:0 0 4px;color:#122f57;">我們安排的退休方案</h3>
     <p style="margin:0 0 10px;color:#687386;font-size:11px;line-height:1.55;">以下沿用 Step 7 已設定的方案，客戶可以按需要組合使用。</p>
@@ -3821,7 +3942,7 @@
 </main>
 
 
-<script src="script.js?v=20260820-14"></script>
+<script src="script.js?v=20260826-15"></script>
 </body>
 
 </html>
