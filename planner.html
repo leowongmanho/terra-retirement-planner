@@ -2053,12 +2053,12 @@
       <strong style="color:#7f1020;font-size:12px;">計入半退休／輕鬆工作收入</strong>
     </label>
     <div id="semiRetirementFields" hidden style="display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:10px;">
-      <div><label for="semiRetirementIncome" style="font-size:11px;">每月收入（HK$）</label><input type="number" id="semiRetirementIncome" value="0" min="0"></div>
+      <div><label for="semiRetirementIncome" style="font-size:11px;">預計當時每月工作收入（HK$）</label><input type="number" id="semiRetirementIncome" value="0" min="0"><small style="display:block;margin-top:4px;color:#687386;font-size:8px;">以開始半退休工作時預計實際收到的金額輸入</small></div>
       <div><label for="semiRetirementStartAge" style="font-size:11px;">由幾歲開始</label><input type="number" id="semiRetirementStartAge" min="40" max="100"></div>
       <div><label for="semiRetirementEndAge" style="font-size:11px;">做到幾歲</label><input type="number" id="semiRetirementEndAge" min="40" max="100"></div>
     </div>
     <p id="semiRetirementNote" style="margin:9px 0 0;color:#687386;font-size:9px;line-height:1.55;">
-      *只會在所設定的年齡期間計入，不會一路計至預計壽命。
+      *只會在所設定的年齡期間計入；此收入不會再按通脹調整。
     </p>
   </div>
 
@@ -2069,7 +2069,7 @@
   <div class="form-group">
 
     <label for="otherIncome">
-      其他退休收入（每月 HK$）
+      其他預計退休收入（每月 HK$）
     </label>
 
     <input
@@ -2080,8 +2080,7 @@
     >
 
     <small>
-      例如私人年金、兼職收入、
-      海外退休收入或其他定期現金流。
+      例如私人年金、海外退休收入或其他長期定期現金流。此金額按退休期間預計實際收到的每月金額輸入，系統不會再按通脹調整。
     </small>
 
   </div>
@@ -2559,7 +2558,7 @@
         <div
           style="
             display:grid;
-            grid-template-columns:repeat(4,minmax(0,1fr));
+            grid-template-columns:repeat(3,minmax(0,1fr));
             gap:7px;
             margin-bottom:10px;
           "
@@ -2615,25 +2614,7 @@
           >
             資產整理優先
           </button>
-
-          <button
-            type="button"
-            data-withdrawal-mode="reserve"
-            style="
-              border:1px solid #eadfcd;
-              border-radius:10px;
-              background:#ffffff;
-              color:#122f57;
-              padding:9px 6px;
-              font-weight:800;
-              cursor:pointer;
-              font-size:11px;
-            "
-          >
-            保留安全墊
-          </button>
-
-        </div>
+</div>
 
         <div
           id="withdrawalModeNote"
@@ -2657,6 +2638,10 @@
             gap:6px;
           "
         ></div>
+        <div id="cashBufferCard" style="margin-top:10px;padding:10px 12px;border:1px solid #eadfcd;border-left:5px solid #d7a922;border-radius:11px;background:#ffffff;">
+          <span style="display:block;color:#687386;font-size:9px;">12個月現金生活費安全墊</span>
+          <strong id="cashBufferTarget" style="display:block;color:#122f57;font-size:16px;margin-top:3px;">HK$ —</strong>
+        </div>
 
         <p
           style="
@@ -2666,7 +2651,7 @@
             line-height:1.5;
           "
         >
-          * 流動性優先：較早使用現金及定息資產。資產整理優先：較早處理股票、基金及其他需要較多管理的資產。保留安全墊：盡量把現金及低波動資產留到退休後期。提款策略沒有唯一正確答案，應配合流動性、風險、管理能力及晚年安全需要。MPF 會按 Step 4 所選的預計開始動用年齡才加入可提款資產。
+          * 流動性優先：較早使用現金及定息資產。資產整理優先：較早處理股票、基金及其他需要較多管理的資產。提款策略沒有唯一正確答案；MPF 會按 Step 4 所選的預計開始動用年齡才加入可提款資產。
         </p>
 
       </div>
@@ -3203,7 +3188,7 @@
   <div id="step7GapHero" style="border-radius:20px;background:#7f1020;color:#ffffff;padding:18px 22px;box-shadow:0 10px 28px rgba(18,47,87,.12);margin-bottom:18px;">
     <div style="display:grid;grid-template-columns:1.5fr .75fr .75fr;gap:18px;align-items:end;">
       <div>
-        <span style="display:block;opacity:.78;font-size:13px;font-weight:700;margin-bottom:5px;">目標：退休資金缺口</span>
+        <span style="display:block;opacity:.78;font-size:13px;font-weight:700;margin-bottom:5px;">退休期累積未能支付金額</span>
         <strong id="step7TargetGap" style="display:block;font-size:38px;line-height:1.05;">HK$ —</strong>
       </div>
       <div>
@@ -3417,25 +3402,10 @@
   </div>
 
   <div style="margin:18px 0;padding:18px;border:2px solid #d7a922;border-radius:17px;background:#fffdf8;">
-    <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">FINAL RETIREMENT PICTURE</p>
-    <h3 style="margin:0;color:#122f57;font-size:19px;">完善後的退休生活資金安排</h3>
-    <p style="margin:6px 0 12px;color:#687386;font-size:10px;line-height:1.6;">
-      不只看方案值多少，而是重新看退休每個階段的生活費由甚麼收入及資產支援，
-      以及 Step 7 的填補方案由甚麼時候開始發揮作用。
-    </p>
-    <div id="step8RetirementTimeline" style="display:grid;gap:9px;">正在建立退休資金時間線……</div>
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px;">
-      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">退休期總生活費</span><strong id="finalPictureExpense" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">HK$ —</strong></div>
-      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">固定／過渡收入支援</span><strong id="finalPictureIncome" style="display:block;color:#122f57;font-size:14px;margin-top:3px;">HK$ —</strong></div>
-      <div style="padding:10px;border-radius:10px;background:#f8f4eb;"><span style="display:block;color:#687386;font-size:8px;">Step 7 方案實際補位</span><strong id="finalPictureSolutionUsed" style="display:block;color:#7f1020;font-size:14px;margin-top:3px;">HK$ —</strong></div>
-      <div style="padding:10px;border-radius:10px;background:#122f57;color:#ffffff;"><span style="display:block;opacity:.7;font-size:8px;">完善方案後尚餘缺口</span><strong id="finalPictureRemainingGap" style="display:block;color:#d7a922;font-size:14px;margin-top:3px;">HK$ —</strong></div>
-    </div>
-    <p style="margin:9px 0 0;color:#687386;font-size:8px;line-height:1.55;">
-      *此時間線以 Step 6 原有資產模擬為基礎，再把 Step 7 方案用作填補原本未能支付的退休生活費，
-      目的是讓客戶理解「哪段時間由哪筆錢補位」，並非產品現金流保證或精算預測。
-    </p>
+    <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">RETIREMENT GAP TIMELINE</p>
+    <h3 style="margin:0;color:#122f57;font-size:19px;">退休資金補位時間線</h3>
+    <div id="step8GapTimelineChart" style="margin-top:12px;"></div>
   </div>
-
 
   <div style="margin-top:18px;">
     <h3 style="margin:0 0 4px;color:#122f57;">我們安排的退休方案</h3>
@@ -3942,7 +3912,7 @@
 </main>
 
 
-<script src="script.js?v=20260826-15"></script>
+<script src="script.js?v=20260826-16"></script>
 </body>
 
 </html>
