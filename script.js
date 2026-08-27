@@ -2112,7 +2112,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     Step 8
+     第8步
      解決方案 / Whole Picture
   ================================= */
 
@@ -2196,11 +2196,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /*
-      Step 8 與 第7步 分開：
-      第7步 負責累積方案；Step 8 負責退休後實際使用次序。
+      第8步 與 第7步 分開：
+      第7步 負責累積方案；第8步 負責退休後實際使用次序。
 
-      晚年簡化原則：
-      較需要管理／市場波動較高的投資資產較早補位，
+      退休後方案使用次序：
+      較需要管理／市場波動較高的投資資產較早使用，
       較簡單的儲蓄及整筆安排留到較後。
     */
     const solutionUseOrder = [
@@ -2465,7 +2465,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="display:grid;grid-template-columns:150px 1fr 120px;gap:10px;align-items:center;margin-bottom:4px;">
             <span></span>
             <div style="position:relative;height:14px;">
-              <span style="position:absolute;left:${age80Pct}%;transform:translateX(-50%);color:#7f1020;font-size:8px;font-weight:900;white-space:nowrap;">80歲 · 晚年簡化</span>
+              <span style="position:absolute;left:${age80Pct}%;transform:translateX(-50%);color:#7f1020;font-size:8px;font-weight:900;white-space:nowrap;">80歲</span>
             </div>
             <span></span>
           </div>
@@ -2484,7 +2484,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ${baseRow}
         ${
           bars ||
-          '<div style="padding:12px;color:#687386;font-size:11px;text-align:center;">第7步 尚未設定補位方案。</div>'
+          '<div style="padding:12px;color:#687386;font-size:11px;text-align:center;">第7步尚未設定補位方案。</div>'
         }
       </div>
     `;
@@ -2493,6 +2493,7 @@ document.addEventListener("DOMContentLoaded", () => {
     preparedResources,
     gapAmount
   ) {
+
     const prepared =
       Math.max(
         Number(preparedResources) || 0,
@@ -2529,29 +2530,27 @@ document.addEventListener("DOMContentLoaded", () => {
         )
       );
 
-    /*
-      Exploded Pie：
-      用 SVG 真正畫出兩塊實心 Pie，
-      缺口那一塊向外拉開，形成「補上這一塊就完整」的視覺。
-    */
 
-    const size = 290;
-    const cx = 145;
-    const cy = 145;
-    const radius = 104;
+    const size = 330;
+    const cx = 165;
+    const cy = 140;
+    const radius = 108;
+    const depth = 18;
+
 
     const gapAngle =
       gapPct / 100 * 360;
 
-    /*
-      將缺口置於左下方，較似「尚待補上的最後一塊」。
-    */
     const gapMidAngle = 220;
+
     const gapStartAngle =
-      gapMidAngle - gapAngle / 2;
+      gapMidAngle -
+      gapAngle / 2;
 
     const gapEndAngle =
-      gapMidAngle + gapAngle / 2;
+      gapMidAngle +
+      gapAngle / 2;
+
 
     const polar = (
       centerX,
@@ -2559,6 +2558,7 @@ document.addEventListener("DOMContentLoaded", () => {
       r,
       angleDeg
     ) => {
+
       const rad =
         (angleDeg - 90) *
         Math.PI /
@@ -2575,6 +2575,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     };
 
+
     const slicePath = (
       centerX,
       centerY,
@@ -2582,6 +2583,7 @@ document.addEventListener("DOMContentLoaded", () => {
       startAngle,
       endAngle
     ) => {
+
       const start =
         polar(
           centerX,
@@ -2600,8 +2602,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const largeArcFlag =
         endAngle -
-          startAngle <=
-        180
+          startAngle <= 180
           ? 0
           : 1;
 
@@ -2613,7 +2614,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ].join(" ");
     };
 
-    const gapOffset = 22;
+
+    const gapOffset = 23;
+
     const gapMidRad =
       (gapMidAngle - 90) *
       Math.PI /
@@ -2629,27 +2632,14 @@ document.addEventListener("DOMContentLoaded", () => {
       gapOffset *
       Math.sin(gapMidRad);
 
+
     const fullCirclePath = `
       M ${cx} ${cy - radius}
       A ${radius} ${radius} 0 1 1 ${cx - 0.01} ${cy - radius}
       Z
     `;
 
-    const gapPath =
-      gapPct > 0
-        ? slicePath(
-            gapCx,
-            gapCy,
-            radius,
-            gapStartAngle,
-            gapEndAngle
-          )
-        : "";
 
-    /*
-      主體先畫完整藍色圓，再用背景色切走缺口位置；
-      再將鮮紅缺口向外拉開。
-    */
     const cutoutPath =
       gapPct > 0
         ? slicePath(
@@ -2661,27 +2651,36 @@ document.addEventListener("DOMContentLoaded", () => {
           )
         : "";
 
-    const gapLabelAngle =
-      gapMidAngle;
 
-    const gapLabelPos =
-      polar(
-        gapCx,
-        gapCy,
-        radius * 0.60,
-        gapLabelAngle
-      );
+    const gapTopPath =
+      gapPct > 0
+        ? slicePath(
+            gapCx,
+            gapCy,
+            radius,
+            gapStartAngle,
+            gapEndAngle
+          )
+        : "";
 
-    const preparedLabelAngle =
-      (gapMidAngle + 180) % 360;
 
     const preparedLabelPos =
       polar(
         cx,
         cy,
-        radius * 0.52,
-        preparedLabelAngle
+        radius * 0.50,
+        (gapMidAngle + 180) % 360
       );
+
+
+    const gapLabelPos =
+      polar(
+        gapCx,
+        gapCy,
+        radius * 0.58,
+        gapMidAngle
+      );
+
 
     return `
       <div
@@ -2691,19 +2690,22 @@ document.addEventListener("DOMContentLoaded", () => {
           gap:8px;
         "
       >
+
         <svg
           viewBox="0 0 ${size} ${size}"
           width="100%"
           style="
-            max-width:340px;
+            max-width:365px;
             display:block;
             overflow:visible;
           "
-          aria-label="退休資金缺口圓餅圖"
+          aria-label="退休資金缺口立體圓餅圖"
         >
+
           <defs>
+
             <linearGradient
-              id="terraPreparedPie"
+              id="terraPreparedTop"
               x1="0"
               y1="0"
               x2="1"
@@ -2711,16 +2713,21 @@ document.addEventListener("DOMContentLoaded", () => {
             >
               <stop
                 offset="0%"
-                stop-color="#006BFF"
+                stop-color="#183f72"
+              />
+              <stop
+                offset="55%"
+                stop-color="#122f57"
               />
               <stop
                 offset="100%"
-                stop-color="#123A8C"
+                stop-color="#0a203d"
               />
             </linearGradient>
 
+
             <linearGradient
-              id="terraGapPie"
+              id="terraGapTop"
               x1="0"
               y1="0"
               x2="1"
@@ -2728,51 +2735,126 @@ document.addEventListener("DOMContentLoaded", () => {
             >
               <stop
                 offset="0%"
-                stop-color="#FF3B30"
+                stop-color="#a9152a"
+              />
+              <stop
+                offset="55%"
+                stop-color="#7f1020"
               />
               <stop
                 offset="100%"
-                stop-color="#C8102E"
+                stop-color="#5e0a16"
               />
             </linearGradient>
 
-            <filter
-              id="terraPieShadow"
-              x="-30%"
-              y="-30%"
-              width="160%"
-              height="170%"
+
+            <linearGradient
+              id="terraPreparedSide"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
             >
-              <feDropShadow
-                dx="0"
-                dy="10"
-                stdDeviation="8"
-                flood-color="#122f57"
-                flood-opacity=".20"
+              <stop
+                offset="0%"
+                stop-color="#0e2a4d"
               />
-            </filter>
+              <stop
+                offset="100%"
+                stop-color="#07162a"
+              />
+            </linearGradient>
+
+
+            <linearGradient
+              id="terraGapSide"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stop-color="#6d0d1c"
+              />
+              <stop
+                offset="100%"
+                stop-color="#3f0710"
+              />
+            </linearGradient>
+
 
             <filter
-              id="terraGapShadow"
-              x="-40%"
-              y="-40%"
-              width="180%"
+              id="terraPieShadow3d"
+              x="-35%"
+              y="-35%"
+              width="170%"
               height="190%"
             >
               <feDropShadow
                 dx="0"
-                dy="12"
-                stdDeviation="7"
-                flood-color="#7f1020"
-                flood-opacity=".30"
+                dy="16"
+                stdDeviation="10"
+                flood-color="#122f57"
+                flood-opacity=".22"
               />
             </filter>
+
+
+            <filter
+              id="terraGapShadow3d"
+              x="-40%"
+              y="-40%"
+              width="180%"
+              height="200%"
+            >
+              <feDropShadow
+                dx="0"
+                dy="17"
+                stdDeviation="8"
+                flood-color="#7f1020"
+                flood-opacity=".34"
+              />
+            </filter>
+
           </defs>
 
-          <g filter="url(#terraPieShadow)">
+
+          <ellipse
+            cx="${cx}"
+            cy="${cy + radius + depth + 10}"
+            rx="${radius * .88}"
+            ry="18"
+            fill="#122f57"
+            opacity=".10"
+          />
+
+
+          <g filter="url(#terraPieShadow3d)">
+
             <path
               d="${fullCirclePath}"
-              fill="url(#terraPreparedPie)"
+              fill="url(#terraPreparedSide)"
+              transform="translate(0 ${depth})"
+            />
+
+            ${
+              gapPct > 0
+                ? `
+                  <path
+                    d="${cutoutPath}"
+                    fill="#fffdf8"
+                    transform="translate(0 ${depth})"
+                  />
+                `
+                : ""
+            }
+
+            <path
+              d="${fullCirclePath}"
+              fill="url(#terraPreparedTop)"
+              stroke="#d7a922"
+              stroke-width="1.5"
             />
 
             ${
@@ -2785,25 +2867,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 `
                 : ""
             }
+
           </g>
+
 
           ${
             gapPct > 0
               ? `
                 <path
-                  d="${gapPath}"
-                  fill="url(#terraGapPie)"
-                  filter="url(#terraGapShadow)"
-                  stroke="#ffffff"
-                  stroke-width="3"
+                  d="${gapTopPath}"
+                  fill="url(#terraGapSide)"
+                  transform="translate(0 ${depth})"
+                  filter="url(#terraGapShadow3d)"
+                  stroke="#6d0d1c"
+                  stroke-width="1"
+                />
+
+                <path
+                  d="${gapTopPath}"
+                  fill="url(#terraGapTop)"
+                  filter="url(#terraGapShadow3d)"
+                  stroke="#d7a922"
+                  stroke-width="2.8"
                 />
               `
               : ""
           }
 
+
           <text
             x="${preparedLabelPos.x}"
-            y="${preparedLabelPos.y - 6}"
+            y="${preparedLabelPos.y - 7}"
             text-anchor="middle"
             fill="#ffffff"
             font-size="13"
@@ -2814,21 +2908,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <text
             x="${preparedLabelPos.x}"
-            y="${preparedLabelPos.y + 16}"
+            y="${preparedLabelPos.y + 18}"
             text-anchor="middle"
             fill="#ffffff"
-            font-size="22"
+            font-size="24"
             font-weight="900"
           >
             ${preparedPct.toFixed(0)}%
           </text>
+
 
           ${
             gapPct > 0
               ? `
                 <text
                   x="${gapLabelPos.x}"
-                  y="${gapLabelPos.y - 5}"
+                  y="${gapLabelPos.y - 6}"
                   text-anchor="middle"
                   fill="#ffffff"
                   font-size="11"
@@ -2839,10 +2934,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <text
                   x="${gapLabelPos.x}"
-                  y="${gapLabelPos.y + 14}"
+                  y="${gapLabelPos.y + 15}"
                   text-anchor="middle"
                   fill="#ffffff"
-                  font-size="19"
+                  font-size="20"
                   font-weight="900"
                 >
                   ${gapPct.toFixed(0)}%
@@ -2850,7 +2945,9 @@ document.addEventListener("DOMContentLoaded", () => {
               `
               : ""
           }
+
         </svg>
+
 
         <div
           style="
@@ -2862,14 +2959,15 @@ document.addEventListener("DOMContentLoaded", () => {
             font-weight:800;
           "
         >
-          <span style="color:#123A8C;">
+          <span style="color:#122f57;">
             ● 已準備 ${preparedPct.toFixed(0)}%
           </span>
 
-          <span style="color:#E31B23;">
+          <span style="color:#7f1020;">
             ● 缺口 ${gapPct.toFixed(0)}%
           </span>
         </div>
+
       </div>
     `;
   }
@@ -3113,7 +3211,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (balanceLabel) {
         balanceLabel.textContent =
-          "額外退休儲備";
+          "預計退休盈餘 / 傳承";
       }
 
       setText(
@@ -3169,7 +3267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (balanceLabel) {
         balanceLabel.textContent =
-          "退休時方案預計高於缺口";
+          "預計退休盈餘 / 傳承";
       }
 
       setText(
@@ -3339,7 +3437,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     Step 9
+     第9步
      時間價值分析
   ================================= */
 
@@ -3992,7 +4090,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setText(
         "delayExtraCost",
-        "請先完成 第7步"
+        "請先完成第7步"
       );
 
 
@@ -4004,13 +4102,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (message) {
         message.textContent =
-          "第7步 尚未設定退休儲備方案，因此暫時未能計算延遲5年的代價。";
+          "第7步尚未設定退休儲備方案，因此暫時未能計算延遲5年的代價。";
       }
 
 
       if (methodNote) {
         methodNote.textContent =
-          "請返回 第7步 輸入建議方案後，再作延遲比較。";
+          "請返回第7步 輸入建議方案後，再作延遲比較。";
       }
 
 
@@ -4095,7 +4193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     舊 Step 9 summary function
+     舊 第9步 summary function
      保留以兼容，但新流程不再使用。
   ================================= */
 
@@ -4365,19 +4463,1197 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
-    const next檢視Date =
+    const nextReviewDate =
       addOneYearToDate(
         clientInfo.planningDate
       );
 
 
     setText(
-      "step10Next檢視Date",
-      next檢視Date
+      "step10NextReviewDate",
+      nextReviewDate
         ? formatDateHK(
-            next檢視Date
+            nextReviewDate
           )
         : "12 個月內"
+    );
+  }
+
+
+
+  /* =================================
+     TERRA 個案管理
+     只儲存在目前裝置瀏覽器
+  ================================= */
+
+  const TERRA_CASE_STORAGE_KEY =
+    "terra_retirement_cases_v2";
+
+  let currentCaseId = null;
+
+
+  function readStoredCases() {
+
+    try {
+
+      const raw =
+        localStorage.getItem(
+          TERRA_CASE_STORAGE_KEY
+        );
+
+      if (!raw) {
+        return [];
+      }
+
+      const parsed =
+        JSON.parse(raw);
+
+      return Array.isArray(parsed)
+        ? parsed
+        : [];
+
+    } catch (error) {
+
+      console.warn(
+        "Unable to read saved TERRA cases.",
+        error
+      );
+
+      return [];
+    }
+  }
+
+
+  function writeStoredCases(cases) {
+
+    localStorage.setItem(
+      TERRA_CASE_STORAGE_KEY,
+      JSON.stringify(cases)
+    );
+  }
+
+
+  function getFormControlKey(
+    el,
+    index
+  ) {
+
+    if (el.id) {
+      return `id:${el.id}`;
+    }
+
+    if (el.name) {
+      return `name:${el.name}:value:${el.value}:index:${index}`;
+    }
+
+    return "";
+  }
+
+
+  function capturePlannerState() {
+
+    const controls =
+      Array.from(
+        document.querySelectorAll(
+          "#retirementForm input, #retirementForm select, #retirementForm textarea"
+        )
+      );
+
+
+    const values =
+      controls
+        .map(
+          (el, index) => {
+
+            const key =
+              getFormControlKey(
+                el,
+                index
+              );
+
+            if (!key) {
+              return null;
+            }
+
+            return {
+              key,
+              id:
+                el.id || "",
+              name:
+                el.name || "",
+              value:
+                el.value,
+              type:
+                el.type ||
+                el.tagName
+                  .toLowerCase(),
+              checked:
+                Boolean(
+                  el.checked
+                )
+            };
+          }
+        )
+        .filter(Boolean);
+
+
+    return {
+      values,
+      ui: {
+        lumpSumEntryCount,
+        savingPlanCount,
+        oneOffInvestmentEntryCount,
+        investmentTopUpEnabled,
+        withdrawalMode,
+        withdrawalOrder:
+          [
+            ...withdrawalOrder
+          ],
+        retirementScenario,
+        acceptedExpenseAuto
+      }
+    };
+  }
+
+
+  function rebuildDynamicPlannerInputs(
+    state
+  ) {
+
+    const ui =
+      state?.ui || {};
+
+
+    lumpSumEntryCount =
+      Math.max(
+        1,
+        Math.min(
+          Number(
+            ui.lumpSumEntryCount
+          ) || 1,
+          5
+        )
+      );
+
+
+    savingPlanCount =
+      Math.max(
+        1,
+        Math.min(
+          Number(
+            ui.savingPlanCount
+          ) || 1,
+          3
+        )
+      );
+
+
+    oneOffInvestmentEntryCount =
+      Math.max(
+        1,
+        Math.min(
+          Number(
+            ui.oneOffInvestmentEntryCount
+          ) || 1,
+          5
+        )
+      );
+
+
+    investmentTopUpEnabled =
+      Boolean(
+        ui.investmentTopUpEnabled
+      );
+
+
+    withdrawalMode =
+      ui.withdrawalMode ||
+      "custom";
+
+
+    if (
+      Array.isArray(
+        ui.withdrawalOrder
+      ) &&
+      ui.withdrawalOrder.length
+    ) {
+
+      withdrawalOrder =
+        [
+          ...ui.withdrawalOrder
+        ];
+    }
+
+
+    retirementScenario =
+      ui.retirementScenario ||
+      "conservative";
+
+
+    acceptedExpenseAuto =
+      ui.acceptedExpenseAuto !==
+        false;
+
+
+    renderLumpSumEntries();
+
+    renderSavingPlanEntries();
+
+    renderOneOffInvestmentEntries();
+
+    syncInvestmentPlanUI();
+  }
+
+
+  function restorePlannerState(
+    state
+  ) {
+
+    if (!state) {
+      return;
+    }
+
+
+    rebuildDynamicPlannerInputs(
+      state
+    );
+
+
+    const controls =
+      Array.from(
+        document.querySelectorAll(
+          "#retirementForm input, #retirementForm select, #retirementForm textarea"
+        )
+      );
+
+
+    const entries =
+      Array.isArray(
+        state.values
+      )
+        ? state.values
+        : [];
+
+
+    entries.forEach(
+      saved => {
+
+        let el = null;
+
+
+        if (saved.id) {
+
+          el =
+            document.getElementById(
+              saved.id
+            );
+        }
+
+
+        if (
+          !el &&
+          saved.name
+        ) {
+
+          const candidates =
+            Array.from(
+              document.querySelectorAll(
+                `[name="${saved.name}"]`
+              )
+            );
+
+
+          el =
+            candidates.find(
+              candidate =>
+                candidate.value ===
+                saved.value
+            ) ||
+            candidates[0] ||
+            null;
+        }
+
+
+        if (!el) {
+          return;
+        }
+
+
+        if (
+          saved.type ===
+            "radio" ||
+          saved.type ===
+            "checkbox"
+        ) {
+
+          el.checked =
+            Boolean(
+              saved.checked
+            );
+
+        } else {
+
+          el.value =
+            saved.value ?? "";
+        }
+      }
+    );
+
+
+    syncSemiRetirementUI();
+
+    updateExpenseSplitPreview();
+
+    updateSuggestedAndAccepted();
+
+    updateGovernmentSupport();
+
+    updateRetirementIncomeSummary();
+
+    calculateMPF();
+
+    syncWithdrawalModeUI();
+
+    renderWithdrawalOrder();
+
+    syncRetirementReturnUI();
+
+    updateStep7Results();
+
+    updateGapResult();
+  }
+
+
+  function getCurrentCaseName() {
+
+    const info =
+      getClientInfo();
+
+    return info.clientName !== "—"
+      ? info.clientName
+      : "";
+  }
+
+
+  function saveCurrentCase() {
+
+    const name =
+      getCurrentCaseName();
+
+
+    if (!name) {
+
+      alert(
+        "請先輸入客戶姓名，再儲存個案。"
+      );
+
+      return;
+    }
+
+
+    const cases =
+      readStoredCases();
+
+
+    const payload = {
+      id:
+        currentCaseId ||
+        (
+          "case_" +
+          Date.now() +
+          "_" +
+          Math.random()
+            .toString(36)
+            .slice(2, 8)
+        ),
+
+      name,
+
+      planningDate:
+        document
+          .getElementById(
+            "planningDate"
+          )?.value || "",
+
+      savedAt:
+        new Date()
+          .toISOString(),
+
+      state:
+        capturePlannerState()
+    };
+
+
+    const existingIndex =
+      cases.findIndex(
+        item =>
+          item.id ===
+          payload.id
+      );
+
+
+    if (existingIndex >= 0) {
+
+      cases[existingIndex] =
+        payload;
+
+    } else {
+
+      cases.unshift(
+        payload
+      );
+    }
+
+
+    writeStoredCases(
+      cases
+    );
+
+
+    currentCaseId =
+      payload.id;
+
+
+    alert(
+      `已儲存「${name}」個案。`
+    );
+  }
+
+
+  function startNewCase() {
+
+    const confirmed =
+      window.confirm(
+        "開始新個案？目前未儲存的修改將不會保留。"
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    currentCaseId = null;
+
+
+    const form =
+      document.getElementById(
+        "retirementForm"
+      );
+
+
+    if (form) {
+      form.reset();
+    }
+
+
+    acceptedExpenseAuto = true;
+
+    lumpSumEntryCount = 1;
+
+    savingPlanCount = 1;
+
+    oneOffInvestmentEntryCount = 1;
+
+    investmentTopUpEnabled =
+      false;
+
+    withdrawalMode =
+      "custom";
+
+    withdrawalOrder = [
+      "mpf",
+      "stock",
+      "fund",
+      "fixed",
+      "insurance",
+      "cash"
+    ];
+
+    retirementScenario =
+      "conservative";
+
+
+    setDefaultPlanningDate();
+
+    renderLumpSumEntries();
+
+    renderSavingPlanEntries();
+
+    renderOneOffInvestmentEntries();
+
+    syncInvestmentPlanUI();
+
+    syncSemiRetirementUI();
+
+    updateExpenseSplitPreview();
+
+    updateSuggestedAndAccepted();
+
+    updateGovernmentSupport();
+
+    updateRetirementIncomeSummary();
+
+    calculateMPF();
+
+    syncWithdrawalModeUI();
+
+    renderWithdrawalOrder();
+
+    syncRetirementReturnUI();
+
+    showStep(1);
+  }
+
+
+  function openCaseManager() {
+
+    renderSavedCaseList();
+
+
+    const modal =
+      document.getElementById(
+        "terraCaseModal"
+      );
+
+
+    if (modal) {
+
+      modal.hidden = false;
+
+      modal.style.display =
+        "flex";
+    }
+  }
+
+
+  function closeCaseManager() {
+
+    const modal =
+      document.getElementById(
+        "terraCaseModal"
+      );
+
+
+    if (modal) {
+
+      modal.hidden = true;
+
+      modal.style.display =
+        "none";
+    }
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(
+      value ?? ""
+    )
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  function renderSavedCaseList() {
+
+    const container =
+      document.getElementById(
+        "terraCaseList"
+      );
+
+
+    if (!container) {
+      return;
+    }
+
+
+    const cases =
+      readStoredCases()
+        .sort(
+          (a, b) =>
+            String(
+              b.savedAt || ""
+            )
+              .localeCompare(
+                String(
+                  a.savedAt || ""
+                )
+              )
+        );
+
+
+    if (!cases.length) {
+
+      container.innerHTML = `
+        <div
+          style="
+            padding:22px;
+            border:1px dashed #d7a922;
+            border-radius:14px;
+            background:#ffffff;
+            color:#687386;
+            text-align:center;
+            font-size:11px;
+          "
+        >
+          尚未儲存任何個案
+        </div>
+      `;
+
+      return;
+    }
+
+
+    container.innerHTML =
+      cases
+        .map(
+          item => {
+
+            const savedAt =
+              item.savedAt
+                ? new Date(
+                    item.savedAt
+                  )
+                    .toLocaleString(
+                      "zh-HK"
+                    )
+                : "";
+
+
+            return `
+              <div
+                style="
+                  display:grid;
+                  grid-template-columns:minmax(0,1fr) auto;
+                  gap:12px;
+                  align-items:center;
+                  padding:12px 14px;
+                  border:1px solid #eadfcd;
+                  border-radius:13px;
+                  background:#ffffff;
+                "
+              >
+
+                <div>
+
+                  <strong
+                    style="
+                      display:block;
+                      color:#122f57;
+                      font-size:14px;
+                    "
+                  >
+                    ${escapeHtml(item.name || "未命名個案")}
+                  </strong>
+
+                  <span
+                    style="
+                      display:block;
+                      margin-top:3px;
+                      color:#687386;
+                      font-size:9px;
+                    "
+                  >
+                    ${
+                      item.planningDate
+                        ? `規劃日期 ${formatDateHK(item.planningDate)} · `
+                        : ""
+                    }
+                    最後儲存 ${escapeHtml(savedAt)}
+                  </span>
+
+                </div>
+
+
+                <div
+                  style="
+                    display:flex;
+                    gap:6px;
+                  "
+                >
+
+                  <button
+                    type="button"
+                    data-load-case="${escapeHtml(item.id)}"
+                    style="
+                      padding:8px 11px;
+                      border:2px solid #d7a922;
+                      border-radius:8px;
+                      background:#122f57;
+                      color:#ffffff;
+                      font-size:9px;
+                      font-weight:900;
+                      cursor:pointer;
+                    "
+                  >
+                    載入
+                  </button>
+
+                  <button
+                    type="button"
+                    data-delete-case="${escapeHtml(item.id)}"
+                    style="
+                      padding:8px 10px;
+                      border:1px solid #eadfcd;
+                      border-radius:8px;
+                      background:#ffffff;
+                      color:#7f1020;
+                      font-size:9px;
+                      font-weight:800;
+                      cursor:pointer;
+                    "
+                  >
+                    刪除
+                  </button>
+
+                </div>
+
+              </div>
+            `;
+          }
+        )
+        .join("");
+  }
+
+
+  function loadCaseById(
+    caseId
+  ) {
+
+    const item =
+      readStoredCases()
+        .find(
+          entry =>
+            entry.id ===
+            caseId
+        );
+
+
+    if (!item) {
+      return;
+    }
+
+
+    currentCaseId =
+      item.id;
+
+
+    restorePlannerState(
+      item.state
+    );
+
+
+    closeCaseManager();
+
+    showStep(1);
+  }
+
+
+  function deleteCaseById(
+    caseId
+  ) {
+
+    const cases =
+      readStoredCases();
+
+
+    const target =
+      cases.find(
+        item =>
+          item.id ===
+          caseId
+      );
+
+
+    if (!target) {
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        `刪除「${target.name}」個案？`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    writeStoredCases(
+      cases.filter(
+        item =>
+          item.id !==
+          caseId
+      )
+    );
+
+
+    if (
+      currentCaseId ===
+      caseId
+    ) {
+
+      currentCaseId =
+        null;
+    }
+
+
+    renderSavedCaseList();
+  }
+
+
+  function exportCaseBackup() {
+
+    const cases =
+      readStoredCases();
+
+
+    const payload = {
+      app:
+        "TERRA Retirement Planning",
+      version: 2,
+      exportedAt:
+        new Date()
+          .toISOString(),
+      cases
+    };
+
+
+    const blob =
+      new Blob(
+        [
+          JSON.stringify(
+            payload,
+            null,
+            2
+          )
+        ],
+        {
+          type:
+            "application/json"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href =
+      url;
+
+    link.download =
+      `TERRA-retirement-cases-${new Date().toISOString().slice(0,10)}.json`;
+
+
+    document.body
+      .appendChild(
+        link
+      );
+
+
+    link.click();
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+      url
+    );
+  }
+
+
+  function importCaseBackup(
+    file
+  ) {
+
+    if (!file) {
+      return;
+    }
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload =
+      () => {
+
+        try {
+
+          const parsed =
+            JSON.parse(
+              String(
+                reader.result || ""
+              )
+            );
+
+
+          const importedCases =
+            Array.isArray(parsed)
+              ? parsed
+              : parsed.cases;
+
+
+          if (
+            !Array.isArray(
+              importedCases
+            )
+          ) {
+
+            throw new Error(
+              "Invalid backup file"
+            );
+          }
+
+
+          const merged =
+            new Map();
+
+
+          [
+            ...readStoredCases(),
+            ...importedCases
+          ]
+            .forEach(
+              item => {
+
+                if (
+                  item &&
+                  item.id
+                ) {
+
+                  merged.set(
+                    item.id,
+                    item
+                  );
+                }
+              }
+            );
+
+
+          writeStoredCases(
+            Array.from(
+              merged.values()
+            )
+          );
+
+
+          renderSavedCaseList();
+
+
+          alert(
+            "個案備份已匯入。"
+          );
+
+        } catch (error) {
+
+          alert(
+            "未能讀取此備份檔案。"
+          );
+        }
+      };
+
+
+    reader.readAsText(
+      file
+    );
+  }
+
+
+  const saveCaseBtn =
+    document.getElementById(
+      "saveCaseBtn"
+    );
+
+  const loadCaseBtn =
+    document.getElementById(
+      "loadCaseBtn"
+    );
+
+  const newCaseBtn =
+    document.getElementById(
+      "newCaseBtn"
+    );
+
+  const closeCaseModalBtn =
+    document.getElementById(
+      "closeCaseModalBtn"
+    );
+
+  const caseModal =
+    document.getElementById(
+      "terraCaseModal"
+    );
+
+  const caseList =
+    document.getElementById(
+      "terraCaseList"
+    );
+
+  const exportCasesBtn =
+    document.getElementById(
+      "exportCasesBtn"
+    );
+
+  const importCasesBtn =
+    document.getElementById(
+      "importCasesBtn"
+    );
+
+  const importCasesFile =
+    document.getElementById(
+      "importCasesFile"
+    );
+
+
+  if (saveCaseBtn) {
+
+    saveCaseBtn.addEventListener(
+      "click",
+      saveCurrentCase
+    );
+  }
+
+
+  if (loadCaseBtn) {
+
+    loadCaseBtn.addEventListener(
+      "click",
+      openCaseManager
+    );
+  }
+
+
+  if (newCaseBtn) {
+
+    newCaseBtn.addEventListener(
+      "click",
+      startNewCase
+    );
+  }
+
+
+  if (closeCaseModalBtn) {
+
+    closeCaseModalBtn
+      .addEventListener(
+        "click",
+        closeCaseManager
+      );
+  }
+
+
+  if (caseModal) {
+
+    caseModal.addEventListener(
+      "click",
+      event => {
+
+        if (
+          event.target ===
+          caseModal
+        ) {
+
+          closeCaseManager();
+        }
+      }
+    );
+  }
+
+
+  if (caseList) {
+
+    caseList.addEventListener(
+      "click",
+      event => {
+
+        const loadButton =
+          event.target.closest(
+            "[data-load-case]"
+          );
+
+
+        if (loadButton) {
+
+          loadCaseById(
+            loadButton.dataset
+              .loadCase
+          );
+
+          return;
+        }
+
+
+        const deleteButton =
+          event.target.closest(
+            "[data-delete-case]"
+          );
+
+
+        if (deleteButton) {
+
+          deleteCaseById(
+            deleteButton.dataset
+              .deleteCase
+          );
+        }
+      }
+    );
+  }
+
+
+  if (exportCasesBtn) {
+
+    exportCasesBtn
+      .addEventListener(
+        "click",
+        exportCaseBackup
+      );
+  }
+
+
+  if (
+    importCasesBtn &&
+    importCasesFile
+  ) {
+
+    importCasesBtn.addEventListener(
+      "click",
+      () => {
+
+        importCasesFile.click();
+      }
+    );
+
+
+    importCasesFile.addEventListener(
+      "change",
+      () => {
+
+        importCaseBackup(
+          importCasesFile
+            .files?.[0]
+        );
+
+
+        importCasesFile.value =
+          "";
+      }
     );
   }
 
@@ -4438,7 +5714,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (prevBtn) {
 
       prevBtn.style.display =
-        "block";
+        currentStep === 1
+          ? "none"
+          : "block";
     }
 
 
@@ -4447,10 +5725,25 @@ document.addEventListener("DOMContentLoaded", () => {
       nextBtn.textContent =
         currentStep ===
         steps.length
-
           ? "完成退休規劃"
+          : currentStep === 1
+            ? "開始規劃"
+            : "下一步";
+    }
 
-          : "下一步";
+
+    const caseManagerActions =
+      document.getElementById(
+        "caseManagerActions"
+      );
+
+
+    if (caseManagerActions) {
+
+      caseManagerActions.style.display =
+        currentStep === 1
+          ? "flex"
+          : "none";
     }
 
 
@@ -5952,7 +7245,7 @@ function syncRetirementReturnUI() {
     ) {
 
       note.textContent =
-        "沿用目前：退休後仍使用 Step 3 / Step 4 的回報率。若股票或基金回報假設偏高，退休需求可能被低估。";
+        "沿用目前：退休後仍使用 第3步／第4步 的回報率。若股票或基金回報假設偏高，退休需求可能被低估。";
 
     } else {
 
@@ -7879,8 +9172,8 @@ updateGapResult =
     if (bridgeLabel) {
       bridgeLabel.textContent =
         simulation.retirementAge < simulation.mpfAccessAge
-          ? `${simulation.retirementAge}–${simulation.mpfAccessAge}歲｜退休過渡期`
-          : "沒有 MPF 過渡期";
+          ? `${simulation.retirementAge}–${simulation.mpfAccessAge}歲`
+          : "沒有退休過渡期";
     }
 
     if (bridgeNeed) {
@@ -7899,7 +9192,7 @@ updateGapResult =
       bridgeExplanation.textContent =
         simulation.retirementAge < simulation.mpfAccessAge
           ? `由 ${simulation.retirementAge} 歲退休至 ${simulation.mpfAccessAge} 歲 MPF 預計開始動用前，生活費先由半退休收入、固定收入及其他可動用資產支援。`
-          : "退休年齡已達 MPF 預計開始動用年齡，沒有額外 MPF 過渡期。";
+          : "退休年齡已達 MPF 預計開始動用年齡，沒有退休過渡期。";
     }
 
 
@@ -10013,7 +11306,7 @@ function updateStep7Results() {
     if (resultMessage) {
 
       resultMessage.textContent =
-        "按 第6步 的目前假設，退休資產已可支持至預計壽命；本頁方案可作額外退休儲備參考。";
+        "按第6步目前假設，退休資產已可支持至預計壽命；本頁方案可作額外退休儲備參考。";
     }
 
 
@@ -10060,7 +11353,7 @@ function updateStep7Results() {
     if (balanceLabel) {
 
       balanceLabel.textContent =
-        "退休時方案預計高於缺口";
+        "預計退休盈餘 / 傳承";
     }
 
 
@@ -10075,7 +11368,7 @@ function updateStep7Results() {
     if (resultMessage) {
 
       resultMessage.textContent =
-        "按目前假設，建議方案的退休時預計價值已可覆蓋退休資金缺口；高於缺口的金額只屬退休時點的差額比較，並非預計壽命時剩餘資產。";
+        "按目前假設，建議方案的退休時預計價值已可覆蓋退休資金缺口；顯示的盈餘／傳承為規劃情境下的參考差額。";
     }
 
 
@@ -10467,7 +11760,7 @@ if (resetStep7Btn) {
 
 
 /* =========================================
-   Step 8 分享 / 列印
+   第8步 分享 / 列印
 ========================================= */
 
 const printStep8Btn =
@@ -10606,7 +11899,7 @@ syncInvestmentPlanUI();
 
 /* =========================================
    Legacy Cashflow Table
-   保留舊功能，現時 Step 9 已改為時間價值分析。
+   保留舊功能，現時 第9步 已改為時間價值分析。
 ========================================= */
 
 createCashflowTable =
