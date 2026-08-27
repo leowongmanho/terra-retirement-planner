@@ -87,59 +87,81 @@
 
 
       <!-- RIGHT SIDE -->
-      <div class="home-mascot">
+      <div
+        class="home-mascot"
+        style="
+          position:relative;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          padding:18px 18px 10px;
+        "
+      >
 
         <div class="mascot-glow"></div>
 
+        <!-- TERO SPEECH BUBBLE -->
+        <div
+          class="home-tero-speech"
+          style="
+            position:relative;
+            z-index:3;
+            width:min(310px,84%);
+            margin:0 auto 8px;
+            padding:13px 18px;
+            border:1px solid #eadfcd;
+            border:2px solid #d7a922;
+            border-radius:18px;
+            background:#fffdf8;
+            box-shadow:0 10px 24px rgba(18,47,87,.12);
+            text-align:center;
+          "
+        >
+          <strong
+            style="
+              display:block;
+              margin:0;
+              color:#122f57;
+              font-size:16px;
+              line-height:1.5;
+              font-weight:900;
+            "
+          >
+            你好！我是 TERO，<br>
+            你的退休管理專員。
+          </strong>
+
+          <span
+            aria-hidden="true"
+            style="
+              position:absolute;
+              left:50%;
+              bottom:-12px;
+              width:20px;
+              height:20px;
+              background:#fffdf8;
+              border-right:2px solid #d7a922;
+              border-bottom:2px solid #d7a922;
+              transform:translateX(-50%) rotate(45deg);
+            "
+          ></span>
+        </div>
+
+        <!-- TERO -->
         <img
           src="Tero.png"
           alt="TERO"
           class="home-tero"
-        >
-
-        <!-- TERO INTRODUCTION -->
-        <div
-          class="home-tero-intro"
           style="
             position:relative;
             z-index:2;
-            width:min(330px,88%);
-            margin:14px auto 0;
-            padding:16px 18px;
-            border:1px solid #eadfcd;
-            border-left:5px solid #d7a922;
-            border-radius:16px;
-            background:rgba(255,253,248,.96);
-            box-shadow:0 10px 24px rgba(18,47,87,.10);
-            text-align:left;
+            width:min(74%,520px);
+            max-height:68vh;
+            object-fit:contain;
+            height:auto;
           "
         >
-
-          <strong
-            style="
-              display:block;
-              color:#122f57;
-              font-size:17px;
-              margin-bottom:7px;
-            "
-          >
-            你好，我是 TERO
-          </strong>
-
-          <p
-            style="
-              margin:0;
-              color:#687386;
-              font-size:12px;
-              line-height:1.7;
-            "
-          >
-            我會陪你一步一步規劃退休生活，
-            幫你看清目標、資源與缺口，
-            一起找出更合適的退休安排。
-          </p>
-
-        </div>
 
         <div class="dot-pattern"></div>
 
