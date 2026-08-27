@@ -548,8 +548,8 @@
                 "
               >
                 我會陪你一步一步規劃退休生活，
-                幫你了解退休目標、現有資源與資金缺口，
-                一起找出更清晰、更合適的退休安排。
+                幫你看清目標、資源與缺口，
+                一起找出更合適的退休安排。
               </p>
             </div>
 
@@ -1273,8 +1273,9 @@
   <div style="margin-top:26px;padding:16px;border:2px solid #d7a922;border-radius:15px;background:#fff9e8;">
     <strong style="display:block;color:#122f57;font-size:16px;">MPF 預計開始動用年齡</strong>
     <p style="margin:6px 0 12px;color:#687386;font-size:11px;line-height:1.6;">
-      如退休年齡早於 MPF 可動用年齡，兩者之間會形成「退休橋接期」，
-      需要先由其他資產及過渡收入支持生活費。
+      如退休年齡早於 MPF 預計開始動用年齡，
+      退休至 MPF 預計開始動用前的期間會列作「退休過渡期」，
+      生活費先由其他退休收入及可動用資產支持。
     </p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <label style="display:flex;align-items:flex-start;gap:8px;padding:11px;border:1px solid #eadfcd;border-radius:11px;background:#ffffff;cursor:pointer;">
@@ -2076,7 +2077,7 @@
     <strong style="display:block;color:#122f57;font-size:16px;">半退休／過渡工作收入</strong>
     <p style="margin:6px 0 12px;color:#687386;font-size:11px;line-height:1.6;">
       如果正式退休後仍想做較輕鬆的工作，可設定一段有限年期的過渡收入，
-      用來減低提早退休橋接期的資產提款壓力。
+      用來減低退休初期由資產支付生活費的壓力。
     </p>
     <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;">
       <input type="checkbox" id="semiRetirementEnabled" style="width:auto;">
@@ -2582,7 +2583,7 @@
             line-height:1.5;
           "
         >
-          這不只是提款次序，而是決定退休不同階段先用哪一類資產、哪些資產留到較後期。可先選一個策略，再按需要自行調整。
+          選擇退休後各類資產的使用先後，再按需要自行調整。
         </p>
 
         <div
@@ -2681,7 +2682,7 @@
             line-height:1.5;
           "
         >
-          * 流動性優先：較早使用現金及定息資產。資產整理優先：較早處理股票、基金及其他需要較多管理的資產。提款策略沒有唯一正確答案；MPF 會按 Step 4 所選的預計開始動用年齡才加入可提款資產。
+          * 流動性優先：較早使用現金及定息資產。資產整理優先：較早處理股票、基金及其他需要較多管理的資產。實際次序可按需要調整；MPF 會按第4步所選的預計開始動用年齡才加入可提款資產。
         </p>
 
       </div>
@@ -2808,11 +2809,11 @@
       <!-- Retirement bridge summary -->
       <div id="retirementBridgeCard" style="padding:14px 16px;border:1px solid #eadfcd;border-left:6px solid #d7a922;border-radius:14px;background:#fffdf8;">
         <div style="display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:12px;align-items:center;">
-          <div><span style="display:block;color:#687386;font-size:9px;">退休橋接期</span><strong id="bridgePeriodLabel" style="display:block;color:#122f57;font-size:15px;margin-top:3px;">正在分析退休橋接期……</strong></div>
-          <div><span style="display:block;color:#687386;font-size:9px;">橋接期需由資產支持</span><strong id="bridgeFundingNeed" style="display:block;color:#7f1020;font-size:17px;margin-top:3px;">HK$ —</strong></div>
+          <div><span style="display:block;color:#687386;font-size:9px;">退休過渡期</span><strong id="bridgePeriodLabel" style="display:block;color:#122f57;font-size:15px;margin-top:3px;">正在分析退休過渡期……</strong></div>
+          <div><span style="display:block;color:#687386;font-size:9px;">過渡期需由資產支持</span><strong id="bridgeFundingNeed" style="display:block;color:#7f1020;font-size:17px;margin-top:3px;">HK$ —</strong></div>
           <div><span style="display:block;color:#687386;font-size:9px;">半退休收入支援</span><strong id="bridgeSemiIncome" style="display:block;color:#122f57;font-size:17px;margin-top:3px;">HK$ —</strong></div>
         </div>
-        <p id="bridgeExplanation" style="margin:8px 0 0;color:#687386;font-size:9px;line-height:1.55;">如果退休年齡早於 MPF 可動用年齡，系統會先以其他資產及過渡收入支持生活。</p>
+        <p id="bridgeExplanation" style="margin:8px 0 0;color:#687386;font-size:9px;line-height:1.55;">如退休年齡早於 MPF 預計開始動用年齡，退休初期生活費會先由其他退休收入及可動用資產支持。</p>
       </div>
 
 
@@ -3380,7 +3381,7 @@
 
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:22px;margin-bottom:16px;">
     <div>
-      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">TERRA RETIREMENT 方案</p>
+      <p style="margin:0 0 5px;color:#d7a922;font-size:11px;font-weight:900;letter-spacing:.08em;">TERRA RETIREMENT SOLUTION</p>
       <h2 style="margin-bottom:6px;">解決方案</h2>
       <p style="margin:0;color:#687386;line-height:1.65;max-width:820px;">
         將退休目標、現有資源、退休缺口及建議方案放在同一個畫面，一次看清退休規劃全貌。
@@ -3442,7 +3443,7 @@
     >
       <div>
         <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">
-          退休資金缺口
+          RETIREMENT FUNDING GAP
         </p>
         <h3 style="margin:0;color:#122f57;font-size:19px;">
           退休資金缺口概覽
@@ -3532,7 +3533,7 @@
 
   <div id="step8GapHero" style="padding:17px 20px;border-radius:18px;background:#7f1020;color:#ffffff;margin-bottom:18px;box-shadow:0 10px 24px rgba(18,47,87,.10);">
     <div style="display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;align-items:center;">
-      <div><span style="display:block;opacity:.72;font-size:10px;">建議方案</span><strong id="step8OutcomeHeadline" style="display:block;font-size:22px;margin-top:4px;">正在整理結果……</strong></div>
+      <div><span style="display:block;opacity:.72;font-size:10px;">建議方案加入後</span><strong id="step8OutcomeHeadline" style="display:block;font-size:22px;margin-top:4px;">正在整理結果……</strong></div>
       <div><span style="display:block;opacity:.68;font-size:9px;">退休時預計資產基礎</span><strong id="step8CombinedRetirementAssets" style="display:block;color:#d7a922;font-size:18px;margin-top:4px;">HK$ —</strong></div>
       <div><span id="step8BalanceLabel" style="display:block;opacity:.68;font-size:9px;">預計退休盈餘 / 傳承</span><strong id="step8Balance" style="display:block;font-size:18px;margin-top:4px;">HK$ —</strong></div>
     </div>
@@ -3542,14 +3543,14 @@
   </div>
 
   <div style="margin:18px 0;padding:18px;border:2px solid #d7a922;border-radius:17px;background:#fffdf8;">
-    <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">退休資金使用時間線</p>
+    <p style="margin:0 0 4px;color:#d7a922;font-size:9px;font-weight:900;letter-spacing:.08em;">RETIREMENT FUNDING TIMELINE</p>
     <h3 style="margin:0;color:#122f57;font-size:19px;">退休資金使用時間線</h3>
 <div id="step8GapTimelineChart" style="margin-top:12px;"></div>
   </div>
 
   <div style="margin-top:18px;">
     <h3 style="margin:0 0 4px;color:#122f57;">我們安排的退休方案</h3>
-    <p style="margin:0 0 10px;color:#687386;font-size:11px;line-height:1.55;">以下沿用第7步已設定的方案，客戶可以按需要組合使用。</p>
+    <p style="margin:0 0 10px;color:#687386;font-size:11px;line-height:1.55;">以下為第7步已設定的退休方案。</p>
 
     <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
       <div style="padding:14px;border:1px solid #eadfcd;border-radius:14px;background:#fffdf8;">
@@ -4052,7 +4053,7 @@
 </main>
 
 
-<script src="script.js?v=20260827-21"></script>
+<script src="script.js?v=20260827-22"></script>
 </body>
 
 </html>
