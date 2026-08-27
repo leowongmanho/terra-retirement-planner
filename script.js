@@ -2029,7 +2029,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =================================
-     Step 6
+     第6步
   ================================= */
 
   function updateGapResult() {
@@ -2196,8 +2196,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /*
-      Step 8 與 Step 7 分開：
-      Step 7 負責累積方案；Step 8 負責退休後實際使用次序。
+      Step 8 與 第7步 分開：
+      第7步 負責累積方案；Step 8 負責退休後實際使用次序。
 
       晚年簡化原則：
       較需要管理／市場波動較高的投資資產較早補位，
@@ -2484,7 +2484,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ${baseRow}
         ${
           bars ||
-          '<div style="padding:12px;color:#687386;font-size:11px;text-align:center;">Step 7 尚未設定補位方案。</div>'
+          '<div style="padding:12px;color:#687386;font-size:11px;text-align:center;">第7步 尚未設定補位方案。</div>'
         }
       </div>
     `;
@@ -3108,7 +3108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (gapMessage) {
         gapMessage.textContent =
-          `按目前 Step 6 假設，退休資產可支持至 ${simulation.lifeExpectancy} 歲；Step 7 方案可作額外退休安全儲備。`;
+          `按目前第6步假設，退休資產可支持至 ${simulation.lifeExpectancy} 歲；第7步方案可作額外退休儲備參考。`;
       }
 
       if (balanceLabel) {
@@ -3137,7 +3137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (gapMessage) {
         gapMessage.textContent =
-          `退休資金缺口為 ${money(currentGap)}，下一步集中補足這部分。`;
+          `只需要再準備 ${money(currentGap)}，便可進一步完善退休生活安排。`;
       }
 
       if (balanceLabel) {
@@ -3164,7 +3164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (gapMessage) {
         gapMessage.textContent =
-          "按目前假設，Step 7 建議方案的退休時預計價值已可覆蓋退休資金缺口。";
+          "按目前假設，第7步 建議方案的退休時預計價值已可覆蓋退休資金缺口。";
       }
 
       if (balanceLabel) {
@@ -3268,7 +3268,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const balance =
       solution.totalFuture >= gap
-        ? `退休時方案預計高於缺口：${money(solution.totalFuture - gap)}（只代表退休時方案預計價值與 Step 6 退休期累積缺口的差額，並非預計壽命時剩餘資產）`
+        ? `預計退休盈餘 / 傳承：${money(solution.totalFuture - gap)}（為規劃情境下的參考差額，實際結果會受回報、提款及市場情況影響）`
         : `尚餘缺口：${money(gap - solution.totalFuture)}`;
 
     const clientInfo =
@@ -3284,7 +3284,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `退休首年每月生活費：${money(gapData.expense.firstMonthlyExpense)}`,
       `總退休生活費用：${money(gapData.expense.totalExpense)}`,
       `退休時預計現有資產：${money(simulation.initialAssets)}`,
-      `退休資金缺口：${money(gap)}`,
+      `需要處理的退休資金缺口：${money(gap)}`,
       gap > 0
         ? `只需要再準備 ${money(gap)}，便可享受更完善的退休生活。`
         : "目前退休資源已覆蓋規劃需要。",
@@ -3300,7 +3300,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `方案合計退休時預計價值：${money(solution.totalFuture)}`,
       balance,
       "",
-      "退休資金使用原則：投資資產較早處理，逐步補位，晚年簡化管理。"
+      "退休資金使用安排：先以現有資產基礎支撐退休生活，再由建議方案按階段逐步填補退休資金缺口。"
     ];
 
     if (
@@ -3323,7 +3323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `每年參考提款：${money(projection.annualWithdrawal)}`,
         `平均每月參考現金流：${money(projection.monthlyWithdrawal)}`,
         `預計壽命時尚餘資產：${money(projection.endingAssets)}`,
-        "*4% Rule 為經驗法則，並非保證回報、保證收入或保證本金不減。"
+        "*4% 提取參考法則為經驗法則，並非保證回報、保證收入或保證本金不減。"
       );
     }
 
@@ -3736,7 +3736,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /*
-      第2個10年 TOP UP：
+      第2個10年 追加投資：
       原本第11年開始，延遲5年即第16年開始。
       必須仍有完整10年才納入。
     */
@@ -3992,7 +3992,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setText(
         "delayExtraCost",
-        "請先完成 Step 7"
+        "請先完成 第7步"
       );
 
 
@@ -4004,13 +4004,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (message) {
         message.textContent =
-          "Step 7 尚未設定退休儲備方案，因此暫時未能計算延遲5年的代價。";
+          "第7步 尚未設定退休儲備方案，因此暫時未能計算延遲5年的代價。";
       }
 
 
       if (methodNote) {
         methodNote.textContent =
-          "請返回 Step 7 輸入建議方案後，再作延遲比較。";
+          "請返回 第7步 輸入建議方案後，再作延遲比較。";
       }
 
 
@@ -4064,14 +4064,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (message) {
       message.textContent =
-        `若延遲5年，按同一退休時儲備目標估算，總投入由 ${money(current.totalPrincipal)} 增至約 ${money(delayed.delayedPrincipal)}。`;
+        `若延遲5年，按同一退休時儲備目標估算，總投入將由 ${money(current.totalPrincipal)} 增至約 ${money(delayed.delayedPrincipal)}。`;
     }
 
 
     if (methodNote) {
 
       let note =
-        "計算方法：保持同一個退休目標及同一套回報假設，只把目前 Step 7 方案整體延遲5年；再按比例提高仍可完成的供款，使退休時預計價值回到與現在開始相同的目標。";
+        "計算方法：保持同一個退休目標及同一套回報假設，只把目前第7步方案整體延遲5年；再按比例提高仍可完成的供款，使退休時預計價值回到與現在開始相同的目標。";
 
 
       if (
@@ -4079,7 +4079,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
 
         note +=
-          " 由於延遲後時間不足以完成第2個10年 TOP UP，該段不再納入，所需目標由其餘可完成方案承擔。";
+          " 由於延遲後時間不足以完成第2個10年追加投資，該段不再納入，所需目標將由其餘可完成方案承擔。";
       }
 
 
@@ -4326,7 +4326,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =================================
      Step 10
-     Annual Review 客戶資料
+     Annual 檢視 客戶資料
   ================================= */
 
   function updateAnnualReview() {
@@ -4365,17 +4365,17 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 
-    const nextReviewDate =
+    const next檢視Date =
       addOneYearToDate(
         clientInfo.planningDate
       );
 
 
     setText(
-      "step10NextReviewDate",
-      nextReviewDate
+      "step10Next檢視Date",
+      next檢視Date
         ? formatDateHK(
-            nextReviewDate
+            next檢視Date
           )
         : "12 個月內"
     );
@@ -4505,7 +4505,7 @@ if (
     ) {
 
       /*
-        進入 Step 7 時才重新建立一次動態輸入結構，
+        進入 第7步 時才重新建立一次動態輸入結構，
         以套用最新「距離退休年期」。
         之後打字只更新結果，不再重建 input。
       */
@@ -4728,7 +4728,7 @@ if (
 
 
   /* =================================
-     Step 6
+     第6步
      調整退休假設
   ================================= */
 
@@ -5483,7 +5483,7 @@ let retirementScenario =
 
 
 /*
-  Step 6 提款策略與回報假設分開。
+  第6步 提款策略與回報假設分開。
   custom    = 使用顧問手動排序
   defensive = 優先低波動／高流動性資產
   harvest   = 優先較高增長資產作簡化收割情境
@@ -5746,7 +5746,7 @@ function getCustomRetirementReturns() {
 
 
 /* =========================================
-   目前 Step 6 使用的退休後回報率
+   目前 第6步 使用的退休後回報率
 ========================================= */
 
 function getRetirementReturnRates() {
@@ -7671,7 +7671,7 @@ function createAssetUsageTable(
 
 
 /* =========================================
-   Step 6 主畫面更新
+   第6步 主畫面更新
 ========================================= */
 
 updateGapResult =
@@ -8512,7 +8512,7 @@ function futureValueOfAnnualContributions(
 
 
 /* =========================================
-   Step 7 Target Gap
+   第7步 Target Gap
 ========================================= */
 
 function getStep7TargetGap() {
@@ -9523,7 +9523,7 @@ function syncInvestmentPlanUI() {
     ) {
 
       addBtn.textContent =
-        "－ 移除第2個10年 TOP UP";
+        "－ 移除第2個10年 追加投資";
 
       addBtn.style.background =
         "#7f1020";
@@ -9531,7 +9531,7 @@ function syncInvestmentPlanUI() {
     } else {
 
       addBtn.textContent =
-        "＋ 加入第2個10年 TOP UP";
+        "＋ 加入第2個10年 追加投資";
 
       addBtn.style.background =
         "#122f57";
@@ -9557,19 +9557,19 @@ function syncInvestmentPlanUI() {
     ) {
 
       note.textContent =
-        "可完成第一個10年階段；退休前時間不足以再完成第二個10年 TOP UP。";
+        "可完成第一個10年階段；退休前時間不足以再完成第二個10年 追加投資。";
 
     } else {
 
       note.textContent =
-        "可先完成第一個10年，再按需要加入第二個10年 TOP UP。";
+        "可先完成第一個10年，再按需要加入第二個10年 追加投資。";
     }
   }
 }
 
 
 /* =========================================
-   Step 7 計算
+   第7步 計算
 ========================================= */
 
 function calculateStep7Solutions() {
@@ -9792,7 +9792,7 @@ function calculateStep7Solutions() {
 
 
 /* =========================================
-   Step 7 Live Results
+   第7步 Live Results
 ========================================= */
 
 function updateStep7Results() {
@@ -10013,7 +10013,7 @@ function updateStep7Results() {
     if (resultMessage) {
 
       resultMessage.textContent =
-        "按 Step 6 的目前假設，退休資產已可支持至預計壽命；本頁方案可作額外退休儲備參考。";
+        "按 第6步 的目前假設，退休資產已可支持至預計壽命；本頁方案可作額外退休儲備參考。";
     }
 
 
@@ -10123,7 +10123,7 @@ function updateStep7Results() {
 
 
 /* =========================================
-   Step 7 Button Events
+   第7步 Button Events
 ========================================= */
 
 const addLumpSumBtn =
@@ -10591,7 +10591,7 @@ if (shareEmailBtn) {
 
 
 /* =========================================
-   初始 Step 7 UI
+   初始 第7步 UI
 ========================================= */
 
 renderLumpSumEntries();
@@ -10744,7 +10744,7 @@ createCashflowTable =
 
 
 /* =========================================
-   初始 Step 6 UI
+   初始 第6步 UI
 ========================================= */
 
 syncWithdrawalModeUI();
