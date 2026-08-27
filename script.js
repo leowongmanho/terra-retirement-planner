@@ -3289,7 +3289,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `只需要再準備 ${money(gap)}，便可享受更完善的退休生活。`
         : "目前退休資源已覆蓋規劃需要。",
       `MPF預計開始動用年齡：${getMpfAccessAge()}歲`,
-      `退休橋接期：${basic.retirementAge < getMpfAccessAge() ? `${basic.retirementAge}–${getMpfAccessAge()}歲` : "沒有"}`,
+      `退休過渡期：${basic.retirementAge < getMpfAccessAge() ? `${basic.retirementAge}–${getMpfAccessAge()}歲` : "沒有"}`,
       `半退休／過渡工作收入：${getSemiRetirementData().enabled ? `${money(getSemiRetirementData().income)}／月（${getSemiRetirementData().startAge}–${getSemiRetirementData().endAge}歲）` : "沒有"}`,
       "",
       "建議退休方案：",
@@ -7879,8 +7879,8 @@ updateGapResult =
     if (bridgeLabel) {
       bridgeLabel.textContent =
         simulation.retirementAge < simulation.mpfAccessAge
-          ? `${simulation.retirementAge}–${simulation.mpfAccessAge}歲｜退休橋接期`
-          : "沒有 MPF 橋接期";
+          ? `${simulation.retirementAge}–${simulation.mpfAccessAge}歲｜退休過渡期`
+          : "沒有 MPF 過渡期";
     }
 
     if (bridgeNeed) {
@@ -7899,7 +7899,7 @@ updateGapResult =
       bridgeExplanation.textContent =
         simulation.retirementAge < simulation.mpfAccessAge
           ? `由 ${simulation.retirementAge} 歲退休至 ${simulation.mpfAccessAge} 歲 MPF 預計開始動用前，生活費先由半退休收入、固定收入及其他可動用資產支援。`
-          : "退休年齡已達 MPF 預計開始動用年齡，沒有額外 MPF 橋接期。";
+          : "退休年齡已達 MPF 預計開始動用年齡，沒有額外 MPF 過渡期。";
     }
 
 
