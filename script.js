@@ -4533,6 +4533,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function getTodayLocalDate() {
+    const today = new Date();
+    return [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0")
+    ].join("-");
+  }
+
+  function createCaseId(prefix = "case") {
+    return prefix + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function getCurrentStoredCase() {
+    if (!currentCaseId) return null;
+    return readStoredCases().find(item => item.id === currentCaseId) || null;
+  }
+
+
   function getFormControlKey(
     el,
     index
@@ -4835,88 +4854,103 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  function saveCurrentCase() {
+  function saveCurrentCase(options = {}) {
 
-    const name =
-      getCurrentCaseName();
-
+    const name = getCurrentCaseName();
 
     if (!name) {
-
-      alert(
-        "請先輸入客戶姓名，再儲存個案。"
-      );
-
-      return;
+      alert("請先輸入客戶姓名，再儲存個案。");
+      return false;
     }
 
+    const cases = readStoredCases();
+    const currentRecord = currentCaseId
+      ? cases.find(item => item.id === currentCaseId)
+      : null;
 
-    const cases =
-      readStoredCases();
-
+    const id = currentRecord ? currentRecord.id : createCaseId("case");
+    const rootCaseId = currentRecord?.rootCaseId || currentRecord?.id || id;
 
     const payload = {
-      id:
-        currentCaseId ||
-        (
-          "case_" +
-          Date.now() +
-          "_" +
-          Math.random()
-            .toString(36)
-            .slice(2, 8)
-        ),
-
+      ...(currentRecord || {}),
+      id,
+      rootCaseId,
+      caseType: currentRecord?.caseType || "initial",
+      status: options.completed ? "completed" : (currentRecord?.status || "saved"),
       name,
-
-      planningDate:
-        document
-          .getElementById(
-            "planningDate"
-          )?.value || "",
-
-      savedAt:
-        new Date()
-          .toISOString(),
-
-      state:
-        capturePlannerState()
+      planningDate: document.getElementById("planningDate")?.value || "",
+      reviewDate: currentRecord?.reviewDate || "",
+      savedAt: new Date().toISOString(),
+      completedAt: options.completed ? new Date().toISOString() : (currentRecord?.completedAt || ""),
+      state: capturePlannerState()
     };
 
+    const existingIndex = cases.findIndex(item => item.id === payload.id);
+    if (existingIndex >= 0) cases[existingIndex] = payload;
+    else cases.unshift(payload);
 
-    const existingIndex =
-      cases.findIndex(
-        item =>
-          item.id ===
-          payload.id
-      );
+    writeStoredCases(cases);
+    currentCaseId = payload.id;
 
-
-    if (existingIndex >= 0) {
-
-      cases[existingIndex] =
-        payload;
-
-    } else {
-
-      cases.unshift(
-        payload
-      );
+    if (!options.silent) {
+      alert(options.completed
+        ? `「${name}」的退休規劃已完成並儲存。`
+        : `已儲存「${name}」個案。`);
     }
 
+    return true;
+  }
 
-    writeStoredCases(
-      cases
-    );
+  function saveCompletedCase() {
+    return saveCurrentCase({ completed: true, silent: false });
+  }
 
+  function saveReviewSnapshot() {
 
-    currentCaseId =
-      payload.id;
+    const name = getCurrentCaseName();
 
+    if (!name) {
+      alert("請先輸入客戶姓名。");
+      return false;
+    }
 
-    alert(
-      `已儲存「${name}」個案。`
-    );
+    const source = getCurrentStoredCase();
+
+    if (!source) {
+      alert("覆檢個案需要先載入客戶之前的個案，才可以建立新的覆檢紀錄。");
+      return false;
+    }
+
+    const cases = readStoredCases();
+    const rootCaseId = source.rootCaseId || source.id;
+    const reviewCount = cases.filter(
+      item => item.caseType === "review" &&
+      (item.rootCaseId || item.parentCaseId) === rootCaseId
+    ).length;
+
+    const reviewDate = getTodayLocalDate();
+
+    const payload = {
+      id: createCaseId("review"),
+      rootCaseId,
+      parentCaseId: source.id,
+      caseType: "review",
+      reviewNumber: reviewCount + 1,
+      status: "completed",
+      name,
+      planningDate: document.getElementById("planningDate")?.value || "",
+      reviewDate,
+      savedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      state: capturePlannerState()
+    };
+
+    cases.unshift(payload);
+    writeStoredCases(cases);
+    currentCaseId = payload.id;
+
+    alert(`已建立「${name}」第 ${payload.reviewNumber} 次覆檢紀錄（${formatDateHK(reviewDate)}）。舊個案已保留。`);
+    return true;
   }
 
 
@@ -5140,28 +5174,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div>
 
-                  <strong
-                    style="
-                      display:block;
-                      color:#122f57;
-                      font-size:14px;
-                    "
-                  >
-                    ${escapeHtml(item.name || "未命名個案")}
-                  </strong>
-
-                  <span
-                    style="
-                      display:block;
-                      margin-top:3px;
-                      color:#687386;
-                      font-size:9px;
-                    "
-                  >
+                  <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;">
+                    <strong style="display:block;color:#122f57;font-size:14px;">${escapeHtml(item.name || "未命名個案")}</strong>
+                    <span style="display:inline-block;padding:2px 7px;border-radius:999px;background:${item.caseType === "review" ? "#fff0f2" : "#fff9e8"};color:${item.caseType === "review" ? "#7f1020" : "#122f57"};border:1px solid ${item.caseType === "review" ? "#7f1020" : "#d7a922"};font-size:8px;font-weight:900;">
+                      ${item.caseType === "review" ? `第 ${item.reviewNumber || 1} 次覆檢` : "退休規劃"}
+                    </span>
+                  </div>
+                  <span style="display:block;margin-top:4px;color:#687386;font-size:9px;">
                     ${
-                      item.planningDate
-                        ? `規劃日期 ${formatDateHK(item.planningDate)} · `
-                        : ""
+                      item.caseType === "review" && item.reviewDate
+                        ? `覆檢日期 ${formatDateHK(item.reviewDate)} · `
+                        : (item.planningDate ? `規劃日期 ${formatDateHK(item.planningDate)} · ` : "")
                     }
                     最後儲存 ${escapeHtml(savedAt)}
                   </span>
@@ -5520,6 +5543,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "importCasesFile"
     );
 
+  const saveStep8CaseBtn = document.getElementById("saveStep8CaseBtn");
+  const reviewCaseBtn = document.getElementById("reviewCaseBtn");
+
 
   if (saveCaseBtn) {
 
@@ -5538,6 +5564,12 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  if (saveStep8CaseBtn) {
+    saveStep8CaseBtn.addEventListener("click", () => {
+      saveCurrentCase();
+    });
+  }
+
 
   if (newCaseBtn) {
 
@@ -5545,6 +5577,12 @@ document.addEventListener("DOMContentLoaded", () => {
       "click",
       startNewCase
     );
+  }
+
+  if (reviewCaseBtn) {
+    reviewCaseBtn.addEventListener("click", () => {
+      saveReviewSnapshot();
+    });
   }
 
 
@@ -5725,10 +5763,15 @@ document.addEventListener("DOMContentLoaded", () => {
       nextBtn.textContent =
         currentStep ===
         steps.length
-          ? "完成退休規劃"
+          ? "恭喜你！已完成退休規劃"
           : currentStep === 1
             ? "開始規劃"
             : "下一步";
+    }
+
+    if (reviewCaseBtn) {
+      reviewCaseBtn.hidden =
+        currentStep !== steps.length;
     }
 
 
@@ -5980,9 +6023,7 @@ if (
 
         } else {
 
-          alert(
-            "退休規劃已完成。"
-          );
+          saveCompletedCase();
         }
       }
     );
@@ -6891,7 +6932,7 @@ function syncWithdrawalModeUI() {
     ) {
 
       note.textContent =
-        "流動性優先：先使用銀行活期、定息及較低波動資產，做法直接易明，但會較早消耗流動安全墊。";
+        "流動性優先：先使用銀行活期、定息及較低波動資產。上方「現金安全網」只作應急儲備提醒，不會改變本策略的提款次序。";
 
     } else if (
       withdrawalMode ===
@@ -6899,12 +6940,12 @@ function syncWithdrawalModeUI() {
     ) {
 
       note.textContent =
-        "資產整理優先：較早處理股票、基金及需要較多管理的資產，目標是讓年紀較大時資產結構逐步簡化。";
+        "資產整理優先：較早處理股票、基金及需要較多管理的資產；銀行活期仍按本策略的既定次序處理。";
 
     } else {
 
       note.textContent =
-        "自訂次序：按 ↑ ↓ 自行設定提款先後，右邊結果會即時更新。";
+        "自訂次序：按 ↑ ↓ 自行設定提款先後。現金安全網只作提醒，不會自動改變你設定的銀行活期次序。";
     }
   }
 
@@ -7708,29 +7749,8 @@ function simulateRetirementSustainability(
               0
             );
 
-          let available =
+          const available =
             rawAvailable;
-
-          if (assetKey === "cash") {
-            const buffer = getCashBufferTarget();
-            const protectedCash = Math.max(rawAvailable - buffer, 0);
-            const otherAvailable = order
-              .filter(
-                key =>
-                  key !== "cash" &&
-                  !(key === "mpf" && age < getMpfAccessAge())
-              )
-              .reduce(
-                (total, key) =>
-                  total + Math.max(balances[key] || 0, 0),
-                0
-              );
-
-            available =
-              otherAvailable >= remainingNeed
-                ? protectedCash
-                : rawAvailable;
-          }
 
 
           if (
