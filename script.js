@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressBar =
     document.getElementById("progressBar");
 
+  const plannerMainTitle =
+    document.getElementById(
+      "plannerMainTitle"
+    );
+
   const lifestyleCards =
     document.querySelectorAll(".lifestyle-card");
 
@@ -5894,6 +5899,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    if (plannerMainTitle) {
+
+      plannerMainTitle.textContent =
+        currentStep === 9
+          ? "時間價值分析"
+          : "退休規劃";
+    }
+
+
     if (progressBar) {
 
       progressBar.style.width =
@@ -5935,14 +5949,20 @@ document.addEventListener("DOMContentLoaded", () => {
         steps.length;
 
 
-      reviewCaseBtn.hidden =
-        !isFinalStep;
+      if (isFinalStep) {
 
+        reviewCaseBtn.removeAttribute(
+          "hidden"
+        );
 
-      reviewCaseBtn.style.display =
-        isFinalStep
-          ? "block"
-          : "none";
+        reviewCaseBtn.style.display =
+          "block";
+
+      } else {
+
+        reviewCaseBtn.style.display =
+          "none";
+      }
     }
 
 
