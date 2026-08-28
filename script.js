@@ -4552,6 +4552,73 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
+  function showSaveSuccessModal(title, message) {
+
+    const modal =
+      document.getElementById(
+        "terraSaveSuccessModal"
+      );
+
+    const titleEl =
+      document.getElementById(
+        "terraSaveSuccessTitle"
+      );
+
+    const messageEl =
+      document.getElementById(
+        "terraSaveSuccessMessage"
+      );
+
+
+    if (!modal) {
+
+      alert(
+        message ||
+        title ||
+        "個案已成功儲存。"
+      );
+
+      return;
+    }
+
+
+    if (titleEl) {
+
+      titleEl.textContent =
+        title ||
+        "個案已成功儲存";
+    }
+
+
+    if (messageEl) {
+
+      messageEl.textContent =
+        message ||
+        "退休解決方案已保存於目前裝置。";
+    }
+
+
+    modal.hidden = false;
+    modal.style.display = "flex";
+  }
+
+
+  function closeSaveSuccessModal() {
+
+    const modal =
+      document.getElementById(
+        "terraSaveSuccessModal"
+      );
+
+
+    if (modal) {
+
+      modal.hidden = true;
+      modal.style.display = "none";
+    }
+  }
+
+
   function getFormControlKey(
     el,
     index
@@ -4902,7 +4969,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveCompletedCase() {
-    return saveCurrentCase({ completed: true, silent: false });
+
+    const saved =
+      saveCurrentCase({
+        completed: true,
+        silent: true
+      });
+
+
+    if (!saved) {
+      return false;
+    }
+
+
+    const name =
+      getCurrentCaseName();
+
+
+    showSaveSuccessModal(
+      "恭喜完成退休規劃",
+      `「${name}」的退休規劃已完成並儲存於目前裝置。`
+    );
+
+
+    return true;
   }
 
   function saveReviewSnapshot() {
@@ -4949,7 +5039,11 @@ document.addEventListener("DOMContentLoaded", () => {
     writeStoredCases(cases);
     currentCaseId = payload.id;
 
-    alert(`已建立「${name}」第 ${payload.reviewNumber} 次覆檢紀錄（${formatDateHK(reviewDate)}）。舊個案已保留。`);
+    showSaveSuccessModal(
+      "覆檢個案已另存",
+      `「${name}」第 ${payload.reviewNumber} 次覆檢已儲存（${formatDateHK(reviewDate)}）。舊個案已保留。`
+    );
+
     return true;
   }
 
@@ -5546,6 +5640,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveStep8CaseBtn = document.getElementById("saveStep8CaseBtn");
   const reviewCaseBtn = document.getElementById("reviewCaseBtn");
 
+  const saveSuccessModal =
+    document.getElementById(
+      "terraSaveSuccessModal"
+    );
+
+  const saveSuccessOkBtn =
+    document.getElementById(
+      "terraSaveSuccessOkBtn"
+    );
+
 
   if (saveCaseBtn) {
 
@@ -5565,9 +5669,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (saveStep8CaseBtn) {
-    saveStep8CaseBtn.addEventListener("click", () => {
-      saveCurrentCase();
-    });
+
+    saveStep8CaseBtn.addEventListener(
+      "click",
+      () => {
+
+        const saved =
+          saveCurrentCase({
+            silent: true
+          });
+
+
+        if (!saved) {
+          return;
+        }
+
+
+        const name =
+          getCurrentCaseName();
+
+
+        showSaveSuccessModal(
+          "個案已成功儲存",
+          `「${name}」的退休解決方案已保存於目前裝置。`
+        );
+      }
+    );
   }
 
 
@@ -5580,9 +5707,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (reviewCaseBtn) {
-    reviewCaseBtn.addEventListener("click", () => {
-      saveReviewSnapshot();
-    });
+
+    reviewCaseBtn.addEventListener(
+      "click",
+      () => {
+        saveReviewSnapshot();
+      }
+    );
+  }
+
+
+  if (saveSuccessOkBtn) {
+
+    saveSuccessOkBtn.addEventListener(
+      "click",
+      closeSaveSuccessModal
+    );
+  }
+
+
+  if (saveSuccessModal) {
+
+    saveSuccessModal.addEventListener(
+      "click",
+      event => {
+
+        if (
+          event.target ===
+          saveSuccessModal
+        ) {
+
+          closeSaveSuccessModal();
+        }
+      }
+    );
   }
 
 
@@ -5763,15 +5921,28 @@ document.addEventListener("DOMContentLoaded", () => {
       nextBtn.textContent =
         currentStep ===
         steps.length
-          ? "恭喜你！已完成退休規劃"
+          ? "恭喜完成退休規劃"
           : currentStep === 1
             ? "開始規劃"
             : "下一步";
     }
 
+
     if (reviewCaseBtn) {
+
+      const isFinalStep =
+        currentStep ===
+        steps.length;
+
+
       reviewCaseBtn.hidden =
-        currentStep !== steps.length;
+        !isFinalStep;
+
+
+      reviewCaseBtn.style.display =
+        isFinalStep
+          ? "block"
+          : "none";
     }
 
 
